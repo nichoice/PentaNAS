@@ -2,11 +2,7 @@
 
 <div align="center">
 
-[![Python Version](https://img.shields.io/badge/Python-3.13%2B-blue.svg)](https://python.org)
-
-[![Apache License](https://img.shields.io/badge/License-Apache2.0-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
-
-[![Package Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://gitee.com/nichoice02/pentanas)
+[![Python Version](https://img.shields.io/badge/Python-3.13%2B-blue.svg)](https://python.org)[![Apache License](https://img.shields.io/badge/License-Apache2.0-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)[![Package Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://gitee.com/nichoice02/pentanas)
 
 
 [📖 安装指南](#installation) · [🚀 功能清单](#quickstart) 
