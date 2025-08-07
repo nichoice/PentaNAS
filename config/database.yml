@@ -1,0 +1,33 @@
+database:
+  # 开发/测试环境配置
+  development:
+    driver: "sqlite"
+    dsn: "data/app.db"
+    max_idle_conns: 10
+    max_open_conns: 100
+    conn_max_lifetime: 3600  # 秒
+    log_level: "info"        # silent, error, warn, info
+    
+  # 生产环境配置
+  production:
+    driver: "postgres"
+    host: "localhost"
+    port: 5432
+    user: "pnas_user"
+    password: "pnas_password"
+    dbname: "pnas_db"
+    sslmode: "disable"
+    timezone: "Asia/Shanghai"
+    max_idle_conns: 20
+    max_open_conns: 200
+    conn_max_lifetime: 7200  # 秒
+    log_level: "warn"        # silent, error, warn, info
+    
+  # 测试环境配置
+  test:
+    driver: "sqlite"
+    dsn: ":memory:"          # 内存数据库，用于测试
+    max_idle_conns: 5
+    max_open_conns: 10
+    conn_max_lifetime: 1800
+    log_level: "silent"

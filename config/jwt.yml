@@ -1,0 +1,5 @@
+jwt:
+  secret_key: "pnas_jwt_secret_key_2025"  # 生产环境请使用更复杂的密钥
+  expires_hours: 24                       # Token过期时间（小时）
+  issuer: "pnas"                         # 签发者
+  refresh_expires_hours: 168             # 刷新Token过期时间（7天）

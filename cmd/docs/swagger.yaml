@@ -1,9 +1,363 @@
 basePath: /
 definitions:
+  models.UserStatus:
+    enum:
+    - 0
+    - 1
+    - 2
+    type: integer
+    x-enum-comments:
+      UserStatusActive: 正常
+      UserStatusDisabled: 禁用
+      UserStatusLocked: 锁定
+    x-enum-descriptions:
+    - 禁用
+    - 正常
+    - 锁定
+    x-enum-varnames:
+    - UserStatusDisabled
+    - UserStatusActive
+    - UserStatusLocked
+  models.UserType:
+    enum:
+    - 1
+    - 2
+    - 3
+    - 4
+    type: integer
+    x-enum-comments:
+      UserTypeAudit: 审计管理员
+      UserTypeNormal: 普通用户
+      UserTypeSecurity: 安全管理员
+      UserTypeSystem: 系统管理员
+    x-enum-descriptions:
+    - 系统管理员
+    - 安全管理员
+    - 审计管理员
+    - 普通用户
+    x-enum-varnames:
+    - UserTypeSystem
+    - UserTypeSecurity
+    - UserTypeAudit
+    - UserTypeNormal
+  v1.CommonResponse:
+    properties:
+      code:
+        example: 200
+        type: integer
+      data: {}
+      message:
+        example: 操作成功
+        type: string
+    type: object
+  v1.CreateUserGroupRequest:
+    properties:
+      description:
+        example: 开发人员用户组
+        maxLength: 200
+        type: string
+      name:
+        example: 开发组
+        maxLength: 50
+        minLength: 2
+        type: string
+    required:
+    - name
+    type: object
+  v1.CreateUserRequest:
+    properties:
+      group_id:
+        example: 1
+        type: integer
+      password:
+        example: password123
+        minLength: 6
+        type: string
+      user_type:
+        allOf:
+        - $ref: '#/definitions/models.UserType'
+        example: 4
+        maximum: 4
+        minimum: 1
+      username:
+        example: testuser
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - group_id
+    - password
+    - user_type
+    - username
+    type: object
+  v1.ErrorResponse:
+    properties:
+      code:
+        example: 400
+        type: integer
+      error:
+        example: validation failed
+        type: string
+      message:
+        example: 请求参数错误
+        type: string
+    type: object
+  v1.LoginData:
+    properties:
+      expires_at:
+        example: "2025-08-08T23:59:59Z"
+        type: string
+      token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+      user:
+        $ref: '#/definitions/v1.UserInfo'
+    type: object
+  v1.LoginRequest:
+    properties:
+      password:
+        example: password123
+        type: string
+      username:
+        example: sysadmin
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  v1.LoginResponse:
+    properties:
+      data:
+        $ref: '#/definitions/v1.LoginData'
+      message:
+        example: 登录成功
+        type: string
+      status:
+        example: success
+        type: string
+    type: object
+  v1.LogoutResponse:
+    properties:
+      message:
+        example: 登出成功
+        type: string
+      status:
+        example: success
+        type: string
+    type: object
   v1.PingResponse:
     properties:
       message:
         example: pong
+        type: string
+    type: object
+  v1.RefreshTokenData:
+    properties:
+      expires_at:
+        example: "2025-08-08T23:59:59Z"
+        type: string
+      token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+    type: object
+  v1.RefreshTokenRequest:
+    properties:
+      token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+    required:
+    - token
+    type: object
+  v1.RefreshTokenResponse:
+    properties:
+      data:
+        $ref: '#/definitions/v1.RefreshTokenData'
+      message:
+        example: Token刷新成功
+        type: string
+      status:
+        example: success
+        type: string
+    type: object
+  v1.UpdateUserGroupRequest:
+    properties:
+      description:
+        example: 开发人员用户组
+        maxLength: 200
+        type: string
+      name:
+        example: 开发组
+        maxLength: 50
+        minLength: 2
+        type: string
+      status:
+        example: 1
+        maximum: 1
+        minimum: 0
+        type: integer
+    type: object
+  v1.UpdateUserRequest:
+    properties:
+      group_id:
+        example: 1
+        type: integer
+      password:
+        example: newpassword123
+        minLength: 6
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/models.UserStatus'
+        example: 1
+        maximum: 2
+        minimum: 0
+      user_type:
+        allOf:
+        - $ref: '#/definitions/models.UserType'
+        example: 4
+        maximum: 4
+        minimum: 1
+      username:
+        example: testuser
+        maxLength: 50
+        minLength: 3
+        type: string
+    type: object
+  v1.UserGroupInfo:
+    properties:
+      description:
+        example: 负责系统配置、用户管理、系统维护
+        type: string
+      id:
+        example: 1
+        type: integer
+      name:
+        example: 系统管理员组
+        type: string
+    type: object
+  v1.UserGroupListResponse:
+    properties:
+      groups:
+        items:
+          $ref: '#/definitions/v1.UserGroupResponse'
+        type: array
+      page:
+        example: 1
+        type: integer
+      size:
+        example: 10
+        type: integer
+      total:
+        example: 10
+        type: integer
+    type: object
+  v1.UserGroupResponse:
+    properties:
+      created_at:
+        example: "2025-08-07T15:30:00Z"
+        type: string
+      description:
+        example: 负责系统配置、用户管理、系统维护等工作
+        type: string
+      id:
+        example: 1
+        type: integer
+      name:
+        example: 系统管理员组
+        type: string
+      status:
+        example: 1
+        type: integer
+      updated_at:
+        example: "2025-08-07T15:30:00Z"
+        type: string
+    type: object
+  v1.UserGroupWithUsersResponse:
+    properties:
+      created_at:
+        example: "2025-08-07T15:30:00Z"
+        type: string
+      description:
+        example: 负责系统配置、用户管理、系统维护等工作
+        type: string
+      id:
+        example: 1
+        type: integer
+      name:
+        example: 系统管理员组
+        type: string
+      status:
+        example: 1
+        type: integer
+      updated_at:
+        example: "2025-08-07T15:30:00Z"
+        type: string
+      users:
+        items:
+          $ref: '#/definitions/v1.UserResponse'
+        type: array
+    type: object
+  v1.UserInfo:
+    properties:
+      group:
+        $ref: '#/definitions/v1.UserGroupInfo'
+      id:
+        example: 1
+        type: integer
+      status:
+        allOf:
+        - $ref: '#/definitions/models.UserStatus'
+        example: 1
+      user_type:
+        allOf:
+        - $ref: '#/definitions/models.UserType'
+        example: 1
+      username:
+        example: sysadmin
+        type: string
+    type: object
+  v1.UserListResponse:
+    properties:
+      page:
+        example: 1
+        type: integer
+      size:
+        example: 10
+        type: integer
+      total:
+        example: 100
+        type: integer
+      users:
+        items:
+          $ref: '#/definitions/v1.UserResponse'
+        type: array
+    type: object
+  v1.UserResponse:
+    properties:
+      created_at:
+        example: "2025-08-07T15:30:00Z"
+        type: string
+      group:
+        $ref: '#/definitions/v1.UserGroupResponse'
+      group_id:
+        example: 1
+        type: integer
+      id:
+        example: 1
+        type: integer
+      status:
+        allOf:
+        - $ref: '#/definitions/models.UserStatus'
+        example: 1
+      updated_at:
+        example: "2025-08-07T15:30:00Z"
+        type: string
+      user_type:
+        allOf:
+        - $ref: '#/definitions/models.UserType'
+        example: 4
+      username:
+        example: testuser
         type: string
     type: object
 host: localhost:8080
@@ -13,6 +367,477 @@ info:
   title: PNAS API
   version: "1.0"
 paths:
+  /api/v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: 用户登录获取JWT Token
+      parameters:
+      - description: 登录请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/v1.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 登录成功
+          schema:
+            $ref: '#/definitions/v1.LoginResponse'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+        "401":
+          description: 用户名或密码错误
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+      summary: 用户登录
+      tags:
+      - 认证
+  /api/v1/auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: 用户登出（使Token失效）
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 登出成功
+          schema:
+            $ref: '#/definitions/v1.LogoutResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: 用户登出
+      tags:
+      - 认证
+  /api/v1/auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: 使用现有Token获取新的Token
+      parameters:
+      - description: 刷新Token请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/v1.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Token刷新成功
+          schema:
+            $ref: '#/definitions/v1.RefreshTokenResponse'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+        "401":
+          description: 无效的Token
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+      summary: 刷新Token
+      tags:
+      - 认证
+  /api/v1/user-groups:
+    get:
+      consumes:
+      - application/json
+      description: 分页获取用户组列表
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.CommonResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/v1.UserGroupListResponse'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+      summary: 获取用户组列表
+      tags:
+      - 用户组管理
+    post:
+      consumes:
+      - application/json
+      description: 创建新用户组
+      parameters:
+      - description: 用户组信息
+        in: body
+        name: group
+        required: true
+        schema:
+          $ref: '#/definitions/v1.CreateUserGroupRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.CommonResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/v1.UserGroupResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+      summary: 创建用户组
+      tags:
+      - 用户组管理
+  /api/v1/user-groups/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 软删除用户组
+      parameters:
+      - description: 用户组ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.CommonResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+      summary: 删除用户组
+      tags:
+      - 用户组管理
+    get:
+      consumes:
+      - application/json
+      description: 根据用户组ID获取用户组详细信息
+      parameters:
+      - description: 用户组ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.CommonResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/v1.UserGroupResponse'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+      summary: 获取用户组详情
+      tags:
+      - 用户组管理
+    put:
+      consumes:
+      - application/json
+      description: 更新用户组信息
+      parameters:
+      - description: 用户组ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 更新的用户组信息
+        in: body
+        name: group
+        required: true
+        schema:
+          $ref: '#/definitions/v1.UpdateUserGroupRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.CommonResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/v1.UserGroupResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+      summary: 更新用户组
+      tags:
+      - 用户组管理
+  /api/v1/user-groups/{id}/users:
+    get:
+      consumes:
+      - application/json
+      description: 根据用户组ID获取用户组详细信息及其包含的用户列表
+      parameters:
+      - description: 用户组ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.CommonResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/v1.UserGroupWithUsersResponse'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+      summary: 获取用户组及其用户列表
+      tags:
+      - 用户组管理
+  /api/v1/users:
+    get:
+      consumes:
+      - application/json
+      description: 分页获取用户列表
+      parameters:
+      - default: 1
+        description: 页码
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: size
+        type: integer
+      - description: 用户类型筛选
+        in: query
+        name: user_type
+        type: integer
+      - description: 用户组ID筛选
+        in: query
+        name: group_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.CommonResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/v1.UserListResponse'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+      summary: 获取用户列表
+      tags:
+      - 用户管理
+    post:
+      consumes:
+      - application/json
+      description: 创建新用户
+      parameters:
+      - description: 用户信息
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/v1.CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.CommonResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/v1.UserResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+      summary: 创建用户
+      tags:
+      - 用户管理
+  /api/v1/users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 软删除用户
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.CommonResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+      summary: 删除用户
+      tags:
+      - 用户管理
+    get:
+      consumes:
+      - application/json
+      description: 根据用户ID获取用户详细信息
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.CommonResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/v1.UserResponse'
+              type: object
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+      summary: 获取用户详情
+      tags:
+      - 用户管理
+    put:
+      consumes:
+      - application/json
+      description: 更新用户信息
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 更新的用户信息
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/v1.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/v1.CommonResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/v1.UserResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/v1.ErrorResponse'
+      summary: 更新用户
+      tags:
+      - 用户管理
   /ping:
     get:
       consumes:

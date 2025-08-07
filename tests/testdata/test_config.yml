@@ -1,0 +1,37 @@
+# 测试配置文件
+database:
+  test:
+    driver: "sqlite"
+    dsn: ":memory:"
+    max_idle_conns: 5
+    max_open_conns: 10
+    conn_max_lifetime: 300
+    log_level: "silent"
+
+logger:
+  level: "error"
+  encoding: "console"
+  output_paths:
+    - "stdout"
+  error_output_paths:
+    - "stderr"
+  encoder_config:
+    time_key: "time"
+    level_key: "level"
+    name_key: "logger"
+    caller_key: "caller"
+    message_key: "msg"
+    stacktrace_key: "stacktrace"
+    line_ending: ""
+    level_encoder: "capital"
+    time_encoder: "iso8601"
+    duration_encoder: "string"
+    caller_encoder: "short"
+    name_encoder: "full"
+    console_separator: " | "
+  sampling:
+    initial: 100
+    thereafter: 100
+  development: false
+  disable_caller: false
+  disable_stacktrace: false

@@ -3,17 +3,21 @@ package controllers
 import (
 	"net/http"
 	"pnas/api/v1"
+	"pnas/internal/models"
+	"pnas/internal/repositories"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
 type HealthController struct {
-	logger *zap.Logger
+	logger              *zap.Logger
+	healthCheckRepo     repositories.HealthCheckRepository
 }
 
-func NewHealthController(logger *zap.Logger) *HealthController {
+func NewHealthController(logger *zap.Logger, healthCheckRepo repositories.HealthCheckRepository) *HealthController {
 	return &HealthController{
-		logger: logger,
+		logger:          logger,
+		healthCheckRepo: healthCheckRepo,
 	}
 }
 
@@ -32,16 +36,31 @@ func (h *HealthController) Ping(c *gin.Context) {
 		zap.String("method", c.Request.Method),
 	)
 	
+	clientIP := c.ClientIP()
+	userAgent := c.GetHeader("User-Agent")
+	
 	h.logger.Info("健康检查请求", 
-		zap.String("client_ip", c.ClientIP()),
-		zap.String("user_agent", c.GetHeader("User-Agent")),
+		zap.String("client_ip", clientIP),
+		zap.String("user_agent", userAgent),
 	)
 	
 	// 模拟一个警告日志
-	if c.GetHeader("User-Agent") == "" {
+	if userAgent == "" {
 		h.logger.Warn("客户端未提供 User-Agent 头", 
-			zap.String("client_ip", c.ClientIP()),
+			zap.String("client_ip", clientIP),
 		)
+	}
+	
+	// 记录健康检查到数据库
+	healthCheck := &models.HealthCheck{
+		ClientIP:  clientIP,
+		UserAgent: userAgent,
+		Status:    "success",
+	}
+	
+	if err := h.healthCheckRepo.Create(healthCheck); err != nil {
+		h.logger.Error("保存健康检查记录失败", zap.Error(err))
+		// 即使数据库记录失败，也不影响健康检查响应
 	}
 	
 	response := v1.PingResponse{
