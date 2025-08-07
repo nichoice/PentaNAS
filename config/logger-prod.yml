@@ -1,0 +1,25 @@
+logger:
+  level: "info"           # 生产环境使用 info 级别
+  encoding: "json"        # JSON 格式便于日志收集和分析
+  output_paths:           # 输出路径
+    - "logs/app.log"      # 输出到文件
+  error_output_paths:     # 错误输出路径
+    - "logs/error.log"
+  development: false      # 生产模式
+  disable_caller: true    # 生产环境禁用调用者信息以提高性能
+  disable_stacktrace: true # 生产环境禁用堆栈跟踪
+  sampling:               # 采样配置，减少日志量
+    initial: 100
+    thereafter: 100
+  encoder_config:         # 编码器配置
+    time_key: "timestamp"
+    level_key: "level"
+    name_key: "logger"
+    caller_key: "caller"
+    message_key: "message"
+    stacktrace_key: "stacktrace"
+    line_ending: ""
+    level_encoder: "lowercase"    # 生产环境使用小写
+    time_encoder: "iso8601"       # ISO8601 时间格式
+    duration_encoder: "seconds"   # 持续时间格式
+    caller_encoder: "short"       # 调用者格式

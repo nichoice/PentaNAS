@@ -1,0 +1,25 @@
+logger:
+  level: "debug"          # 开发环境使用 debug 级别
+  encoding: "console"     # console 格式支持彩色输出
+  output_paths:           # 输出路径
+    - "stdout"            # 只输出到控制台，便于开发调试
+  error_output_paths:     # 错误输出路径
+    - "stderr"
+  development: true       # 开发模式
+  disable_caller: false   # 显示调用者信息
+  disable_stacktrace: false # 显示堆栈跟踪
+  sampling:               # 采样配置
+    initial: 100
+    thereafter: 100
+  encoder_config:         # 编码器配置
+    time_key: "T"
+    level_key: "L"
+    name_key: "N"
+    caller_key: "C"
+    message_key: "M"
+    stacktrace_key: "S"
+    line_ending: ""
+    level_encoder: "color"        # 启用彩色日志等级
+    time_encoder: "iso8601"       # 时间格式
+    duration_encoder: "seconds"   # 持续时间格式
+    caller_encoder: "short"       # 调用者格式
