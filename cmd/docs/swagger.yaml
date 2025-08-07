@@ -1,0 +1,31 @@
+basePath: /
+definitions:
+  v1.PingResponse:
+    properties:
+      message:
+        example: pong
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: PNAS 项目 API 文档
+  title: PNAS API
+  version: "1.0"
+paths:
+  /ping:
+    get:
+      consumes:
+      - application/json
+      description: 检查服务是否正常运行
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.PingResponse'
+      summary: 健康检查
+      tags:
+      - 健康检查
+swagger: "2.0"
