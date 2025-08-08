@@ -5,6 +5,7 @@ import (
 	"os"
 	"pnas/internal/config"
 	"pnas/internal/database"
+	"pnas/internal/i18n"
 	"pnas/internal/repositories"
 	"pnas/internal/routes"
 	"pnas/internal/services"
@@ -69,6 +70,14 @@ func main() {
 		}
 	}
 
+	// 初始化国际化系统
+	i18nManager := i18n.NewI18n(i18n.LocaleZhCN, logger)
+	if err := i18nManager.LoadMessages("locales"); err != nil {
+		logger.Warn("⚠️ 国际化文件加载失败", zap.Error(err))
+	} else {
+		logger.Debug("🌐 国际化系统初始化完成")
+	}
+
 	// 加载JWT配置
 	jwtConfig, err := config.LoadJWTConfig("config/jwt.yml")
 	if err != nil {
@@ -91,8 +100,8 @@ func main() {
 	// 创建 Gin 引擎（不使用默认中间件）
 	r := gin.New()
 	
-	// 设置路由（包含日志中间件、数据库依赖和认证服务）
-	routes.SetupRoutes(r, logger, healthCheckRepo, userRepo, userGroupRepo, authService)
+	// 设置路由（包含日志中间件、数据库依赖、认证服务和国际化）
+	routes.SetupRoutes(r, logger, healthCheckRepo, userRepo, userGroupRepo, authService, i18nManager)
 
 	logger.Info("✅ 服务启动成功", 
 		zap.String("address", ":8080"),

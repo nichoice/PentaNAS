@@ -2,8 +2,10 @@ package routes
 
 import (
 	"pnas/internal/controllers"
+	"pnas/internal/i18n"
 	"pnas/internal/middlewares"
 	"pnas/internal/repositories"
+	"pnas/internal/response"
 	"pnas/internal/services"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -11,10 +13,11 @@ import (
 	"go.uber.org/zap"
 )
 
-func SetupRoutes(r *gin.Engine, logger *zap.Logger, healthCheckRepo repositories.HealthCheckRepository, userRepo repositories.UserRepository, userGroupRepo repositories.UserGroupRepository, authService *services.AuthService) {
-	// 添加日志中间件
+func SetupRoutes(r *gin.Engine, logger *zap.Logger, healthCheckRepo repositories.HealthCheckRepository, userRepo repositories.UserRepository, userGroupRepo repositories.UserGroupRepository, authService *services.AuthService, i18nManager *i18n.I18n) {
+	// 添加全局中间件
 	r.Use(middlewares.ZapLogger(logger))
 	r.Use(middlewares.Recovery(logger))
+	r.Use(middlewares.I18nMiddleware(i18nManager))
 	
 	// 初始化控制器
 	healthController := controllers.NewHealthController(logger, healthCheckRepo)
@@ -44,6 +47,11 @@ func SetupRoutes(r *gin.Engine, logger *zap.Logger, healthCheckRepo repositories
 		{
 			health.GET("/ping", healthController.Ping)
 		}
+		
+		// 语言信息路由（不需要认证）
+		v1.GET("/language", func(c *gin.Context) {
+			response.Success(c, response.GetLanguageInfo(c))
+		})
 		
 		// 需要认证的路由组
 		authenticated := v1.Group("/")

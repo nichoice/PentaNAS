@@ -8,6 +8,7 @@ import (
 	"pnas/api/v1"
 	"pnas/internal/models"
 	"pnas/internal/repositories"
+	"pnas/internal/response"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -34,39 +35,29 @@ func NewUserController(logger *zap.Logger, userRepo repositories.UserRepository,
 // @Accept json
 // @Produce json
 // @Param user body v1.CreateUserRequest true "用户信息"
-// @Success 201 {object} v1.CommonResponse{data=v1.UserResponse}
-// @Failure 400 {object} v1.ErrorResponse
-// @Failure 500 {object} v1.ErrorResponse
+// @Success 201 {object} response.BaseResponse{data=v1.UserResponse}
+// @Failure 400 {object} response.BaseResponse
+// @Failure 500 {object} response.BaseResponse
 // @Router /api/v1/users [post]
 func (c *UserController) CreateUser(ctx *gin.Context) {
 	var req v1.CreateUserRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		c.logger.Error("创建用户参数绑定失败", zap.Error(err))
-		ctx.JSON(http.StatusBadRequest, v1.ErrorResponse{
-			Code:    http.StatusBadRequest,
-			Message: "请求参数错误",
-			Error:   err.Error(),
-		})
+		response.ValidationError(ctx, err)
 		return
 	}
 
 	// 检查用户名是否已存在
 	if existingUser, _ := c.userRepo.GetByUsername(req.Username); existingUser != nil {
 		c.logger.Warn("用户名已存在", zap.String("username", req.Username))
-		ctx.JSON(http.StatusBadRequest, v1.ErrorResponse{
-			Code:    http.StatusBadRequest,
-			Message: "用户名已存在",
-		})
+		response.BadRequest(ctx, "user.username.exists", nil)
 		return
 	}
 
 	// 检查用户组是否存在
 	if _, err := c.userGroupRepo.GetByID(req.GroupID); err != nil {
 		c.logger.Error("用户组不存在", zap.Uint("group_id", req.GroupID), zap.Error(err))
-		ctx.JSON(http.StatusBadRequest, v1.ErrorResponse{
-			Code:    http.StatusBadRequest,
-			Message: "指定的用户组不存在",
-		})
+		response.BadRequest(ctx, "user_group.not_found", err)
 		return
 	}
 
@@ -81,11 +72,7 @@ func (c *UserController) CreateUser(ctx *gin.Context) {
 
 	if err := c.userRepo.Create(user); err != nil {
 		c.logger.Error("创建用户失败", zap.Error(err))
-		ctx.JSON(http.StatusInternalServerError, v1.ErrorResponse{
-			Code:    http.StatusInternalServerError,
-			Message: "创建用户失败",
-			Error:   err.Error(),
-		})
+		response.InternalServerError(ctx, "user.create.failed", err)
 		return
 	}
 
@@ -93,21 +80,14 @@ func (c *UserController) CreateUser(ctx *gin.Context) {
 	createdUser, err := c.userRepo.GetByID(user.ID)
 	if err != nil {
 		c.logger.Error("获取创建的用户信息失败", zap.Error(err))
-		ctx.JSON(http.StatusInternalServerError, v1.ErrorResponse{
-			Code:    http.StatusInternalServerError,
-			Message: "获取用户信息失败",
-		})
+		response.InternalServerError(ctx, "server.database_error", err)
 		return
 	}
 
-	response := c.convertToUserResponse(createdUser)
+	responseData := c.convertToUserResponse(createdUser)
 	c.logger.Info("用户创建成功", zap.String("username", user.Username), zap.Uint("user_id", user.ID))
 
-	ctx.JSON(http.StatusCreated, v1.CommonResponse{
-		Code:    http.StatusCreated,
-		Message: "用户创建成功",
-		Data:    response,
-	})
+	response.SuccessWithMessage(ctx, "user.create.success", responseData)
 }
 
 // GetUser 获取用户详情

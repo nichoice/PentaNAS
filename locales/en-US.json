@@ -1,0 +1,58 @@
+{
+  "success": "Success",
+  "error": "Error",
+  "failed": "Failed",
+  
+  "auth.login.success": "Login successful",
+  "auth.login.failed": "Login failed",
+  "auth.login.invalid_credentials": "Invalid username or password",
+  "auth.login.account_disabled": "User account has been disabled or locked",
+  "auth.login.normal_user_not_allowed": "Normal users are not allowed to login to the system",
+  "auth.logout.success": "Logout successful",
+  "auth.token.refresh.success": "Token refresh successful",
+  "auth.token.invalid": "Invalid token",
+  "auth.token.expired": "Token has expired",
+  "auth.token.not_refresh_time": "Token is not yet ready for refresh",
+  
+  "user.create.success": "User created successfully",
+  "user.create.failed": "Failed to create user",
+  "user.update.success": "User updated successfully",
+  "user.update.failed": "Failed to update user",
+  "user.delete.success": "User deleted successfully",
+  "user.delete.failed": "Failed to delete user",
+  "user.not_found": "User not found",
+  "user.list.success": "User list retrieved successfully",
+  "user.username.exists": "Username already exists",
+  "user.get.success": "User information retrieved successfully",
+  
+  "user_group.create.success": "User group created successfully",
+  "user_group.create.failed": "Failed to create user group",
+  "user_group.update.success": "User group updated successfully",
+  "user_group.update.failed": "Failed to update user group",
+  "user_group.delete.success": "User group deleted successfully",
+  "user_group.delete.failed": "Failed to delete user group",
+  "user_group.not_found": "User group not found",
+  "user_group.list.success": "User group list retrieved successfully",
+  
+  "health.check.success": "Health check successful",
+  "health.stats.success": "Health statistics retrieved successfully",
+  
+  "validation.required": "This field is required",
+  "validation.invalid_format": "Invalid format",
+  "validation.min_length": "Length cannot be less than %d characters",
+  "validation.max_length": "Length cannot exceed %d characters",
+  "validation.invalid_email": "Invalid email format",
+  "validation.invalid_phone": "Invalid phone number format",
+  
+  "request.invalid_params": "Invalid request parameters",
+  "request.method_not_allowed": "Request method not allowed",
+  "request.not_found": "Requested resource not found",
+  
+  "server.internal_error": "Internal server error",
+  "server.database_error": "Database operation failed",
+  "server.service_unavailable": "Service temporarily unavailable",
+  
+  "permission.denied": "Permission denied",
+  "permission.admin_required": "Administrator permission required",
+  "permission.owner_required": "Only the owner can perform this operation"
+}

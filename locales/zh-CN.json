@@ -1,0 +1,58 @@
+{
+  "success": "成功",
+  "error": "错误",
+  "failed": "失败",
+  
+  "auth.login.success": "登录成功",
+  "auth.login.failed": "登录失败",
+  "auth.login.invalid_credentials": "用户名或密码错误",
+  "auth.login.account_disabled": "用户账户已被禁用或锁定",
+  "auth.login.normal_user_not_allowed": "普通用户不允许登录系统",
+  "auth.logout.success": "登出成功",
+  "auth.token.refresh.success": "Token刷新成功",
+  "auth.token.invalid": "无效的Token",
+  "auth.token.expired": "Token已过期",
+  "auth.token.not_refresh_time": "Token尚未到刷新时间",
+  
+  "user.create.success": "用户创建成功",
+  "user.create.failed": "用户创建失败",
+  "user.update.success": "用户更新成功",
+  "user.update.failed": "用户更新失败",
+  "user.delete.success": "用户删除成功",
+  "user.delete.failed": "用户删除失败",
+  "user.not_found": "用户不存在",
+  "user.list.success": "用户列表获取成功",
+  "user.username.exists": "用户名已存在",
+  "user.get.success": "获取用户信息成功",
+  
+  "user_group.create.success": "用户组创建成功",
+  "user_group.create.failed": "用户组创建失败",
+  "user_group.update.success": "用户组更新成功",
+  "user_group.update.failed": "用户组更新失败",
+  "user_group.delete.success": "用户组删除成功",
+  "user_group.delete.failed": "用户组删除失败",
+  "user_group.not_found": "用户组不存在",
+  "user_group.list.success": "用户组列表获取成功",
+  
+  "health.check.success": "健康检查成功",
+  "health.stats.success": "健康统计获取成功",
+  
+  "validation.required": "此字段为必填项",
+  "validation.invalid_format": "格式不正确",
+  "validation.min_length": "长度不能少于%d个字符",
+  "validation.max_length": "长度不能超过%d个字符",
+  "validation.invalid_email": "邮箱格式不正确",
+  "validation.invalid_phone": "手机号格式不正确",
+  
+  "request.invalid_params": "请求参数错误",
+  "request.method_not_allowed": "请求方法不允许",
+  "request.not_found": "请求的资源不存在",
+  
+  "server.internal_error": "服务器内部错误",
+  "server.database_error": "数据库操作失败",
+  "server.service_unavailable": "服务暂时不可用",
+  
+  "permission.denied": "权限不足",
+  "permission.admin_required": "需要管理员权限",
+  "permission.owner_required": "只有所有者可以执行此操作"
+}
