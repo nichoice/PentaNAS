@@ -1,0 +1,13 @@
+server:
+  title: "HarborArk Open Source NAS System"
+  description: "A powerful and flexible NAS system built with Go"
+  port: "8080"
+  debug: true
+  version: "0.0.1"
+
+database:
+  path: "pnas.db"
+
+jwt:
+  secret: "pnas-secret-key"
+  expire: 24

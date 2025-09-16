@@ -1,11 +1,11 @@
-# PentaNAS - 致力于安全、高效、私有的网络存储，构建和打造属于你的理想NAS
+# PNAS - 致力于安全、高效、私有的网络存储，构建和打造属于你的理想NAS
 
 <div align="center">
 
-[![Python Version](https://img.shields.io/badge/Python-3.13%2B-blue.svg)](https://python.org) [![Apache License](https://img.shields.io/badge/License-Apache2.0-green.svg)](https://www.apache.org/licenses/LICENSE-2.0) [![Package Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://gitee.com/nichoice02/pentanas)
+[![Go Version](https://img.shields.io/badge/Go-1.25-blue.svg)](https://golang.google.cn) [![Apache License](https://img.shields.io/badge/License-Apache2.0-green.svg)](https://www.apache.org/licenses/LICENSE-2.0) [![Package Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://gitee.com/nichoice02/pentanas)
 
 
-[📖 安装指南](#installation) · [🚀 功能清单](#quickstart) 
+[📖 安装指南](#installation) · [🚀 功能清单](#quickstart)
 
 </div>
 
@@ -19,14 +19,15 @@
 ##  <a id="installation"></a>项目简介
 
 ### 系统要求
- - **Python**: 3.13+ (推荐3.13+)
+ - **Go**: 1.25+ (推荐1.25+)
  - **操作系统**: Linux (推荐openEuler)
 
 ### 🛠️ 技术栈
 
 | 类别          | 技术/工具           |
 | ----------- | --------------- |
-| **后端 API ** | 待定 |
+| **后端 API ** | Gin |
+
 
 
 
@@ -73,11 +74,10 @@ AI 文件管理功能
 - **批处理自动化** - 基于内容相似性的批量文件处理
 
 
-
 ### ✨ 核心功能
 
 
-#### 📁 文件存储服务 
+#### 📁 文件存储服务
 - **文件管理** - 上传、下载、预览、搜索
 - **文件夹操作** - 创建、删除、移动、重命名
 - **文件共享** - 支持链接分享和权限控制
@@ -134,9 +134,4 @@ AI 文件管理功能
 - **告警通知** - 系统异常和阈值告警
 
 ####  AI 数据集聚合；
-数据集仓库 
-
-
-
-
-
+数据集仓库

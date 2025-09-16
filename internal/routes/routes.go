@@ -1,0 +1,70 @@
+package routes
+
+import (
+	"pnas/cmd/docs"
+	"pnas/internal/config"
+	"pnas/internal/controllers"
+	"pnas/internal/logging"
+	"pnas/internal/middleware"
+
+	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+)
+
+// SetupRoutes sets up the API routes
+func SetupRoutes(router *gin.Engine) {
+	// Add logging middleware to all routes
+	router.Use(middleware.LoggingMiddleware(logging.Logger))
+
+	// Swagger information
+	docs.SwaggerInfo.Title = config.AppConfig.Server.Title
+	docs.SwaggerInfo.Description = config.AppConfig.Server.Description
+	docs.SwaggerInfo.Version = config.AppConfig.Server.Version
+	docs.SwaggerInfo.Host = "localhost:" + config.AppConfig.Server.Port
+	docs.SwaggerInfo.BasePath = "/api/v1"
+	docs.SwaggerInfo.Schemes = []string{"http", "https"}
+
+	// Swagger documentation
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	// Public routes (no authentication required)
+	public := router.Group("/api/v1")
+	{
+		// Login endpoint
+		public.POST("/login", controllers.Login)
+
+	}
+
+	// Protected routes (authentication required)
+	protected := router.Group("/api/v1")
+	// protected.Use(middleware.AuthMiddleware())
+	{
+		// User management routes
+		users := protected.Group("/users")
+		{
+			users.POST("", controllers.CreateUser)
+			users.GET("", controllers.GetUsers)
+			users.GET("/:id", controllers.GetUser)
+			users.PUT("/:id", controllers.UpdateUser)
+			users.DELETE("/:id", controllers.DeleteUser)
+			users.PUT("/:id/status", controllers.UpdateUserStatus)
+		}
+
+		// Role management routes
+		roles := protected.Group("/roles")
+		{
+			roles.GET("", controllers.GetRoles)
+			roles.GET("/:id", controllers.GetRole)
+		}
+
+		// Authorization management routes
+		auth := protected.Group("/auth")
+		{
+			auth.POST("/assign", controllers.AssignRole)
+			auth.POST("/revoke", controllers.RevokeRole)
+			auth.GET("/users/:user_id/roles", controllers.GetUserRoles)
+			auth.GET("/roles/:role_id/users", controllers.GetRoleUsers)
+		}
+	}
+}
