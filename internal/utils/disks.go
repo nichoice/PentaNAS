@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	dk "pnas/internal/models"
 	"strconv"
 	"strings"
 	"time"
@@ -36,134 +37,8 @@ const (
 	SMARTCTL = "/usr/sbin/smartctl"
 )
 
-// lsblk 输出
-type BlockDevice struct {
-	Name       string        `json:"name"`
-	Path       string        `json:"path"`
-	Size       uint64        `json:"size"`
-	Serial     string        `json:"serial"` // 使用指针处理可能为 null 的值
-	Rota       bool          `json:"rota"`
-	Model      string        `json:"model"`
-	Vendor     string        `json:"vendor"`
-	Type       string        `json:"type"`
-	MajMin     string        `json:"maj:min"`
-	Mountpoint string        `json:"mountpoint"`
-	Fstype     *string       `json:"fstype"`
-	Children   []BlockDevice `json:"children,omitempty"`
-}
-
-// Disk 磁盘模型
-type Disk struct {
-	Name         string  `json:"name"`           //磁盘名称
-	Path         string  `json:"path"`           //磁盘路径
-	Size         string  `json:"size"`           //磁盘大小(字节)
-	UsedSize     uint64  `json:"used_size"`      //已使用大小(字节)
-	AvailSize    uint64  `json:"avail_size"`     //可用大小(字节)
-	UsageRate    float64 `json:"usage_rate"`     //使用率百分比
-	Serial       string  `json:"serial"`         //序列号
-	Rota         bool    `json:"rota"`           //是否为机械硬盘
-	Model        string  `json:"model"`          //型号
-	Vendor       string  `json:"vendor"`         //厂商
-	Type         string  `json:"type"`           //磁盘类型
-	MajMin       string  `json:"maj_min"`        //主次设备号
-	MountPoint   string  `json:"mount_point"`    //挂载点
-	FileSystem   string  `json:"file_system"`    //文件系统
-	IsSystemDisk bool    `json:"is_system_disk"` //是否为系统盘
-	IsOnline     bool    `json:"is_online"`      //是否在线
-	Temperature  int     `json:"temperature"`    //温度
-	Health       string  `json:"health"`         //健康状态
-}
-
-// 磁盘使用情况
-type DiskUsage struct {
-	Total      uint64  `json:"total"`       //总大小(字节)
-	Used       uint64  `json:"used"`        //已使用大小(字节)
-	Avail      uint64  `json:"avail"`       //可用大小(字节)
-	UsePercent float64 `json:"use_percent"` //使用率百分比
-}
-
-// smart信息 smartctl -A devicepath
-type SmartInfo struct {
-	JSONFormatVersion []int `json:"json_format_version"`
-	Smartctl          struct {
-		Version      []int    `json:"version"`
-		SvnRevision  string   `json:"svn_revision"`
-		PlatformInfo string   `json:"platform_info"`
-		BuildInfo    string   `json:"build_info"`
-		Argv         []string `json:"argv"`
-		ExitStatus   int      `json:"exit_status"`
-	} `json:"smartctl"`
-	Device struct {
-		Name     string `json:"name"`
-		InfoName string `json:"info_name"`
-		Type     string `json:"type"`
-		Protocol string `json:"protocol"`
-	} `json:"device"`
-	AtaSmartAttributes struct {
-		Revision int `json:"revision"`
-		Table    []struct {
-			ID         int    `json:"id"`
-			Name       string `json:"name"`
-			Value      int    `json:"value"`
-			Worst      int    `json:"worst"`
-			Thresh     int    `json:"thresh"`
-			WhenFailed string `json:"when_failed"`
-			Flags      struct {
-				Value         int    `json:"value"`
-				String        string `json:"string"`
-				Prefailure    bool   `json:"prefailure"`
-				UpdatedOnline bool   `json:"updated_online"`
-				Performance   bool   `json:"performance"`
-				ErrorRate     bool   `json:"error_rate"`
-				EventCount    bool   `json:"event_count"`
-				AutoKeep      bool   `json:"auto_keep"`
-			} `json:"flags"`
-			Raw struct {
-				Value  int    `json:"value"`
-				String string `json:"string"`
-			} `json:"raw"`
-		} `json:"table"`
-	} `json:"ata_smart_attributes"`
-	PowerOnTime struct {
-		Hours int `json:"hours"`
-	} `json:"power_on_time"`
-	PowerCycleCount int `json:"power_cycle_count"`
-	Temperature     struct {
-		Current int `json:"current"`
-	} `json:"temperature"`
-}
-
-// 磁盘健康 smartctl -H devicepath
-type SmartHealthInfo struct {
-	JSONFormatVersion []int `json:"json_format_version"`
-	Smartctl          struct {
-		Version      []int    `json:"version"`
-		SvnRevision  string   `json:"svn_revision"`
-		PlatformInfo string   `json:"platform_info"`
-		BuildInfo    string   `json:"build_info"`
-		Argv         []string `json:"argv"`
-		ExitStatus   int      `json:"exit_status"`
-	} `json:"smartctl"`
-	Device struct {
-		Name     string `json:"name"`
-		InfoName string `json:"info_name"`
-		Type     string `json:"type"`
-		Protocol string `json:"protocol"`
-	} `json:"device"`
-	SmartStatus struct {
-		Passed bool `json:"passed"`
-	} `json:"smart_status"`
-}
-
-func (b *BlockDevice) getFstype() string {
-	if b.Fstype == nil {
-		return "无文件系统"
-	}
-	return *b.Fstype
-}
-
 // 获取磁盘使用情况
-func (d *Disks) getDiskUsage(mountPoint string) (*DiskUsage, error) {
+func (d *Disks) getDiskUsage(mountPoint string) (*dk.DiskUsage, error) {
 	var getDiskUseCmd []string
 	getDiskUseCmd = []string{"-B1", mountPoint}
 	result := ExecCommand(ExecOptions{Timeout: 10 * time.Second}, DF, getDiskUseCmd...)
@@ -188,7 +63,7 @@ func (d *Disks) getDiskUsage(mountPoint string) (*DiskUsage, error) {
 	if total > 0 {
 		userPercent = float64(used) / float64(total) * 100
 	}
-	return &DiskUsage{
+	return &dk.DiskUsage{
 		Total:      total,
 		Used:       used,
 		Avail:      avail,
@@ -284,7 +159,7 @@ func (d *Disks) getDiskTemperature(devicePath string) int {
 		return 0
 	}
 
-	var smartInfo SmartInfo
+	var smartInfo dk.SmartInfo
 	if err := json.Unmarshal([]byte(result.Stdout), &smartInfo); err != nil {
 		return 0
 	}
@@ -315,7 +190,7 @@ func CheckDiskHealth(devicePath string) (bool, error) {
 		return false, result.Error
 	}
 
-	var smartHealthInfo SmartHealthInfo
+	var smartHealthInfo dk.SmartHealthInfo
 	if err := json.Unmarshal([]byte(result.Stdout), &smartHealthInfo); err != nil {
 		return false, err
 	}
@@ -326,7 +201,7 @@ func CheckDiskHealth(devicePath string) (bool, error) {
 }
 
 // 扫描磁盘
-func (d *Disks) ScanDisks() ([]*Disk, error) {
+func (d *Disks) ScanDisks() ([]*dk.Disk, error) {
 
 	var scanDisksCmd []string
 	scanDisksCmd = []string{"-b", "-J", "-o", "NAME,PATH,SIZE,SERIAL,ROTA,MODEL,VENDOR,TYPE,MAJ:MIN,MOUNTPOINT,FSTYPE"}
@@ -335,21 +210,21 @@ func (d *Disks) ScanDisks() ([]*Disk, error) {
 		return nil, result.Error
 	}
 	var data struct {
-		BlockDevices []BlockDevice `json:"blockdevices"`
+		BlockDevices []dk.BlockDevice `json:"blockdevices"`
 	}
 
 	if err := json.Unmarshal([]byte(result.Stdout), &data); err != nil {
 		return nil, fmt.Errorf("解析lsblk输出失败: %v", err)
 	}
 
-	var disks []*Disk
+	var disks []*dk.Disk
 
 	for _, device := range data.BlockDevices {
 		if device.Type == "loop" || device.Type == "rom" {
 			continue
 		}
 
-		disk := &Disk{
+		disk := &dk.Disk{
 			Name:         device.Name,
 			Path:         device.Path,
 			Size:         d.formatBytes(device.Size),
@@ -360,7 +235,7 @@ func (d *Disks) ScanDisks() ([]*Disk, error) {
 			Type:         device.Type,
 			MajMin:       device.MajMin,
 			MountPoint:   device.Mountpoint,
-			FileSystem:   device.getFstype(),
+			FileSystem:   device.GetFstype(),
 			IsSystemDisk: device.Type == "disk",
 			IsOnline:     true,
 			Temperature:  0,
@@ -388,7 +263,5 @@ func (d *Disks) ScanDisks() ([]*Disk, error) {
 
 		disks = append(disks, disk)
 	}
-	jsonDisk, _ := json.Marshal(disks)
-	fmt.Println("Disks:", string(jsonDisk))
 	return disks, nil
 }
