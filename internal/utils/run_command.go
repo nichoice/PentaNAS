@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -43,10 +44,10 @@ func ExecCommand(opts ExecOptions, command string, args ...string) *CmdResult {
 
 	if opts.Timeout > 0 {
 		ctx, cancel = context.WithTimeout(context.Background(), opts.Timeout)
+		defer cancel()
 	} else {
 		ctx = context.Background()
 	}
-	defer cancel()
 
 	// 创建命令
 	cmd := exec.CommandContext(ctx, command, args...)
@@ -60,28 +61,41 @@ func ExecCommand(opts ExecOptions, command string, args ...string) *CmdResult {
 
 	// 设置输入输出
 	var stdoutBuf, stderrBuf strings.Builder
-	stdoutPipe, _ := cmd.StdoutPipe()
-	stderrPipe, _ := cmd.StderrPipe()
+	stdoutPipe, err := cmd.StdoutPipe()
+	if err != nil {
+		result.Error = fmt.Errorf("failed to create stdout pipe: %w", err)
+		return result
+	}
+
+	stderrPipe, err := cmd.StderrPipe()
+	if err != nil {
+		result.Error = fmt.Errorf("failed to create stderr pipe: %w", err)
+		return result
+	}
 
 	if opts.Input != "" {
-		stdinPipe, _ := cmd.StdinPipe()
+		stdinPipe, err := cmd.StdinPipe()
+		if err != nil {
+			result.Error = fmt.Errorf("failed to create stdin pipe: %w", err)
+			return result
+		}
 		go func() {
 			defer stdinPipe.Close()
 			io.WriteString(stdinPipe, opts.Input)
 		}()
 	}
 
-	if err := cmd.Start(); err != nil {
-		result.Error = fmt.Errorf("failed to start command: %w", err)
-		return result
-	}
+	// 使用 WaitGroup 确保读取完成
+	var wg sync.WaitGroup
 
 	if opts.Stream {
 		// 流式输出到控制台同时保存到缓冲区
 		multiStdout := io.MultiWriter(&stdoutBuf, os.Stdout)
 		multiStderr := io.MultiWriter(&stderrBuf, os.Stderr)
 
+		wg.Add(2)
 		go func() {
+			defer wg.Done()
 			scanner := bufio.NewScanner(stdoutPipe)
 			for scanner.Scan() {
 				multiStdout.Write([]byte(scanner.Text() + "\n"))
@@ -89,6 +103,7 @@ func ExecCommand(opts ExecOptions, command string, args ...string) *CmdResult {
 		}()
 
 		go func() {
+			defer wg.Done()
 			scanner := bufio.NewScanner(stderrPipe)
 			for scanner.Scan() {
 				multiStderr.Write([]byte(scanner.Text() + "\n"))
@@ -96,16 +111,30 @@ func ExecCommand(opts ExecOptions, command string, args ...string) *CmdResult {
 		}()
 	} else {
 		// 仅保存到缓冲区
+		wg.Add(2)
 		go func() {
+			defer wg.Done()
 			io.Copy(&stdoutBuf, stdoutPipe)
 		}()
 
 		go func() {
+			defer wg.Done()
 			io.Copy(&stderrBuf, stderrPipe)
 		}()
 	}
 
-	err := cmd.Wait()
+	// 启动命令
+	if err := cmd.Start(); err != nil {
+		result.Error = fmt.Errorf("failed to start command: %w", err)
+		return result
+	}
+
+	// 等待命令完成
+	err = cmd.Wait()
+
+	// 等待所有读取完成
+	wg.Wait()
+
 	result.Stdout = stdoutBuf.String()
 	result.Stderr = stderrBuf.String()
 
