@@ -36,28 +36,20 @@ const (
 	SMARTCTL = "/usr/sbin/smartctl"
 )
 
-// lsbkl 命令输出
-type LsblkOutput struct {
-	BlockDevices []struct {
-		Name       string `json:"name"`
-		Path       string `json:"path"`
-		Size       uint64 `json:"size"`
-		Serial     string `json:"serial"`
-		Rota       bool   `json:"rota"`
-		Model      string `json:"model"`
-		Vendor     string `json:"vendor"`
-		Type       string `json:"type"`
-		MajMin     string `json:"maj:min"`
-		MountPoint string `json:"mountpoint"`
-		FsType     string `json:"fstype"`
-		Children   []struct {
-			Name       string `json:"name"`
-			Path       string `json:"path"`
-			Size       string `json:"size"`
-			MountPoint string `json:"mountpoint"`
-			FsType     string `json:"fstype"`
-		} `json:"children"`
-	} `json:"blockdevices"`
+// lsblk 输出
+type BlockDevice struct {
+	Name       string        `json:"name"`
+	Path       string        `json:"path"`
+	Size       uint64        `json:"size"`
+	Serial     string        `json:"serial"` // 使用指针处理可能为 null 的值
+	Rota       bool          `json:"rota"`
+	Model      string        `json:"model"`
+	Vendor     string        `json:"vendor"`
+	Type       string        `json:"type"`
+	MajMin     string        `json:"maj:min"`
+	Mountpoint string        `json:"mountpoint"`
+	Fstype     *string       `json:"fstype"`
+	Children   []BlockDevice `json:"children,omitempty"`
 }
 
 // Disk 磁盘模型
@@ -90,8 +82,7 @@ type DiskUsage struct {
 	UsePercent float64 `json:"use_percent"` //使用率百分比
 }
 
-// smart信息
-
+// smart信息 smartctl -A devicepath
 type SmartInfo struct {
 	JSONFormatVersion []int `json:"json_format_version"`
 	Smartctl          struct {
@@ -140,6 +131,35 @@ type SmartInfo struct {
 	Temperature     struct {
 		Current int `json:"current"`
 	} `json:"temperature"`
+}
+
+// 磁盘健康 smartctl -H devicepath
+type SmartHealthInfo struct {
+	JSONFormatVersion []int `json:"json_format_version"`
+	Smartctl          struct {
+		Version      []int    `json:"version"`
+		SvnRevision  string   `json:"svn_revision"`
+		PlatformInfo string   `json:"platform_info"`
+		BuildInfo    string   `json:"build_info"`
+		Argv         []string `json:"argv"`
+		ExitStatus   int      `json:"exit_status"`
+	} `json:"smartctl"`
+	Device struct {
+		Name     string `json:"name"`
+		InfoName string `json:"info_name"`
+		Type     string `json:"type"`
+		Protocol string `json:"protocol"`
+	} `json:"device"`
+	SmartStatus struct {
+		Passed bool `json:"passed"`
+	} `json:"smart_status"`
+}
+
+func (b *BlockDevice) getFstype() string {
+	if b.Fstype == nil {
+		return "无文件系统"
+	}
+	return *b.Fstype
 }
 
 // 获取磁盘使用情况
@@ -288,26 +308,43 @@ func (d *Disks) getDiskTemperature(devicePath string) int {
 	return 0
 }
 
+func CheckDiskHealth(devicePath string) (bool, error) {
+	smartctlCmd := []string{"-A", devicePath}
+	result := ExecCommand(ExecOptions{Timeout: 10 * time.Second}, SMARTCTL, smartctlCmd...)
+	if result.Error != nil {
+		return false, result.Error
+	}
+
+	var smartHealthInfo SmartHealthInfo
+	if err := json.Unmarshal([]byte(result.Stdout), &smartHealthInfo); err != nil {
+		return false, err
+	}
+
+	health := smartHealthInfo.SmartStatus.Passed
+
+	return health, nil
+}
+
 // 扫描磁盘
 func (d *Disks) ScanDisks() ([]*Disk, error) {
 
 	var scanDisksCmd []string
 	scanDisksCmd = []string{"-b", "-J", "-o", "NAME,PATH,SIZE,SERIAL,ROTA,MODEL,VENDOR,TYPE,MAJ:MIN,MOUNTPOINT,FSTYPE"}
-
-	result := ExecCommand(ExecOptions{Timeout: 10 * time.Second}, LSBLK, scanDisksCmd...)
+	result := ExecCommand(ExecOptions{Timeout: 3 * time.Second}, LSBLK, scanDisksCmd...)
 	if result.Error != nil {
 		return nil, result.Error
 	}
+	var data struct {
+		BlockDevices []BlockDevice `json:"blockdevices"`
+	}
 
-	var lsblkOutput LsblkOutput
-
-	if err := json.Unmarshal([]byte(result.Stdout), &lsblkOutput); err != nil {
+	if err := json.Unmarshal([]byte(result.Stdout), &data); err != nil {
 		return nil, fmt.Errorf("解析lsblk输出失败: %v", err)
 	}
 
 	var disks []*Disk
 
-	for _, device := range lsblkOutput.BlockDevices {
+	for _, device := range data.BlockDevices {
 		if device.Type == "loop" || device.Type == "rom" {
 			continue
 		}
@@ -322,35 +359,36 @@ func (d *Disks) ScanDisks() ([]*Disk, error) {
 			Vendor:       device.Vendor,
 			Type:         device.Type,
 			MajMin:       device.MajMin,
-			MountPoint:   device.MountPoint,
-			FileSystem:   device.FsType,
+			MountPoint:   device.Mountpoint,
+			FileSystem:   device.getFstype(),
 			IsSystemDisk: device.Type == "disk",
 			IsOnline:     true,
 			Temperature:  0,
 			Health:       "OK", //默认他为健康
 		}
 
-		// 检查是否为系统盘
-		systemPaths := d.getSystemDiskPath()
-		disk.IsSystemDisk = d.isSystemDevice(device.Path, systemPaths)
+		// // 检查是否为系统盘
+		// systemPaths := d.getSystemDiskPath()
+		// disk.IsSystemDisk = d.isSystemDevice(device.Path, systemPaths)
 
-		// 获取磁盘使用情况
-		if device.MountPoint != "" {
-			usage, err := d.getDiskUsage(device.MountPoint)
-			if err == nil {
-				disk.UsedSize += usage.Used
-				disk.AvailSize += usage.Avail
-				if device.Size > 0 {
-					disk.UsageRate = float64(disk.UsedSize) / float64(device.Size) * 100
-				}
-			}
-		}
+		// // 获取磁盘使用情况
+		// if device.MountPoint != "" {
+		// 	usage, err := d.getDiskUsage(device.MountPoint)
+		// 	if err == nil {
+		// 		disk.UsedSize += usage.Used
+		// 		disk.AvailSize += usage.Avail
+		// 		if device.Size > 0 {
+		// 			disk.UsageRate = float64(disk.UsedSize) / float64(device.Size) * 100
+		// 		}
+		// 	}
+		// }
 
-		// 获取磁盘温度
-		disk.Temperature = d.getDiskTemperature(device.Path)
+		// // 获取磁盘温度
+		// disk.Temperature = d.getDiskTemperature(device.Path)
 
 		disks = append(disks, disk)
 	}
-
+	jsonDisk, _ := json.Marshal(disks)
+	fmt.Println("Disks:", string(jsonDisk))
 	return disks, nil
 }
