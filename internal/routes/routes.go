@@ -66,5 +66,12 @@ func SetupRoutes(router *gin.Engine) {
 			auth.GET("/users/:user_id/roles", controllers.GetUserRoles)
 			auth.GET("/roles/:role_id/users", controllers.GetRoleUsers)
 		}
+
+		storage := protected.Group("/storage")
+		{
+			storage.GET("/disks", controllers.GetDisks)
+			storage.GET("/vgs", controllers.GetVG)
+			storage.GET("/lvs", controllers.GetLV)
+		}
 	}
 }
