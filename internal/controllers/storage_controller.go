@@ -42,5 +42,16 @@ func GetLV(c *gin.Context) {
 }
 
 func CreateVG(c *gin.Context) {
-
+	var req CreateVGRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	lvm := &utils.LVM{}
+	err := lvm.CreateVG(req.VgName, req.Devices)
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(200, gin.H{"message": "Volume group created successfully"})
 }

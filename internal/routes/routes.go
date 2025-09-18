@@ -72,6 +72,7 @@ func SetupRoutes(router *gin.Engine) {
 			storage.GET("/disks", controllers.GetDisks)
 			storage.GET("/vgs", controllers.GetVG)
 			storage.GET("/lvs", controllers.GetLV)
+			storage.POST("create_vg", controllers.CreateVG)
 		}
 	}
 }

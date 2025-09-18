@@ -17,6 +17,7 @@ const (
 	PVREMOVE = "/usr/sbin/pvremove"
 	VGREMOVE = "/usr/sbin/vgremove"
 	LVREMOVE = "/usr/sbin/lvremove"
+	PVSCAN   = "/usr/sbin/pvscan"
 )
 
 type LVM struct{}
@@ -89,6 +90,12 @@ func (l *LVM) RemovePV(devices []string) error {
 }
 
 func (l *LVM) CreateVG(vgName string, pvDevices []string) error {
+	for _, pdevice := range pvDevices {
+		if l.checkPV(pdevice) == 0 {
+			l.CreatePV([]string{pdevice})
+		}
+	}
+
 	pvDevices = append(pvDevices, "-y")
 	pvDevices = append(pvDevices, "-f")
 	pvDevices = append([]string{vgName}, pvDevices...)
@@ -132,4 +139,19 @@ func (l *LVM) RemoveLV(vgName string, lvName string) error {
 		return result.Error
 	}
 	return nil
+}
+
+// 检查磁盘是否做了pv
+func (l *LVM) checkPV(device string) int {
+	var pvs = []lvm_models.PhysicalVolume{}
+	pvs, err := l.GetPVS()
+	if err != nil {
+		return -1
+	}
+	for _, pv := range pvs {
+		if pv.PVName == device {
+			return 1
+		}
+	}
+	return 0
 }
