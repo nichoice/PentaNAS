@@ -6,6 +6,7 @@ import (
 	"pnas/internal/controllers"
 	"pnas/internal/logging"
 	"pnas/internal/middleware"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -68,6 +69,7 @@ func SetupRoutes(router *gin.Engine) {
 		}
 
 		storage := protected.Group("/storage")
+		storage.Use(middleware.RateLimitMiddleware(5, 10*time.Second))
 		{
 			storage.GET("/disks", controllers.GetDisks)
 			storage.GET("/vgs", controllers.GetVG)
