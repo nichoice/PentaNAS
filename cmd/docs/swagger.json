@@ -544,6 +544,560 @@
                 }
             }
         },
+        "/monitoring/complete": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get all available monitoring data in a single response",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Monitoring"
+                ],
+                "summary": "Get complete monitoring data",
+                "responses": {
+                    "200": {
+                        "description": "Complete monitoring data",
+                        "schema": {
+                            "$ref": "#/definitions/dto.MonitoringData"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/monitoring/cpu": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get detailed CPU information including usage, load average, and per-CPU statistics",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Monitoring"
+                ],
+                "summary": "Get CPU information",
+                "responses": {
+                    "200": {
+                        "description": "CPU information",
+                        "schema": {
+                            "$ref": "#/definitions/dto.CPUInfo"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/monitoring/disk": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get detailed disk information including usage and I/O statistics",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Monitoring"
+                ],
+                "summary": "Get disk information",
+                "responses": {
+                    "200": {
+                        "description": "Disk information including usage and I/O",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/monitoring/memory": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get detailed memory information including RAM and swap usage",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Monitoring"
+                ],
+                "summary": "Get memory information",
+                "responses": {
+                    "200": {
+                        "description": "Memory information",
+                        "schema": {
+                            "$ref": "#/definitions/dto.MemoryInfo"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/monitoring/metrics": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get system metrics in Prometheus format for monitoring integration",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "Monitoring"
+                ],
+                "summary": "Get system metrics",
+                "responses": {
+                    "200": {
+                        "description": "Prometheus metrics format",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/monitoring/network": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get detailed network information including interfaces and I/O statistics",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Monitoring"
+                ],
+                "summary": "Get network information",
+                "responses": {
+                    "200": {
+                        "description": "Network information including interfaces and I/O",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/monitoring/service/status": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get status information for specific system services",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Monitoring"
+                ],
+                "summary": "Get service status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Service name to check",
+                        "name": "service",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Service status information",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/monitoring/storage-protocols": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get monitoring information for storage protocols (SMB, NFS, iSCSI)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Monitoring"
+                ],
+                "summary": "Get storage protocol information",
+                "responses": {
+                    "200": {
+                        "description": "Storage protocol information",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.StorageProtocolInfo"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/monitoring/system": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get detailed system information including OS, kernel, hardware details",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Monitoring"
+                ],
+                "summary": "Get system information",
+                "responses": {
+                    "200": {
+                        "description": "System information",
+                        "schema": {
+                            "$ref": "#/definitions/dto.SystemInfo"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/monitoring/websocket": {
+            "get": {
+                "description": "Establish WebSocket connection for real-time monitoring data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Monitoring"
+                ],
+                "summary": "WebSocket endpoint for real-time monitoring",
+                "responses": {
+                    "101": {
+                        "description": "Switching Protocols",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/monitoring/websocket/broadcast": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Send a message to all connected WebSocket clients",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Monitoring"
+                ],
+                "summary": "Broadcast message to WebSocket clients",
+                "parameters": [
+                    {
+                        "description": "Message to broadcast",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.WebSocketMessage"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/monitoring/websocket/client/{client_id}": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Send a message to a specific connected WebSocket client",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Monitoring"
+                ],
+                "summary": "Send message to specific WebSocket client",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Client ID",
+                        "name": "client_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Message to send",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.WebSocketMessage"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/monitoring/websocket/info": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get information about current WebSocket connections",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Monitoring"
+                ],
+                "summary": "Get WebSocket information",
+                "responses": {
+                    "200": {
+                        "description": "WebSocket connection information",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/roles": {
             "get": {
                 "security": [
@@ -1410,6 +1964,47 @@
                 }
             }
         },
+        "dto.CPUInfo": {
+            "type": "object",
+            "properties": {
+                "cache_size": {
+                    "type": "integer"
+                },
+                "cores": {
+                    "type": "integer"
+                },
+                "family": {
+                    "type": "string"
+                },
+                "load_avg": {
+                    "$ref": "#/definitions/dto.LoadAvgInfo"
+                },
+                "model_name": {
+                    "type": "string"
+                },
+                "per_cpu": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.PerCPUInfo"
+                    }
+                },
+                "speed_mhz": {
+                    "type": "number"
+                },
+                "temperature": {
+                    "type": "number"
+                },
+                "threads": {
+                    "type": "integer"
+                },
+                "usage_percent": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    }
+                }
+            }
+        },
         "dto.CreateLVRequest": {
             "type": "object",
             "required": [
@@ -1444,6 +2039,85 @@
                 },
                 "vg_name": {
                     "type": "string"
+                }
+            }
+        },
+        "dto.DiskIOInfo": {
+            "type": "object",
+            "properties": {
+                "io_time": {
+                    "type": "integer"
+                },
+                "iops_in_progress": {
+                    "type": "integer"
+                },
+                "merged_read_count": {
+                    "type": "integer"
+                },
+                "merged_write_count": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "read_bytes": {
+                    "type": "integer"
+                },
+                "read_count": {
+                    "type": "integer"
+                },
+                "read_time": {
+                    "type": "integer"
+                },
+                "weighted_io": {
+                    "type": "integer"
+                },
+                "write_bytes": {
+                    "type": "integer"
+                },
+                "write_count": {
+                    "type": "integer"
+                },
+                "write_time": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.DiskInfo": {
+            "type": "object",
+            "properties": {
+                "device": {
+                    "type": "string"
+                },
+                "free": {
+                    "type": "integer"
+                },
+                "fstype": {
+                    "type": "string"
+                },
+                "inodes_free": {
+                    "type": "integer"
+                },
+                "inodes_total": {
+                    "type": "integer"
+                },
+                "inodes_used": {
+                    "type": "integer"
+                },
+                "inodes_used_percent": {
+                    "type": "number"
+                },
+                "mountpoint": {
+                    "type": "string"
+                },
+                "total": {
+                    "type": "integer"
+                },
+                "used": {
+                    "type": "integer"
+                },
+                "used_percent": {
+                    "type": "number"
                 }
             }
         },
@@ -1506,6 +2180,46 @@
                 }
             }
         },
+        "dto.ISCSITargetInfo": {
+            "type": "object",
+            "properties": {
+                "iqn": {
+                    "type": "string"
+                },
+                "read_bytes": {
+                    "type": "integer"
+                },
+                "read_ops": {
+                    "type": "integer"
+                },
+                "sessions": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "write_bytes": {
+                    "type": "integer"
+                },
+                "write_ops": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.LoadAvgInfo": {
+            "type": "object",
+            "properties": {
+                "load1": {
+                    "type": "number"
+                },
+                "load15": {
+                    "type": "number"
+                },
+                "load5": {
+                    "type": "number"
+                }
+            }
+        },
         "dto.LogicalVolumeResponse": {
             "type": "object",
             "properties": {
@@ -1523,6 +2237,251 @@
                 },
                 "vg_name": {
                     "type": "string"
+                }
+            }
+        },
+        "dto.MemoryInfo": {
+            "type": "object",
+            "properties": {
+                "active": {
+                    "type": "integer"
+                },
+                "available": {
+                    "type": "integer"
+                },
+                "buffers": {
+                    "type": "integer"
+                },
+                "cached": {
+                    "type": "integer"
+                },
+                "free": {
+                    "type": "integer"
+                },
+                "inactive": {
+                    "type": "integer"
+                },
+                "laundry": {
+                    "type": "integer"
+                },
+                "shared": {
+                    "type": "integer"
+                },
+                "slab": {
+                    "type": "integer"
+                },
+                "swap_free": {
+                    "type": "integer"
+                },
+                "swap_percent": {
+                    "type": "number"
+                },
+                "swap_total": {
+                    "type": "integer"
+                },
+                "swap_used": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                },
+                "used": {
+                    "type": "integer"
+                },
+                "used_percent": {
+                    "type": "number"
+                },
+                "wired": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.MonitoringData": {
+            "type": "object",
+            "properties": {
+                "cpu": {
+                    "$ref": "#/definitions/dto.CPUInfo"
+                },
+                "disk_io": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.DiskIOInfo"
+                    }
+                },
+                "disks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.DiskInfo"
+                    }
+                },
+                "memory": {
+                    "$ref": "#/definitions/dto.MemoryInfo"
+                },
+                "network_io": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.NetworkIOInfo"
+                    }
+                },
+                "networks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.NetworkInfo"
+                    }
+                },
+                "storage_protocols": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.StorageProtocolInfo"
+                    }
+                },
+                "system_info": {
+                    "$ref": "#/definitions/dto.SystemInfo"
+                },
+                "timestamp": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.NetworkAddr": {
+            "type": "object",
+            "properties": {
+                "addr": {
+                    "type": "string"
+                },
+                "net": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.NetworkIOInfo": {
+            "type": "object",
+            "properties": {
+                "bytes_recv": {
+                    "type": "integer"
+                },
+                "bytes_sent": {
+                    "type": "integer"
+                },
+                "dropin": {
+                    "type": "integer"
+                },
+                "dropout": {
+                    "type": "integer"
+                },
+                "errin": {
+                    "type": "integer"
+                },
+                "errout": {
+                    "type": "integer"
+                },
+                "fifoin": {
+                    "type": "integer"
+                },
+                "fifoout": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "packets_recv": {
+                    "type": "integer"
+                },
+                "packets_sent": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.NetworkInfo": {
+            "type": "object",
+            "properties": {
+                "addrs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.NetworkAddr"
+                    }
+                },
+                "flags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "hardware_addr": {
+                    "type": "string"
+                },
+                "mtu": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.PerCPUInfo": {
+            "type": "object",
+            "properties": {
+                "cpu": {
+                    "type": "string"
+                },
+                "guest": {
+                    "type": "number"
+                },
+                "idle": {
+                    "type": "number"
+                },
+                "iowait": {
+                    "type": "number"
+                },
+                "irq": {
+                    "type": "number"
+                },
+                "nice": {
+                    "type": "number"
+                },
+                "softirq": {
+                    "type": "number"
+                },
+                "steal": {
+                    "type": "number"
+                },
+                "system": {
+                    "type": "number"
+                },
+                "user": {
+                    "type": "number"
+                }
+            }
+        },
+        "dto.ShareInfo": {
+            "type": "object",
+            "properties": {
+                "connections": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "protocol": {
+                    "type": "string"
+                },
+                "read_bytes": {
+                    "type": "integer"
+                },
+                "read_ops": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "write_bytes": {
+                    "type": "integer"
+                },
+                "write_ops": {
+                    "type": "integer"
                 }
             }
         },
@@ -1558,6 +2517,74 @@
                 }
             }
         },
+        "dto.StorageProtocolInfo": {
+            "type": "object",
+            "properties": {
+                "connections": {
+                    "type": "integer"
+                },
+                "protocol": {
+                    "type": "string"
+                },
+                "shares": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ShareInfo"
+                    }
+                },
+                "statistics": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "status": {
+                    "type": "string"
+                },
+                "targets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ISCSITargetInfo"
+                    }
+                }
+            }
+        },
+        "dto.SystemInfo": {
+            "type": "object",
+            "properties": {
+                "boot_time": {
+                    "type": "string"
+                },
+                "host_id": {
+                    "type": "string"
+                },
+                "hostname": {
+                    "type": "string"
+                },
+                "kernel_arch": {
+                    "type": "string"
+                },
+                "kernel_version": {
+                    "type": "string"
+                },
+                "os": {
+                    "type": "string"
+                },
+                "platform": {
+                    "type": "string"
+                },
+                "platform_family": {
+                    "type": "string"
+                },
+                "platform_version": {
+                    "type": "string"
+                },
+                "procs": {
+                    "type": "integer"
+                },
+                "uptime": {
+                    "type": "integer"
+                }
+            }
+        },
         "dto.VolumeGroupResponse": {
             "type": "object",
             "properties": {
@@ -1583,6 +2610,21 @@
                     "type": "string"
                 },
                 "vg_uuid": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.WebSocketMessage": {
+            "type": "object",
+            "properties": {
+                "client_id": {
+                    "type": "string"
+                },
+                "data": {},
+                "timestamp": {
+                    "type": "string"
+                },
+                "type": {
                     "type": "string"
                 }
             }

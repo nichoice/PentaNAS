@@ -76,5 +76,25 @@ func SetupRoutes(router *gin.Engine) {
 			storage.GET("/lvs", controllers.GetLV)
 			storage.POST("create_vg", controllers.CreateVG)
 		}
+
+		// Monitoring routes
+		monitoring := protected.Group("/monitoring")
+		{
+			monitoring.GET("/system", controllers.GetSystemInfo)
+			monitoring.GET("/cpu", controllers.GetCPUInfo)
+			monitoring.GET("/memory", controllers.GetMemoryInfo)
+			monitoring.GET("/disk", controllers.GetDiskInfo)
+			monitoring.GET("/network", controllers.GetNetworkInfo)
+			monitoring.GET("/storage-protocols", controllers.GetStorageProtocolInfo)
+			monitoring.GET("/complete", controllers.GetCompleteMonitoringData)
+			monitoring.GET("/service/status", controllers.GetServiceStatus)
+			monitoring.GET("/metrics", controllers.GetMetrics)
+
+			// WebSocket routes
+			monitoring.GET("/websocket", controllers.HandleWebSocket)
+			monitoring.GET("/websocket/info", controllers.GetWebSocketInfo)
+			monitoring.POST("/websocket/broadcast", controllers.BroadcastMessage)
+			monitoring.POST("/websocket/client/:client_id", controllers.SendToClient)
+		}
 	}
 }

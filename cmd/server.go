@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"pnas/internal/config"
+	"pnas/internal/controllers"
 	"pnas/internal/database"
 	"pnas/internal/logging"
 	"pnas/internal/middleware"
@@ -69,6 +70,10 @@ func startServer() {
 	if err := initService.InitializeSystem(); err != nil {
 		log.Fatalf("Failed to initialize system: %v", err)
 	}
+
+	// Initialize monitoring services
+	controllers.InitMonitoringServices()
+	defer controllers.CleanupMonitoringServices()
 
 	// Set Gin mode
 	if cfg.Server.Debug {

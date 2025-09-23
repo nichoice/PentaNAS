@@ -139,6 +139,33 @@ definitions:
       username:
         type: string
     type: object
+  dto.CPUInfo:
+    properties:
+      cache_size:
+        type: integer
+      cores:
+        type: integer
+      family:
+        type: string
+      load_avg:
+        $ref: '#/definitions/dto.LoadAvgInfo'
+      model_name:
+        type: string
+      per_cpu:
+        items:
+          $ref: '#/definitions/dto.PerCPUInfo'
+        type: array
+      speed_mhz:
+        type: number
+      temperature:
+        type: number
+      threads:
+        type: integer
+      usage_percent:
+        items:
+          type: number
+        type: array
+    type: object
   dto.CreateLVRequest:
     properties:
       lv_name:
@@ -163,6 +190,58 @@ definitions:
     required:
     - devices
     - vg_name
+    type: object
+  dto.DiskIOInfo:
+    properties:
+      io_time:
+        type: integer
+      iops_in_progress:
+        type: integer
+      merged_read_count:
+        type: integer
+      merged_write_count:
+        type: integer
+      name:
+        type: string
+      read_bytes:
+        type: integer
+      read_count:
+        type: integer
+      read_time:
+        type: integer
+      weighted_io:
+        type: integer
+      write_bytes:
+        type: integer
+      write_count:
+        type: integer
+      write_time:
+        type: integer
+    type: object
+  dto.DiskInfo:
+    properties:
+      device:
+        type: string
+      free:
+        type: integer
+      fstype:
+        type: string
+      inodes_free:
+        type: integer
+      inodes_total:
+        type: integer
+      inodes_used:
+        type: integer
+      inodes_used_percent:
+        type: number
+      mountpoint:
+        type: string
+      total:
+        type: integer
+      used:
+        type: integer
+      used_percent:
+        type: number
     type: object
   dto.DiskResponse:
     properties:
@@ -203,6 +282,32 @@ definitions:
       vendor:
         type: string
     type: object
+  dto.ISCSITargetInfo:
+    properties:
+      iqn:
+        type: string
+      read_bytes:
+        type: integer
+      read_ops:
+        type: integer
+      sessions:
+        type: integer
+      status:
+        type: string
+      write_bytes:
+        type: integer
+      write_ops:
+        type: integer
+    type: object
+  dto.LoadAvgInfo:
+    properties:
+      load1:
+        type: number
+      load5:
+        type: number
+      load15:
+        type: number
+    type: object
   dto.LogicalVolumeResponse:
     properties:
       lv_attr:
@@ -215,6 +320,167 @@ definitions:
         type: string
       vg_name:
         type: string
+    type: object
+  dto.MemoryInfo:
+    properties:
+      active:
+        type: integer
+      available:
+        type: integer
+      buffers:
+        type: integer
+      cached:
+        type: integer
+      free:
+        type: integer
+      inactive:
+        type: integer
+      laundry:
+        type: integer
+      shared:
+        type: integer
+      slab:
+        type: integer
+      swap_free:
+        type: integer
+      swap_percent:
+        type: number
+      swap_total:
+        type: integer
+      swap_used:
+        type: integer
+      total:
+        type: integer
+      used:
+        type: integer
+      used_percent:
+        type: number
+      wired:
+        type: integer
+    type: object
+  dto.MonitoringData:
+    properties:
+      cpu:
+        $ref: '#/definitions/dto.CPUInfo'
+      disk_io:
+        items:
+          $ref: '#/definitions/dto.DiskIOInfo'
+        type: array
+      disks:
+        items:
+          $ref: '#/definitions/dto.DiskInfo'
+        type: array
+      memory:
+        $ref: '#/definitions/dto.MemoryInfo'
+      network_io:
+        items:
+          $ref: '#/definitions/dto.NetworkIOInfo'
+        type: array
+      networks:
+        items:
+          $ref: '#/definitions/dto.NetworkInfo'
+        type: array
+      storage_protocols:
+        items:
+          $ref: '#/definitions/dto.StorageProtocolInfo'
+        type: array
+      system_info:
+        $ref: '#/definitions/dto.SystemInfo'
+      timestamp:
+        type: string
+    type: object
+  dto.NetworkAddr:
+    properties:
+      addr:
+        type: string
+      net:
+        type: string
+    type: object
+  dto.NetworkIOInfo:
+    properties:
+      bytes_recv:
+        type: integer
+      bytes_sent:
+        type: integer
+      dropin:
+        type: integer
+      dropout:
+        type: integer
+      errin:
+        type: integer
+      errout:
+        type: integer
+      fifoin:
+        type: integer
+      fifoout:
+        type: integer
+      name:
+        type: string
+      packets_recv:
+        type: integer
+      packets_sent:
+        type: integer
+    type: object
+  dto.NetworkInfo:
+    properties:
+      addrs:
+        items:
+          $ref: '#/definitions/dto.NetworkAddr'
+        type: array
+      flags:
+        items:
+          type: string
+        type: array
+      hardware_addr:
+        type: string
+      mtu:
+        type: integer
+      name:
+        type: string
+    type: object
+  dto.PerCPUInfo:
+    properties:
+      cpu:
+        type: string
+      guest:
+        type: number
+      idle:
+        type: number
+      iowait:
+        type: number
+      irq:
+        type: number
+      nice:
+        type: number
+      softirq:
+        type: number
+      steal:
+        type: number
+      system:
+        type: number
+      user:
+        type: number
+    type: object
+  dto.ShareInfo:
+    properties:
+      connections:
+        type: integer
+      name:
+        type: string
+      path:
+        type: string
+      protocol:
+        type: string
+      read_bytes:
+        type: integer
+      read_ops:
+        type: integer
+      status:
+        type: string
+      write_bytes:
+        type: integer
+      write_ops:
+        type: integer
     type: object
   dto.StorageOverviewResponse:
     properties:
@@ -237,6 +503,51 @@ definitions:
           $ref: '#/definitions/dto.VolumeGroupResponse'
         type: array
     type: object
+  dto.StorageProtocolInfo:
+    properties:
+      connections:
+        type: integer
+      protocol:
+        type: string
+      shares:
+        items:
+          $ref: '#/definitions/dto.ShareInfo'
+        type: array
+      statistics:
+        additionalProperties: true
+        type: object
+      status:
+        type: string
+      targets:
+        items:
+          $ref: '#/definitions/dto.ISCSITargetInfo'
+        type: array
+    type: object
+  dto.SystemInfo:
+    properties:
+      boot_time:
+        type: string
+      host_id:
+        type: string
+      hostname:
+        type: string
+      kernel_arch:
+        type: string
+      kernel_version:
+        type: string
+      os:
+        type: string
+      platform:
+        type: string
+      platform_family:
+        type: string
+      platform_version:
+        type: string
+      procs:
+        type: integer
+      uptime:
+        type: integer
+    type: object
   dto.VolumeGroupResponse:
     properties:
       vg_attr:
@@ -254,6 +565,16 @@ definitions:
       vg_size:
         type: string
       vg_uuid:
+        type: string
+    type: object
+  dto.WebSocketMessage:
+    properties:
+      client_id:
+        type: string
+      data: {}
+      timestamp:
+        type: string
+      type:
         type: string
     type: object
   errors.ErrorResponse:
@@ -619,6 +940,358 @@ paths:
       summary: User login
       tags:
       - Authentication
+  /monitoring/complete:
+    get:
+      consumes:
+      - application/json
+      description: Get all available monitoring data in a single response
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Complete monitoring data
+          schema:
+            $ref: '#/definitions/dto.MonitoringData'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get complete monitoring data
+      tags:
+      - Monitoring
+  /monitoring/cpu:
+    get:
+      consumes:
+      - application/json
+      description: Get detailed CPU information including usage, load average, and
+        per-CPU statistics
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: CPU information
+          schema:
+            $ref: '#/definitions/dto.CPUInfo'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get CPU information
+      tags:
+      - Monitoring
+  /monitoring/disk:
+    get:
+      consumes:
+      - application/json
+      description: Get detailed disk information including usage and I/O statistics
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Disk information including usage and I/O
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get disk information
+      tags:
+      - Monitoring
+  /monitoring/memory:
+    get:
+      consumes:
+      - application/json
+      description: Get detailed memory information including RAM and swap usage
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Memory information
+          schema:
+            $ref: '#/definitions/dto.MemoryInfo'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get memory information
+      tags:
+      - Monitoring
+  /monitoring/metrics:
+    get:
+      consumes:
+      - application/json
+      description: Get system metrics in Prometheus format for monitoring integration
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: Prometheus metrics format
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get system metrics
+      tags:
+      - Monitoring
+  /monitoring/network:
+    get:
+      consumes:
+      - application/json
+      description: Get detailed network information including interfaces and I/O statistics
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Network information including interfaces and I/O
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get network information
+      tags:
+      - Monitoring
+  /monitoring/service/status:
+    get:
+      consumes:
+      - application/json
+      description: Get status information for specific system services
+      parameters:
+      - description: Service name to check
+        in: query
+        name: service
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Service status information
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get service status
+      tags:
+      - Monitoring
+  /monitoring/storage-protocols:
+    get:
+      consumes:
+      - application/json
+      description: Get monitoring information for storage protocols (SMB, NFS, iSCSI)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Storage protocol information
+          schema:
+            items:
+              $ref: '#/definitions/dto.StorageProtocolInfo'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get storage protocol information
+      tags:
+      - Monitoring
+  /monitoring/system:
+    get:
+      consumes:
+      - application/json
+      description: Get detailed system information including OS, kernel, hardware
+        details
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: System information
+          schema:
+            $ref: '#/definitions/dto.SystemInfo'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get system information
+      tags:
+      - Monitoring
+  /monitoring/websocket:
+    get:
+      consumes:
+      - application/json
+      description: Establish WebSocket connection for real-time monitoring data
+      produces:
+      - application/json
+      responses:
+        "101":
+          description: Switching Protocols
+          schema:
+            type: string
+      summary: WebSocket endpoint for real-time monitoring
+      tags:
+      - Monitoring
+  /monitoring/websocket/broadcast:
+    post:
+      consumes:
+      - application/json
+      description: Send a message to all connected WebSocket clients
+      parameters:
+      - description: Message to broadcast
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/dto.WebSocketMessage'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Broadcast message to WebSocket clients
+      tags:
+      - Monitoring
+  /monitoring/websocket/client/{client_id}:
+    post:
+      consumes:
+      - application/json
+      description: Send a message to a specific connected WebSocket client
+      parameters:
+      - description: Client ID
+        in: path
+        name: client_id
+        required: true
+        type: string
+      - description: Message to send
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/dto.WebSocketMessage'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Send message to specific WebSocket client
+      tags:
+      - Monitoring
+  /monitoring/websocket/info:
+    get:
+      consumes:
+      - application/json
+      description: Get information about current WebSocket connections
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: WebSocket connection information
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get WebSocket information
+      tags:
+      - Monitoring
   /roles:
     get:
       consumes:
