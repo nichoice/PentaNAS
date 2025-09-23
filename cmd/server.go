@@ -11,6 +11,7 @@ import (
 	"pnas/internal/logging"
 	"pnas/internal/middleware"
 	"pnas/internal/routes"
+	"pnas/internal/services"
 	"syscall"
 	"time"
 
@@ -63,8 +64,11 @@ func startServer() {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
 
-	// Initialize predefined roles
-	// models.InitRoles()
+	// Initialize system (create default roles and admin user if needed)
+	initService := services.NewInitService()
+	if err := initService.InitializeSystem(); err != nil {
+		log.Fatalf("Failed to initialize system: %v", err)
+	}
 
 	// Set Gin mode
 	if cfg.Server.Debug {
