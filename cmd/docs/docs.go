@@ -10,13 +10,241 @@ const docTemplate = `{
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
         "contact": {},
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v1/storage/disks": {
+            "get": {
+                "description": "获取系统中所有磁盘的信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "存储管理"
+                ],
+                "summary": "获取磁盘列表",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.DiskResponse"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/storage/lvs": {
+            "get": {
+                "description": "获取LVM逻辑卷信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "存储管理"
+                ],
+                "summary": "获取逻辑卷列表",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.LogicalVolumeResponse"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "创建LVM逻辑卷",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "存储管理"
+                ],
+                "summary": "创建逻辑卷",
+                "parameters": [
+                    {
+                        "description": "创建逻辑卷请求",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateLVRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errors.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/storage/overview": {
+            "get": {
+                "description": "获取存储系统整体概览信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "存储管理"
+                ],
+                "summary": "获取存储概览",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.StorageOverviewResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/storage/vgs": {
+            "get": {
+                "description": "获取LVM卷组信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "存储管理"
+                ],
+                "summary": "获取卷组列表",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.VolumeGroupResponse"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "创建LVM卷组",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "存储管理"
+                ],
+                "summary": "创建卷组",
+                "parameters": [
+                    {
+                        "description": "创建卷组请求",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateVGRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/errors.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errors.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/assign": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Assign a predefined role to a user",
                 "consumes": [
                     "application/json"
@@ -79,6 +307,11 @@ const docTemplate = `{
         },
         "/auth/revoke": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Revoke a role from a user",
                 "consumes": [
                     "application/json"
@@ -141,6 +374,11 @@ const docTemplate = `{
         },
         "/auth/roles/{role_id}/users": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get users assigned to a role",
                 "consumes": [
                     "application/json"
@@ -192,6 +430,11 @@ const docTemplate = `{
         },
         "/auth/users/{user_id}/roles": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get roles assigned to a user",
                 "consumes": [
                     "application/json"
@@ -243,6 +486,11 @@ const docTemplate = `{
         },
         "/login": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Authenticate user and return JWT token",
                 "consumes": [
                     "application/json"
@@ -304,6 +552,11 @@ const docTemplate = `{
         },
         "/roles": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get a list of predefined roles with pagination",
                 "consumes": [
                     "application/json"
@@ -351,6 +604,11 @@ const docTemplate = `{
         },
         "/roles/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get detailed information about a predefined role by ID",
                 "consumes": [
                     "application/json"
@@ -399,8 +657,187 @@ const docTemplate = `{
                 }
             }
         },
+        "/storage/create_vg": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create a new LVM volume group with specified devices",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Storage"
+                ],
+                "summary": "Create volume group",
+                "parameters": [
+                    {
+                        "description": "Volume group creation details",
+                        "name": "vg",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.CreateVGRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/storage/disks": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get a list of all available disks in the system",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Storage"
+                ],
+                "summary": "Get system disks",
+                "responses": {
+                    "200": {
+                        "description": "Disk information",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/storage/lvs": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get a list of all LVM logical volumes",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Storage"
+                ],
+                "summary": "Get logical volumes",
+                "responses": {
+                    "200": {
+                        "description": "Logical volume information",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/storage/vgs": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get a list of all LVM volume groups",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Storage"
+                ],
+                "summary": "Get volume groups",
+                "responses": {
+                    "200": {
+                        "description": "Volume group information",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/users": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get a list of users with optional filtering and pagination",
                 "consumes": [
                     "application/json"
@@ -464,6 +901,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new user with the provided details",
                 "consumes": [
                     "application/json"
@@ -516,6 +958,11 @@ const docTemplate = `{
         },
         "/users/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get detailed information about a user by ID",
                 "consumes": [
                     "application/json"
@@ -565,6 +1012,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update a user's information",
                 "consumes": [
                     "application/json"
@@ -631,6 +1083,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete a user by ID",
                 "consumes": [
                     "application/json"
@@ -684,6 +1141,11 @@ const docTemplate = `{
         },
         "/users/{id}/status": {
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update a user's status (active/inactive)",
                 "consumes": [
                     "application/json"
@@ -804,6 +1266,25 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 20,
                     "minLength": 3
+                }
+            }
+        },
+        "controllers.CreateVGRequest": {
+            "type": "object",
+            "required": [
+                "devices",
+                "vg_name"
+            ],
+            "properties": {
+                "devices": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "vg_name": {
+                    "type": "string",
+                    "example": "my_volume_group"
                 }
             }
         },
@@ -934,18 +1415,217 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "dto.CreateLVRequest": {
+            "type": "object",
+            "required": [
+                "lv_name",
+                "size",
+                "vg_name"
+            ],
+            "properties": {
+                "lv_name": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "string"
+                },
+                "vg_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.CreateVGRequest": {
+            "type": "object",
+            "required": [
+                "devices",
+                "vg_name"
+            ],
+            "properties": {
+                "devices": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "vg_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.DiskResponse": {
+            "type": "object",
+            "properties": {
+                "avail_size": {
+                    "type": "integer"
+                },
+                "file_system": {
+                    "type": "string"
+                },
+                "health": {
+                    "type": "string"
+                },
+                "is_online": {
+                    "type": "boolean"
+                },
+                "is_system_disk": {
+                    "type": "boolean"
+                },
+                "maj_min": {
+                    "type": "string"
+                },
+                "model": {
+                    "type": "string"
+                },
+                "mount_point": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "rota": {
+                    "type": "boolean"
+                },
+                "serial": {
+                    "type": "string"
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "temperature": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "usage_rate": {
+                    "type": "number"
+                },
+                "used_size": {
+                    "type": "integer"
+                },
+                "vendor": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.LogicalVolumeResponse": {
+            "type": "object",
+            "properties": {
+                "lv_attr": {
+                    "type": "string"
+                },
+                "lv_name": {
+                    "type": "string"
+                },
+                "lv_size": {
+                    "type": "string"
+                },
+                "lv_uuid": {
+                    "type": "string"
+                },
+                "vg_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.StorageOverviewResponse": {
+            "type": "object",
+            "properties": {
+                "disks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.DiskResponse"
+                    }
+                },
+                "logical_volumes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.LogicalVolumeResponse"
+                    }
+                },
+                "total_disks": {
+                    "type": "integer"
+                },
+                "total_logical_volumes": {
+                    "type": "integer"
+                },
+                "total_volume_groups": {
+                    "type": "integer"
+                },
+                "volume_groups": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.VolumeGroupResponse"
+                    }
+                }
+            }
+        },
+        "dto.VolumeGroupResponse": {
+            "type": "object",
+            "properties": {
+                "vg_attr": {
+                    "type": "string"
+                },
+                "vg_extent_count": {
+                    "type": "string"
+                },
+                "vg_extent_size": {
+                    "type": "string"
+                },
+                "vg_free": {
+                    "type": "string"
+                },
+                "vg_free_count": {
+                    "type": "string"
+                },
+                "vg_name": {
+                    "type": "string"
+                },
+                "vg_size": {
+                    "type": "string"
+                },
+                "vg_uuid": {
+                    "type": "string"
+                }
+            }
+        },
+        "errors.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "error": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Type \"Bearer\" followed by a space and JWT token.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
+	Version:          "0.0.1",
 	Host:             "localhost:8080",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
-	Title:            "PNAS API",
-	Description:      "PNAS系统API文档",
+	Title:            "HarborArk",
+	Description:      "HarborArk系统API文档",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

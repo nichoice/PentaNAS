@@ -40,6 +40,19 @@ definitions:
     - role
     - username
     type: object
+  controllers.CreateVGRequest:
+    properties:
+      devices:
+        items:
+          type: string
+        type: array
+      vg_name:
+        example: my_volume_group
+        type: string
+    required:
+    - devices
+    - vg_name
+    type: object
   controllers.LoginRequest:
     properties:
       password:
@@ -126,13 +139,286 @@ definitions:
       username:
         type: string
     type: object
+  dto.CreateLVRequest:
+    properties:
+      lv_name:
+        type: string
+      size:
+        type: string
+      vg_name:
+        type: string
+    required:
+    - lv_name
+    - size
+    - vg_name
+    type: object
+  dto.CreateVGRequest:
+    properties:
+      devices:
+        items:
+          type: string
+        type: array
+      vg_name:
+        type: string
+    required:
+    - devices
+    - vg_name
+    type: object
+  dto.DiskResponse:
+    properties:
+      avail_size:
+        type: integer
+      file_system:
+        type: string
+      health:
+        type: string
+      is_online:
+        type: boolean
+      is_system_disk:
+        type: boolean
+      maj_min:
+        type: string
+      model:
+        type: string
+      mount_point:
+        type: string
+      name:
+        type: string
+      path:
+        type: string
+      rota:
+        type: boolean
+      serial:
+        type: string
+      size:
+        type: integer
+      temperature:
+        type: integer
+      type:
+        type: string
+      usage_rate:
+        type: number
+      used_size:
+        type: integer
+      vendor:
+        type: string
+    type: object
+  dto.LogicalVolumeResponse:
+    properties:
+      lv_attr:
+        type: string
+      lv_name:
+        type: string
+      lv_size:
+        type: string
+      lv_uuid:
+        type: string
+      vg_name:
+        type: string
+    type: object
+  dto.StorageOverviewResponse:
+    properties:
+      disks:
+        items:
+          $ref: '#/definitions/dto.DiskResponse'
+        type: array
+      logical_volumes:
+        items:
+          $ref: '#/definitions/dto.LogicalVolumeResponse'
+        type: array
+      total_disks:
+        type: integer
+      total_logical_volumes:
+        type: integer
+      total_volume_groups:
+        type: integer
+      volume_groups:
+        items:
+          $ref: '#/definitions/dto.VolumeGroupResponse'
+        type: array
+    type: object
+  dto.VolumeGroupResponse:
+    properties:
+      vg_attr:
+        type: string
+      vg_extent_count:
+        type: string
+      vg_extent_size:
+        type: string
+      vg_free:
+        type: string
+      vg_free_count:
+        type: string
+      vg_name:
+        type: string
+      vg_size:
+        type: string
+      vg_uuid:
+        type: string
+    type: object
+  errors.ErrorResponse:
+    properties:
+      code:
+        type: integer
+      error:
+        type: string
+      message:
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact: {}
-  description: PNAS系统API文档
-  title: PNAS API
-  version: "1.0"
+  description: HarborArk系统API文档
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: HarborArk
+  version: 0.0.1
 paths:
+  /api/v1/storage/disks:
+    get:
+      consumes:
+      - application/json
+      description: 获取系统中所有磁盘的信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.DiskResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      summary: 获取磁盘列表
+      tags:
+      - 存储管理
+  /api/v1/storage/lvs:
+    get:
+      consumes:
+      - application/json
+      description: 获取LVM逻辑卷信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.LogicalVolumeResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      summary: 获取逻辑卷列表
+      tags:
+      - 存储管理
+    post:
+      consumes:
+      - application/json
+      description: 创建LVM逻辑卷
+      parameters:
+      - description: 创建逻辑卷请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateLVRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      summary: 创建逻辑卷
+      tags:
+      - 存储管理
+  /api/v1/storage/overview:
+    get:
+      consumes:
+      - application/json
+      description: 获取存储系统整体概览信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.StorageOverviewResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      summary: 获取存储概览
+      tags:
+      - 存储管理
+  /api/v1/storage/vgs:
+    get:
+      consumes:
+      - application/json
+      description: 获取LVM卷组信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.VolumeGroupResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      summary: 获取卷组列表
+      tags:
+      - 存储管理
+    post:
+      consumes:
+      - application/json
+      description: 创建LVM卷组
+      parameters:
+      - description: 创建卷组请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateVGRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      summary: 创建卷组
+      tags:
+      - 存储管理
   /auth/assign:
     post:
       consumes:
@@ -171,6 +457,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Assign role to user
       tags:
       - Authorization
@@ -212,6 +500,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Revoke role from user
       tags:
       - Authorization
@@ -246,6 +536,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get role users
       tags:
       - Authorization
@@ -280,6 +572,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get user roles
       tags:
       - Authorization
@@ -320,6 +614,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: User login
       tags:
       - Authentication
@@ -351,6 +647,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get roles
       tags:
       - Roles
@@ -384,9 +682,121 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get role by ID
       tags:
       - Roles
+  /storage/create_vg:
+    post:
+      consumes:
+      - application/json
+      description: Create a new LVM volume group with specified devices
+      parameters:
+      - description: Volume group creation details
+        in: body
+        name: vg
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.CreateVGRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create volume group
+      tags:
+      - Storage
+  /storage/disks:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all available disks in the system
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Disk information
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get system disks
+      tags:
+      - Storage
+  /storage/lvs:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all LVM logical volumes
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Logical volume information
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get logical volumes
+      tags:
+      - Storage
+  /storage/vgs:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all LVM volume groups
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Volume group information
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get volume groups
+      tags:
+      - Storage
   /users:
     get:
       consumes:
@@ -427,6 +837,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get users
       tags:
       - Users
@@ -460,6 +872,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Create a new user
       tags:
       - Users
@@ -495,6 +909,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Delete user
       tags:
       - Users
@@ -528,6 +944,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get user by ID
       tags:
       - Users
@@ -572,6 +990,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Update user
       tags:
       - Users
@@ -617,7 +1037,15 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Update user status
       tags:
       - Users
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"
