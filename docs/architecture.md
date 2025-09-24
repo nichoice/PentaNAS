@@ -33,6 +33,11 @@ PNAS 采用分层架构设计，基于 DDD (领域驱动设计) 原则，确保�
 │  │   User      │  │  Storage    │  │    Monitoring       │  │
 │  │ Controller  │  │ Controller  │  │    Controller       │  │
 │  └─────────────┘  └─────────────┘  └─────────────────────┘  │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │              Audit Controller                       │    │
+│  │   (审计日志查询、统计分析、异常检测)                │    │
+│  └─────────────────────────────────────────────────────┘    │
 └─────────────────────────────────────────────────────────────┘
                                │
 ┌─────────────────────────────────────────────────────────────┐
@@ -51,6 +56,14 @@ PNAS 采用分层架构设计，基于 DDD (领域驱动设计) 原则，确保�
 │  │  │Service│  │  │  │Service│  │  │  │    Service    │  │  │
 │  │  └───────┘  │  │  └───────┘  │  │  └───────────────┘  │  │
 │  └─────────────┘  └─────────────┘  └─────────────────────┘  │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │                Audit Service                        │    │
+│  │  ┌───────────────┐  ┌─────────────────────────────┐ │    │
+│  │  │ Audit Service │  │ Filesystem Monitor Service │ │    │
+│  │  │ (异步日志处理)│  │    (文件系统实时监控)       │ │    │
+│  │  └───────────────┘  └─────────────────────────────┘ │    │
+│  └─────────────────────────────────────────────────────┘    │
 └─────────────────────────────────────────────────────────────┘
                                │
 ┌─────────────────────────────────────────────────────────────┐
@@ -62,7 +75,7 @@ PNAS 采用分层架构设计，基于 DDD (领域驱动设计) 原则，确保�
 │  │  │ User  │  │  │  │WebSkt │  │  │  │     Crypto    │  │  │
 │  │  │ Role  │  │  │  │ Msg   │  │  │  │     Helper    │  │  │
 │  │  │Storage│  │  │  │Monitor│  │  │  │               │  │  │
-│  │  │       │  │  │  │ Data  │  │  │  │               │  │  │
+│  │  │ Audit │  │  │  │ Data  │  │  │  │               │  │  │
 │  │  └───────┘  │  │  └───────┘  │  │  └───────────────┘  │  │
 │  └─────────────┘  └─────────────┘  └─────────────────────┘  │
 └─────────────────────────────────────────────────────────────┘
@@ -97,6 +110,7 @@ PNAS 采用分层架构设计，基于 DDD (领域驱动设计) 原则，确保�
 - **Authentication 中间件**: JWT Token 验证
 - **Rate Limiting 中间件**: API 请求频率限制
 - **Logging 中间件**: 请求日志记录
+- **Audit 中间件**: API操作审计记录
 
 #### WebSocket Hub
 - **技术**: gorilla/websocket
@@ -121,6 +135,13 @@ PNAS 采用分层架构设计，基于 DDD (领域驱动设计) 原则，确保�
 - 系统性能数据采集
 - 实时监控数据推送
 - Prometheus 指标暴露
+
+#### Audit Controller
+- 审计日志查询和过滤
+- 操作统计分析
+- 文件访问热度图
+- 异常行为检测
+- 用户活动时间线
 
 ### 3. Service Layer (服务层)
 
@@ -166,6 +187,32 @@ type WebSocketHub struct {
 - **消息广播**: 支持全局广播和定向推送
 - **订阅机制**: 按类型订阅特定监控数据
 
+#### Audit Service
+```go
+type AuditService struct {
+    eventChan     chan *AuditEvent
+    batchSize     int
+    flushInterval time.Duration
+    db            *gorm.DB
+}
+```
+- **异步日志处理**: 批量写入，高性能处理
+- **事件队列**: 10000条记录缓冲，防止丢失
+- **统计聚合**: 定期生成每日汇总数据
+
+#### Filesystem Monitor Service
+```go
+type FilesystemMonitor struct {
+    watcher       *fsnotify.Watcher
+    watchedDirs   map[string]bool
+    excludeRules  []string
+    recursive     bool
+}
+```
+- **实时监控**: 基于fsnotify的文件系统事件监控
+- **递归监控**: 支持深度目录监控
+- **智能过滤**: 可配置的排除规则
+
 ### 4. Domain Layer (领域层)
 
 #### Models (数据模型)
@@ -187,6 +234,30 @@ type Role struct {
     Description string
     Users       []User
 }
+
+// 审计日志模型
+type FileAuditLog struct {
+    ID        string    `gorm:"primaryKey"`
+    UserID    string    `gorm:"index"`
+    Username  string    `gorm:"index"`
+    Operation string    `gorm:"index;not null"`
+    FilePath  string    `gorm:"not null"`
+    FileName  string    `gorm:"index"`
+    FileSize  int64
+    ClientIP  string
+    Status    string    `gorm:"index;not null"`
+    Source    string    `gorm:"index;not null"`
+    CreatedAt time.Time
+}
+
+// 文件访问统计模型
+type FileAccessStats struct {
+    ID          string    `gorm:"primaryKey"`
+    FilePath    string    `gorm:"uniqueIndex;not null"`
+    AccessCount int64     `gorm:"default:0"`
+    UserCount   int64     `gorm:"default:0"`
+    LastAccess  time.Time
+}
 ```
 
 #### DTOs (数据传输对象)
@@ -207,6 +278,20 @@ type MonitoringData struct {
     DiskInfo          []DiskInfo          `json:"disk_info"`
     NetworkInfo       []NetworkInfo       `json:"network_info"`
     StorageProtocols  *StorageProtocolInfo `json:"storage_protocols"`
+}
+
+// 审计事件
+type AuditEvent struct {
+    UserID    string                 `json:"user_id"`
+    Username  string                 `json:"username"`
+    Operation string                 `json:"operation"`
+    FilePath  string                 `json:"file_path"`
+    FileSize  int64                  `json:"file_size"`
+    ClientIP  string                 `json:"client_ip"`
+    Status    string                 `json:"status"`
+    Source    string                 `json:"source"`
+    Duration  time.Duration          `json:"duration"`
+    Metadata  map[string]interface{} `json:"metadata"`
 }
 ```
 
@@ -236,7 +321,13 @@ System Data → Monitoring Service → WebSocket Hub → Connected Clients
 
 ### 3. 初始化流程
 ```
-Application Start → Init Service → Check Users → Create Default Admin/Roles → Start Services
+Application Start → Init Service → Check Users → Create Default Admin/Roles → Start Audit Services → Start Services
+```
+
+### 4. 审计数据流
+```
+API Request → Audit Middleware → Record Event → Audit Service → Batch Processing → Database
+File Operation → Filesystem Monitor → Audit Event → Audit Service → Batch Processing → Database
 ```
 
 ## 安全架构
@@ -254,6 +345,9 @@ Application Start → Init Service → Check Users → Create Default Admin/Role
 ### 3. 系统安全
 - **权限隔离**: 最小权限原则
 - **安全日志**: 操作审计追踪
+- **文件审计**: API操作 + 文件系统双重监控
+- **异常检测**: 自动识别暴力破解、批量删除等风险行为
+- **实时告警**: 基于风险评分的安全警报
 
 ## 性能设计
 

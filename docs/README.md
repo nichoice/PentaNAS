@@ -22,6 +22,12 @@ PNAS (Personal Network Attached Storage) 是一个基于 Go 语言开发的个�
 - **JWT 认证**: 安全的 Token 认证机制
 - **默认账号初始化**: 首次启动自动创建管理员账号
 
+### 🛡️ 文件审计系统
+- **双重审计监控**: API操作 + 文件系统实时监控
+- **异步日志处理**: 高性能批量写入，不影响系统响应
+- **智能分析**: 多维度查询、统计分析、异常检测
+- **安全防护**: 实时风险评分、安全告警、行为追踪
+
 ### 🌐 API 与接口
 - **RESTful API**: 完整的 REST API 接口设计
 - **Swagger 文档**: 自动生成的 API 文档
@@ -35,10 +41,11 @@ PNAS (Personal Network Attached Storage) 是一个基于 Go 语言开发的个�
 - **GORM**: ORM 数据库操作库
 - **SQLite**: 轻量级数据库
 
-### 监控与性能
+### 监控与审计
 - **gopsutil**: 系统信息采集库
 - **gorilla/websocket**: WebSocket 通信库
 - **Prometheus**: 监控指标收集
+- **fsnotify**: 文件系统事件监控
 
 ### 开发工具
 - **Swag**: Swagger 文档自动生成
@@ -58,9 +65,24 @@ pnas/
 │   │   ├── dto/           # 数据传输对象
 │   │   └── models/        # 数据模型
 │   ├── controllers/       # 控制器层
+│   │   ├── auth_controller.go    # 用户认证控制器
+│   │   ├── storage_controller.go # 存储管理控制器
+│   │   ├── monitoring_controller.go # 系统监控控制器
+│   │   └── audit_controller.go   # 审计管理控制器
 │   ├── middleware/        # 中间件
+│   │   ├── auth.go               # 认证中间件
+│   │   ├── logging.go            # 日志中间件
+│   │   └── audit.go              # 审计中间件
+│   ├── models/            # 数据模型
+│   │   ├── user.go               # 用户模型
+│   │   ├── role.go               # 角色模型
+│   │   └── audit.go              # 审计模型
 │   ├── routes/            # 路由配置
 │   ├── services/          # 服务层
+│   │   ├── init_service.go       # 系统初始化服务
+│   │   ├── monitoring_service.go # 监控服务
+│   │   ├── audit_service.go      # 审计服务
+│   │   └── filesystem_monitor.go # 文件系统监控服务
 │   └── utils/             # 工具函数
 ├── docs/                  # 项目文档
 ├── logs/                  # 日志文件
@@ -107,6 +129,7 @@ sudo ./pnas
 
 - [架构设计](./architecture.md) - 详细的系统架构设计文档
 - [API 文档](./api.md) - API 接口使用说明
+- [审计系统](./audit.md) - 文件审计系统详细说明
 - [部署指南](./deployment.md) - 生产环境部署配置
 - [监控指南](./monitoring.md) - 系统监控功能使用说明
 

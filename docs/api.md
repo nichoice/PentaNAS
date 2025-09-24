@@ -187,9 +187,221 @@ Content-Type: application/json
 }
 ```
 
-### 3. 系统监控接口
+### 3. 审计管理接口
 
-#### 3.1 获取系统信息
+#### 3.1 获取审计日志
+```http
+GET /api/v1/audit/logs
+Authorization: Bearer <token>
+```
+
+**查询参数**:
+- `user_id` (string, 可选): 用户ID过滤
+- `username` (string, 可选): 用户名模糊匹配
+- `operation` (string, 可选): 操作类型过滤 (create/read/update/delete/upload/download等)
+- `file_path` (string, 可选): 文件路径模糊匹配
+- `status` (string, 可选): 操作状态 (success/failed)
+- `source` (string, 可选): 来源 (api/filesystem)
+- `start_time` (string, 可选): 开始时间 (RFC3339格式)
+- `end_time` (string, 可选): 结束时间 (RFC3339格式)
+- `page` (int, 可选): 页码，默认1
+- `page_size` (int, 可选): 每页大小，默认20
+- `order_by` (string, 可选): 排序字段，默认created_at
+- `order_dir` (string, 可选): 排序方向，默认desc
+
+**响应示例**:
+```json
+{
+  "logs": [
+    {
+      "id": "uuid-string",
+      "user_id": "user-uuid",
+      "username": "admin",
+      "operation": "download",
+      "file_path": "/data/documents/report.pdf",
+      "file_name": "report.pdf",
+      "file_size": 1024000,
+      "client_ip": "192.168.1.100",
+      "user_agent": "Mozilla/5.0...",
+      "status": "success",
+      "error_msg": "",
+      "duration": 1250,
+      "hash": "md5hash...",
+      "source": "api",
+      "metadata": "method=GET,url=/api/v1/files/download",
+      "created_at": "2023-12-01T15:30:00Z"
+    }
+  ],
+  "total": 150,
+  "page": 1,
+  "page_size": 20,
+  "total_pages": 8
+}
+```
+
+#### 3.2 获取审计统计
+```http
+GET /api/v1/audit/stats
+Authorization: Bearer <token>
+```
+
+**查询参数**:
+- `start_time` (string, 可选): 统计开始时间
+- `end_time` (string, 可选): 统计结束时间
+
+**响应示例**:
+```json
+{
+  "total_count": 1500,
+  "success_count": 1350,
+  "failed_count": 150,
+  "operation_stats": [
+    {
+      "operation": "read",
+      "count": 800,
+      "percentage": 53.3
+    },
+    {
+      "operation": "download",
+      "count": 300,
+      "percentage": 20.0
+    }
+  ],
+  "user_stats": [
+    {
+      "user_id": "user-uuid",
+      "username": "admin",
+      "count": 500,
+      "last_activity": "2023-12-01T15:30:00Z"
+    }
+  ],
+  "hourly_stats": [
+    {
+      "hour": 9,
+      "count": 120
+    }
+  ],
+  "daily_stats": [
+    {
+      "date": "2023-12-01",
+      "count": 300
+    }
+  ],
+  "top_files": [
+    {
+      "file_path": "/data/shared/document.pdf",
+      "file_name": "document.pdf",
+      "access_count": 50,
+      "user_count": 10,
+      "last_access": "2023-12-01T15:30:00Z",
+      "file_size": 2048000
+    }
+  ],
+  "recent_activities": [
+    // 最近20条操作记录
+  ]
+}
+```
+
+#### 3.3 获取文件访问热度图
+```http
+GET /api/v1/audit/heatmap
+Authorization: Bearer <token>
+```
+
+**查询参数**:
+- `limit` (int, 可选): 返回文件数量限制，默认50
+
+**响应示例**:
+```json
+{
+  "heatmap": [
+    {
+      "file_path": "/data/documents/important.pdf",
+      "file_name": "important.pdf",
+      "access_count": 150,
+      "user_count": 25,
+      "last_access": "2023-12-01T15:30:00Z",
+      "file_size": 1024000,
+      "heat_level": "very_hot"
+    }
+  ],
+  "total": 50
+}
+```
+
+#### 3.4 异常行为检测
+```http
+GET /api/v1/audit/anomalies
+Authorization: Bearer <token>
+```
+
+**查询参数**:
+- `hours` (int, 可选): 检测时间范围(小时)，默认24
+
+**响应示例**:
+```json
+{
+  "suspicious_activities": [
+    {
+      "user_id": "user-uuid",
+      "username": "testuser",
+      "operation": "delete",
+      "count": 25,
+      "time_range": "最近24小时",
+      "risk_level": "high",
+      "description": "频繁失败的操作，可能存在恶意攻击",
+      "first_time": "2023-12-01T10:00:00Z",
+      "last_time": "2023-12-01T15:30:00Z"
+    }
+  ],
+  "alerts": [
+    {
+      "type": "mass_deletion",
+      "description": "检测到异常大量的删除活动",
+      "severity": "high",
+      "count": 50,
+      "first_time": "2023-12-01T14:00:00Z",
+      "last_time": "2023-12-01T15:30:00Z"
+    }
+  ],
+  "risk_score": 75.5
+}
+```
+
+#### 3.5 用户活动时间线
+```http
+GET /api/v1/audit/users/{user_id}/timeline
+Authorization: Bearer <token>
+```
+
+**查询参数**:
+- `start_time` (string, 可选): 开始时间
+- `end_time` (string, 可选): 结束时间
+
+**响应示例**:
+```json
+{
+  "activities": [
+    // 用户操作记录数组
+  ],
+  "stats": {
+    "total_operations": 150,
+    "success_count": 140,
+    "failed_count": 10,
+    "operation_types": 8,
+    "active_days": 15
+  },
+  "time_range": {
+    "start": "2023-11-24T00:00:00Z",
+    "end": "2023-12-01T23:59:59Z"
+  }
+}
+```
+
+### 4. 系统监控接口
+
+#### 4.1 获取系统信息
 ```http
 GET /api/v1/monitoring/system-info
 Authorization: Bearer <token>
@@ -215,7 +427,7 @@ Authorization: Bearer <token>
 }
 ```
 
-#### 3.2 获取 CPU 信息
+#### 4.2 获取 CPU 信息
 ```http
 GET /api/v1/monitoring/cpu
 Authorization: Bearer <token>
@@ -248,25 +460,25 @@ Authorization: Bearer <token>
 }
 ```
 
-#### 3.3 获取内存信息
+#### 4.3 获取内存信息
 ```http
 GET /api/v1/monitoring/memory
 Authorization: Bearer <token>
 ```
 
-#### 3.4 获取磁盘信息
+#### 4.4 获取磁盘信息
 ```http
 GET /api/v1/monitoring/disk
 Authorization: Bearer <token>
 ```
 
-#### 3.5 获取网络信息
+#### 4.5 获取网络信息
 ```http
 GET /api/v1/monitoring/network
 Authorization: Bearer <token>
 ```
 
-#### 3.6 获取存储协议信息
+#### 4.6 获取存储协议信息
 ```http
 GET /api/v1/monitoring/storage-protocols
 Authorization: Bearer <token>
@@ -309,20 +521,20 @@ Authorization: Bearer <token>
 }
 ```
 
-#### 3.7 获取完整监控数据
+#### 4.7 获取完整监控数据
 ```http
 GET /api/v1/monitoring/complete
 Authorization: Bearer <token>
 ```
 
-#### 3.8 Prometheus 指标
+#### 4.8 Prometheus 指标
 ```http
 GET /api/v1/monitoring/metrics
 ```
 
 **响应格式**: Prometheus 格式的指标数据
 
-#### 3.9 获取 WebSocket 客户端信息
+#### 4.9 获取 WebSocket 客户端信息
 ```http
 GET /api/v1/monitoring/clients
 Authorization: Bearer <token>
