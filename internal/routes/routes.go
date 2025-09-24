@@ -4,6 +4,7 @@ import (
 	"pnas/cmd/docs"
 	"pnas/internal/config"
 	"pnas/internal/controllers"
+	"pnas/internal/database"
 	"pnas/internal/logging"
 	"pnas/internal/middleware"
 	"time"
@@ -112,4 +113,7 @@ func SetupRoutes(router *gin.Engine) {
 			audit.GET("/users/:user_id/timeline", controllers.GetUserActivityTimeline)
 		}
 	}
+
+	// Register Samba routes
+	RegisterSambaRoutes(router, database.DB)
 }
