@@ -18,6 +18,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
+	"go.uber.org/zap"
 )
 
 var serverCmd = &cobra.Command{
@@ -74,6 +75,40 @@ func startServer() {
 	// Initialize monitoring services
 	controllers.InitMonitoringServices()
 	defer controllers.CleanupMonitoringServices()
+
+	// Initialize audit services if enabled
+	if cfg.Audit.Enabled {
+		logging.Logger.Info("Initializing audit services")
+
+		auditService := services.GetAuditService()
+		auditService.Start()
+		defer auditService.Stop()
+
+		if cfg.Audit.EnableFilesystem {
+			filesystemMonitor := services.GetFilesystemMonitor()
+
+			// Configure exclude patterns
+			filesystemMonitor.SetExcludeRules(cfg.Audit.ExcludePatterns)
+			filesystemMonitor.SetRecursive(cfg.Audit.RecursiveWatch)
+
+			filesystemMonitor.Start()
+			defer filesystemMonitor.Stop()
+
+			// Add configured watch paths
+			for _, path := range cfg.Audit.WatchPaths {
+				if err := filesystemMonitor.AddWatchPath(path); err != nil {
+					logging.Logger.Warn("Failed to add watch path",
+						zap.String("path", path),
+						zap.Error(err))
+				} else {
+					logging.Logger.Info("Added watch path",
+						zap.String("path", path))
+				}
+			}
+		}
+	} else {
+		logging.Logger.Info("Audit services disabled in configuration")
+	}
 
 	// Set Gin mode
 	if cfg.Server.Debug {

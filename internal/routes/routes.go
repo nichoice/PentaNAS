@@ -18,6 +18,11 @@ func SetupRoutes(router *gin.Engine) {
 	// Add logging middleware to all routes
 	router.Use(middleware.LoggingMiddleware(logging.Logger))
 
+	// Add audit middleware to all routes if enabled
+	if config.AppConfig.Audit.Enabled && config.AppConfig.Audit.EnableAPI {
+		router.Use(middleware.AuditMiddleware())
+	}
+
 	// Swagger information
 	docs.SwaggerInfo.Title = config.AppConfig.Server.Title
 	docs.SwaggerInfo.Description = config.AppConfig.Server.Description
@@ -95,6 +100,16 @@ func SetupRoutes(router *gin.Engine) {
 			monitoring.GET("/websocket/info", controllers.GetWebSocketInfo)
 			monitoring.POST("/websocket/broadcast", controllers.BroadcastMessage)
 			monitoring.POST("/websocket/client/:client_id", controllers.SendToClient)
+		}
+
+		// Audit routes
+		audit := protected.Group("/audit")
+		{
+			audit.GET("/logs", controllers.GetAuditLogs)
+			audit.GET("/stats", controllers.GetAuditStats)
+			audit.GET("/heatmap", controllers.GetFileAccessHeatmap)
+			audit.GET("/anomalies", controllers.DetectAnomalies)
+			audit.GET("/users/:user_id/timeline", controllers.GetUserActivityTimeline)
 		}
 	}
 }

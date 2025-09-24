@@ -30,6 +30,9 @@ func InitDatabase(cfg *config.DatabaseConfig) error {
 		&models.User{},
 		&models.Role{},
 		&models.UserRole{},
+		&models.FileAuditLog{},
+		&models.FileAccessStats{},
+		&models.AuditSummary{},
 	); err != nil {
 		return fmt.Errorf("failed to migrate database: %w", err)
 	}

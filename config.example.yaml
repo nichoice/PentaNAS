@@ -1,0 +1,65 @@
+# PNAS Configuration Example
+# 复制此文件为 config.yaml 并根据需要修改
+
+server:
+  port: "8080"
+  debug: false
+  version: "1.0.0"
+  title: "PNAS - Personal Network Attached Storage"
+  description: "个人网络附加存储系统"
+
+database:
+  path: "pnas.db"
+
+jwt:
+  secret: "your-secret-key-change-this"
+  expire: 24  # hours
+
+# 文件审计配置
+audit:
+  # 是否启用审计功能
+  enabled: true
+
+  # 监控的目录列表
+  watch_paths:
+    - "/home"
+    - "/var/data"
+    - "/opt/shared"
+    - "/srv/nfs"
+    - "/media/storage"
+
+  # 排除的文件模式
+  exclude_patterns:
+    - ".DS_Store"
+    - ".Spotlight-V100"
+    - ".Trashes"
+    - ".fseventsd"
+    - ".TemporaryItems"
+    - "Thumbs.db"
+    - "desktop.ini"
+    - "~$*"
+    - ".tmp"
+    - ".temp"
+    - ".swp"
+    - ".~"
+    - "#*"
+    - "*.log"
+    - "*.lock"
+
+  # 批处理大小（一次写入数据库的记录数）
+  batch_size: 100
+
+  # 刷新间隔（秒）
+  flush_interval: 5
+
+  # 是否递归监控子目录
+  recursive_watch: true
+
+  # 是否启用API操作审计
+  enable_api: true
+
+  # 是否启用文件系统监控
+  enable_filesystem: true
+
+  # 审计日志保留天数
+  retention_days: 90
