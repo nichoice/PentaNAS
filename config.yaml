@@ -1,13 +1,33 @@
 server:
-  title: "HarborArk Open Source NAS System"
-  description: "A powerful and flexible NAS system built with Go"
   port: "8080"
   debug: true
-  version: "0.0.1"
+  version: "1.0.0"
+  title: "PNAS - Personal Network Attached Storage"
+  description: "个人网络附加存储系统"
 
 database:
   path: "pnas.db"
 
 jwt:
-  secret: "pnas-secret-key"
+  secret: "pnas-dev-secret-key"
   expire: 24
+
+# 文件审计配置
+audit:
+  enabled: true
+  watch_paths:
+    - "./test_audit_dir"  # 使用当前目录下的测试目录
+    - "./uploads"         # 上传目录
+  exclude_patterns:
+    - ".DS_Store"
+    - ".git"
+    - ".gitignore"
+    - "*.log"
+    - "*.tmp"
+    - "*.swp"
+  batch_size: 10          # 测试环境用小一点的批次
+  flush_interval: 2       # 2秒刷新，便于测试
+  recursive_watch: true
+  enable_api: true
+  enable_filesystem: true
+  retention_days: 30
