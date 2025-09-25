@@ -36,7 +36,7 @@ func SetupSambaRoutes(router *gin.RouterGroup, db *gorm.DB) {
 			// 共享访问权限管理
 			shares.POST("/access", sambaHandler.SetShareAccess)             // 设置访问权限
 			shares.GET("/:id/access", sambaHandler.GetShareAccess)          // 获取访问权限列表
-			shares.DELETE("/:shareId/access/:accountId", sambaHandler.RemoveShareAccess) // 移除访问权限
+			shares.DELETE("/:id/access/:accountId", sambaHandler.RemoveShareAccess) // 移除访问权限
 
 			// 时间机器功能
 			shares.PUT("/:id/timemachine/enable", sambaHandler.EnableTimeMachine)    // 启用时间机器

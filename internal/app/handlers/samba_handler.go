@@ -218,7 +218,7 @@ func (h *SambaHandler) SetShareAccess(c *gin.Context) {
 
 // RemoveShareAccess 移除共享访问权限
 func (h *SambaHandler) RemoveShareAccess(c *gin.Context) {
-	shareID := c.Param("shareId")
+	shareID := c.Param("id")
 	accountID := c.Param("accountId")
 
 	if err := h.shareService.RemoveShareAccess(shareID, accountID); err != nil {
