@@ -116,4 +116,7 @@ func SetupRoutes(router *gin.Engine) {
 
 	// Register Samba routes
 	RegisterSambaRoutes(router, database.DB)
+
+	// Register NFS routes
+	RegisterNFSRoutes(router, database.DB)
 }

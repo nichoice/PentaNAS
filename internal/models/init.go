@@ -115,3 +115,66 @@ func InitSambaModels(db *gorm.DB) {
 		log.Println("Samba configuration already exists")
 	}
 }
+
+// InitNFSModels initializes the NFS-related models in the database
+func InitNFSModels(db *gorm.DB) {
+	// Auto-migrate all NFS models
+	err := db.AutoMigrate(
+		&NFSExport{},
+		&NFSClientAccess{},
+		&NFSSnapshot{},
+		&NFSMultipathConf{},
+		&NFSGlobalConfig{},
+		&NFSService{},
+		&NFSConnection{},
+		&NFSAuditLog{},
+		&NFSQuota{},
+	)
+
+	if err != nil {
+		log.Printf("Failed to migrate NFS models: %v", err)
+	} else {
+		log.Println("NFS models migrated successfully")
+	}
+
+	// Initialize default NFS global configuration
+	var config NFSGlobalConfig
+	result := db.Where("is_active = ?", true).First(&config)
+
+	if result.Error != nil {
+		// Create default configuration
+		defaultConfig := NFSGlobalConfig{
+			Base:                Base{ID: "default-nfs-config"},
+			Version:             NFSVersion4,
+			PortmapperPort:      111,
+			NFSPort:             2049,
+			MountdPort:          20048,
+			StatdPort:           662,
+			LockdPort:           32803,
+			ThreadCount:         8,
+			MaxConnections:      1024,
+			ReadAhead:           128,
+			WriteBuffer:         128,
+			AttributeTimeout:    60,
+			DirectoryTimeout:    60,
+			RequireSecurePort:   false,
+			EnableTCP:           true,
+			EnableUDP:           false,
+			LogLevel:            1,
+			LogFile:             "/var/log/nfs.log",
+			EnableDebugLog:      false,
+			EnableMultipath:     false,
+			MultipathPolicy:     "round_robin",
+			HealthCheckInterval: 30,
+			IsActive:            true,
+		}
+
+		if err := db.Create(&defaultConfig).Error; err != nil {
+			log.Printf("Failed to create default NFS configuration: %v", err)
+		} else {
+			log.Println("Created default NFS configuration")
+		}
+	} else {
+		log.Println("NFS configuration already exists")
+	}
+}

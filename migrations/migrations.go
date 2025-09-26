@@ -13,6 +13,7 @@ func init() {
 	database.RegisterMigration("20240101000002", "create_roles_table", createRolesTable, dropRolesTable)
 	database.RegisterMigration("20240101000003", "create_audit_tables", createAuditTables, dropAuditTables)
 	database.RegisterMigration("20240101000004", "create_samba_tables", createSambaTables, dropSambaTables)
+	database.RegisterMigration("20240101000005", "create_nfs_tables", createNFSTables, dropNFSTables)
 }
 
 // Migration functions
@@ -138,6 +139,85 @@ func initSambaConfig(db *gorm.DB) error {
 			AuditPrefix:          "",
 			FullAuditPrefix:      "",
 			IsActive:             true,
+		}
+		return db.Create(&defaultConfig).Error
+	}
+	return nil
+}
+
+func createNFSTables(db *gorm.DB) error {
+	tables := []interface{}{
+		&models.NFSExport{},
+		&models.NFSClientAccess{},
+		&models.NFSSnapshot{},
+		&models.NFSMultipathConf{},
+		&models.NFSGlobalConfig{},
+		&models.NFSService{},
+		&models.NFSConnection{},
+		&models.NFSAuditLog{},
+		&models.NFSQuota{},
+	}
+
+	for _, table := range tables {
+		if err := db.AutoMigrate(table); err != nil {
+			return err
+		}
+	}
+
+	// Initialize default NFS configuration
+	return initNFSConfig(db)
+}
+
+func dropNFSTables(db *gorm.DB) error {
+	tables := []interface{}{
+		&models.NFSQuota{},
+		&models.NFSAuditLog{},
+		&models.NFSConnection{},
+		&models.NFSService{},
+		&models.NFSMultipathConf{},
+		&models.NFSSnapshot{},
+		&models.NFSClientAccess{},
+		&models.NFSExport{},
+		&models.NFSGlobalConfig{},
+	}
+
+	for _, table := range tables {
+		if err := db.Migrator().DropTable(table); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func initNFSConfig(db *gorm.DB) error {
+	var config models.NFSGlobalConfig
+	result := db.Where("is_active = ?", true).First(&config)
+
+	if result.Error != nil {
+		defaultConfig := models.NFSGlobalConfig{
+			Base:                models.Base{ID: "default-nfs-config"},
+			Version:             models.NFSVersion4,
+			PortmapperPort:      111,
+			NFSPort:             2049,
+			MountdPort:          20048,
+			StatdPort:           662,
+			LockdPort:           32803,
+			ThreadCount:         8,
+			MaxConnections:      1024,
+			ReadAhead:           128,
+			WriteBuffer:         128,
+			AttributeTimeout:    60,
+			DirectoryTimeout:    60,
+			RequireSecurePort:   false,
+			EnableTCP:           true,
+			EnableUDP:           false,
+			LogLevel:            1,
+			LogFile:             "/var/log/nfs.log",
+			EnableDebugLog:      false,
+			EnableMultipath:     false,
+			MultipathPolicy:     "round_robin",
+			HealthCheckInterval: 30,
+			IsActive:            true,
 		}
 		return db.Create(&defaultConfig).Error
 	}
