@@ -36,6 +36,17 @@ func NewSambaHandler(db *gorm.DB) *SambaHandler {
 // Samba账号管理
 
 // CreateAccount 创建Samba账号
+// @Summary 创建Samba账号
+// @Description 创建新的Samba账号用于文件共享访问
+// @Tags Samba账号管理
+// @Accept json
+// @Produce json
+// @Param request body dto.CreateSambaAccountRequest true "创建账号请求"
+// @Success 201 {object} map[string]interface{} "创建成功"
+// @Failure 400 {object} map[string]string "请求参数错误"
+// @Failure 500 {object} map[string]string "内部服务器错误"
+// @Router /api/v1/samba/accounts [post]
+// @Security BearerAuth
 func (h *SambaHandler) CreateAccount(c *gin.Context) {
 	var req dto.CreateSambaAccountRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -53,6 +64,18 @@ func (h *SambaHandler) CreateAccount(c *gin.Context) {
 }
 
 // UpdateAccount 更新Samba账号
+// @Summary 更新Samba账号
+// @Description 更新指定Samba账号的信息
+// @Tags Samba账号管理
+// @Accept json
+// @Produce json
+// @Param id path string true "账号ID"
+// @Param request body dto.UpdateSambaAccountRequest true "更新账号请求"
+// @Success 200 {object} map[string]interface{} "更新成功"
+// @Failure 400 {object} map[string]string "请求参数错误"
+// @Failure 500 {object} map[string]string "内部服务器错误"
+// @Router /api/v1/samba/accounts/{id} [put]
+// @Security BearerAuth
 func (h *SambaHandler) UpdateAccount(c *gin.Context) {
 	accountID := c.Param("id")
 	var req dto.UpdateSambaAccountRequest
@@ -71,6 +94,17 @@ func (h *SambaHandler) UpdateAccount(c *gin.Context) {
 }
 
 // GetAccount 获取Samba账号
+// @Summary 获取单个Samba账号
+// @Description 根据ID获取指定Samba账号的详细信息
+// @Tags Samba账号管理
+// @Accept json
+// @Produce json
+// @Param id path string true "账号ID"
+// @Success 200 {object} map[string]interface{} "获取成功"
+// @Failure 404 {object} map[string]string "账号不存在"
+// @Failure 500 {object} map[string]string "内部服务器错误"
+// @Router /api/v1/samba/accounts/{id} [get]
+// @Security BearerAuth
 func (h *SambaHandler) GetAccount(c *gin.Context) {
 	accountID := c.Param("id")
 
@@ -84,6 +118,18 @@ func (h *SambaHandler) GetAccount(c *gin.Context) {
 }
 
 // ListAccounts 获取Samba账号列表
+// @Summary 获取Samba账号列表
+// @Description 分页获取Samba账号列表，支持角色过滤
+// @Tags Samba账号管理
+// @Accept json
+// @Produce json
+// @Param offset query int false "偏移量" default(0)
+// @Param limit query int false "每页数量" default(10)
+// @Param role query string false "角色过滤"
+// @Success 200 {object} map[string]interface{} "获取成功"
+// @Failure 500 {object} map[string]string "内部服务器错误"
+// @Router /api/v1/samba/accounts [get]
+// @Security BearerAuth
 func (h *SambaHandler) ListAccounts(c *gin.Context) {
 	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
@@ -102,6 +148,16 @@ func (h *SambaHandler) ListAccounts(c *gin.Context) {
 }
 
 // DeleteAccount 删除Samba账号
+// @Summary 删除Samba账号
+// @Description 根据ID删除指定的Samba账号
+// @Tags Samba账号管理
+// @Accept json
+// @Produce json
+// @Param id path string true "账号ID"
+// @Success 200 {object} map[string]string "删除成功"
+// @Failure 500 {object} map[string]string "内部服务器错误"
+// @Router /api/v1/samba/accounts/{id} [delete]
+// @Security BearerAuth
 func (h *SambaHandler) DeleteAccount(c *gin.Context) {
 	accountID := c.Param("id")
 
@@ -116,6 +172,17 @@ func (h *SambaHandler) DeleteAccount(c *gin.Context) {
 // Samba共享管理
 
 // CreateShare 创建Samba共享
+// @Summary 创建Samba共享
+// @Description 创建新的Samba文件共享目录
+// @Tags Samba共享管理
+// @Accept json
+// @Produce json
+// @Param request body dto.CreateSambaShareRequest true "创建共享请求"
+// @Success 201 {object} map[string]interface{} "创建成功"
+// @Failure 400 {object} map[string]string "请求参数错误"
+// @Failure 500 {object} map[string]string "内部服务器错误"
+// @Router /api/v1/samba/shares [post]
+// @Security BearerAuth
 func (h *SambaHandler) CreateShare(c *gin.Context) {
 	var req dto.CreateSambaShareRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -133,6 +200,18 @@ func (h *SambaHandler) CreateShare(c *gin.Context) {
 }
 
 // UpdateShare 更新Samba共享
+// @Summary 更新Samba共享
+// @Description 更新指定Samba共享的配置信息
+// @Tags Samba共享管理
+// @Accept json
+// @Produce json
+// @Param id path string true "共享ID"
+// @Param request body dto.UpdateSambaShareRequest true "更新共享请求"
+// @Success 200 {object} map[string]interface{} "更新成功"
+// @Failure 400 {object} map[string]string "请求参数错误"
+// @Failure 500 {object} map[string]string "内部服务器错误"
+// @Router /api/v1/samba/shares/{id} [put]
+// @Security BearerAuth
 func (h *SambaHandler) UpdateShare(c *gin.Context) {
 	shareID := c.Param("id")
 	var req dto.UpdateSambaShareRequest
@@ -151,6 +230,17 @@ func (h *SambaHandler) UpdateShare(c *gin.Context) {
 }
 
 // GetShare 获取Samba共享
+// @Summary 获取单个Samba共享
+// @Description 根据ID获取指定Samba共享的详细信息
+// @Tags Samba共享管理
+// @Accept json
+// @Produce json
+// @Param id path string true "共享ID"
+// @Success 200 {object} map[string]interface{} "获取成功"
+// @Failure 404 {object} map[string]string "共享不存在"
+// @Failure 500 {object} map[string]string "内部服务器错误"
+// @Router /api/v1/samba/shares/{id} [get]
+// @Security BearerAuth
 func (h *SambaHandler) GetShare(c *gin.Context) {
 	shareID := c.Param("id")
 
@@ -164,6 +254,18 @@ func (h *SambaHandler) GetShare(c *gin.Context) {
 }
 
 // ListShares 获取Samba共享列表
+// @Summary 获取Samba共享列表
+// @Description 分页获取Samba共享列表，支持状态过滤
+// @Tags Samba共享管理
+// @Accept json
+// @Produce json
+// @Param offset query int false "偏移量" default(0)
+// @Param limit query int false "每页数量" default(10)
+// @Param enabled query bool false "启用状态过滤"
+// @Success 200 {object} map[string]interface{} "获取成功"
+// @Failure 500 {object} map[string]string "内部服务器错误"
+// @Router /api/v1/samba/shares [get]
+// @Security BearerAuth
 func (h *SambaHandler) ListShares(c *gin.Context) {
 	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
@@ -188,6 +290,16 @@ func (h *SambaHandler) ListShares(c *gin.Context) {
 }
 
 // DeleteShare 删除Samba共享
+// @Summary 删除Samba共享
+// @Description 根据ID删除指定的Samba共享
+// @Tags Samba共享管理
+// @Accept json
+// @Produce json
+// @Param id path string true "共享ID"
+// @Success 200 {object} map[string]string "删除成功"
+// @Failure 500 {object} map[string]string "内部服务器错误"
+// @Router /api/v1/samba/shares/{id} [delete]
+// @Security BearerAuth
 func (h *SambaHandler) DeleteShare(c *gin.Context) {
 	shareID := c.Param("id")
 
@@ -433,6 +545,15 @@ func (h *SambaHandler) GetRecycleBinStatistics(c *gin.Context) {
 // 监控功能
 
 // GetSambaStatus 获取Samba整体状态
+// @Summary 获取Samba服务状态
+// @Description 获取Samba服务的整体运行状态和统计信息
+// @Tags Samba监控管理
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]interface{} "状态信息"
+// @Failure 500 {object} map[string]string "内部服务器错误"
+// @Router /api/v1/samba/monitoring/status [get]
+// @Security BearerAuth
 func (h *SambaHandler) GetSambaStatus(c *gin.Context) {
 	status, err := h.monitoringService.GetSambaStatus()
 	if err != nil {
@@ -455,6 +576,15 @@ func (h *SambaHandler) GetServiceStatus(c *gin.Context) {
 }
 
 // GetActiveConnections 获取活跃连接
+// @Summary 获取当前活跃连接
+// @Description 获取当前Samba服务的所有活跃连接信息
+// @Tags Samba监控管理
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]interface{} "活跃连接列表"
+// @Failure 500 {object} map[string]string "内部服务器错误"
+// @Router /api/v1/samba/monitoring/connections [get]
+// @Security BearerAuth
 func (h *SambaHandler) GetActiveConnections(c *gin.Context) {
 	connections, err := h.monitoringService.GetActiveConnections()
 	if err != nil {
@@ -484,6 +614,24 @@ func (h *SambaHandler) GetConnectionHistory(c *gin.Context) {
 }
 
 // GetAuditLogs 获取审计日志
+// @Summary 获取Samba审计日志
+// @Description 分页获取Samba操作审计日志，支持多种过滤条件
+// @Tags Samba监控管理
+// @Accept json
+// @Produce json
+// @Param offset query int false "偏移量" default(0)
+// @Param limit query int false "每页数量" default(10)
+// @Param username query string false "用户名过滤"
+// @Param client_ip query string false "客户端IP过滤"
+// @Param share_name query string false "共享名称过滤"
+// @Param operation query string false "操作类型过滤"
+// @Param success query bool false "成功状态过滤"
+// @Param start_time query string false "开始时间过滤(RFC3339格式)"
+// @Param end_time query string false "结束时间过滤(RFC3339格式)"
+// @Success 200 {object} map[string]interface{} "获取成功"
+// @Failure 500 {object} map[string]string "内部服务器错误"
+// @Router /api/v1/samba/monitoring/audit/logs [get]
+// @Security BearerAuth
 func (h *SambaHandler) GetAuditLogs(c *gin.Context) {
 	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))

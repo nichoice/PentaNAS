@@ -1,0 +1,2689 @@
+definitions:
+  controllers.AnomalyDetectionResponse:
+    properties:
+      alerts:
+        items:
+          $ref: '#/definitions/controllers.SecurityAlert'
+        type: array
+      risk_score:
+        type: number
+      suspicious_activities:
+        items:
+          $ref: '#/definitions/controllers.SuspiciousActivity'
+        type: array
+    type: object
+  controllers.AssignRoleRequest:
+    properties:
+      role_id:
+        enum:
+        - super_admin
+        - normal_user
+        - audit_user
+        - ops_user
+        type: string
+      user_id:
+        type: string
+    required:
+    - role_id
+    - user_id
+    type: object
+  controllers.AuditStatsResponse:
+    properties:
+      daily_stats:
+        items:
+          $ref: '#/definitions/controllers.DailyStats'
+        type: array
+      failed_count:
+        type: integer
+      hourly_stats:
+        items:
+          $ref: '#/definitions/controllers.HourlyStats'
+        type: array
+      operation_stats:
+        items:
+          $ref: '#/definitions/controllers.OperationStat'
+        type: array
+      recent_activities:
+        items:
+          $ref: '#/definitions/controllers.FileAuditLogResponse'
+        type: array
+      success_count:
+        type: integer
+      top_files:
+        items:
+          $ref: '#/definitions/controllers.FileAccessStat'
+        type: array
+      total_count:
+        type: integer
+      user_stats:
+        items:
+          $ref: '#/definitions/controllers.UserStat'
+        type: array
+    type: object
+  controllers.CreateUserRequest:
+    properties:
+      is_active:
+        type: boolean
+      password:
+        minLength: 8
+        type: string
+      remark:
+        type: string
+      role:
+        enum:
+        - super_admin
+        - normal_user
+        - audit_user
+        - ops_user
+        type: string
+      username:
+        maxLength: 20
+        minLength: 3
+        type: string
+    required:
+    - password
+    - role
+    - username
+    type: object
+  controllers.CreateVGRequest:
+    properties:
+      devices:
+        items:
+          type: string
+        type: array
+      vg_name:
+        example: my_volume_group
+        type: string
+    required:
+    - devices
+    - vg_name
+    type: object
+  controllers.DailyStats:
+    properties:
+      count:
+        type: integer
+      date:
+        type: string
+    type: object
+  controllers.FileAccessStat:
+    properties:
+      access_count:
+        type: integer
+      file_name:
+        type: string
+      file_path:
+        type: string
+      file_size:
+        type: integer
+      last_access:
+        type: string
+      user_count:
+        type: integer
+    type: object
+  controllers.FileAuditLogResponse:
+    properties:
+      client_ip:
+        type: string
+      created_at:
+        type: string
+      file_path:
+        type: string
+      id:
+        type: string
+      message:
+        type: string
+      operation:
+        type: string
+      source:
+        type: string
+      success:
+        type: boolean
+      updated_at:
+        type: string
+      user_id:
+        type: string
+      username:
+        type: string
+    type: object
+  controllers.HourlyStats:
+    properties:
+      count:
+        type: integer
+      hour:
+        type: integer
+    type: object
+  controllers.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  controllers.LoginResponse:
+    properties:
+      expires_at:
+        type: string
+      token:
+        type: string
+      user_id:
+        type: string
+      username:
+        type: string
+    type: object
+  controllers.OperationStat:
+    properties:
+      count:
+        type: integer
+      operation:
+        type: string
+      percentage:
+        type: number
+    type: object
+  controllers.RevokeRoleRequest:
+    properties:
+      role_id:
+        enum:
+        - super_admin
+        - normal_user
+        - audit_user
+        - ops_user
+        type: string
+      user_id:
+        type: string
+    required:
+    - role_id
+    - user_id
+    type: object
+  controllers.RoleResponse:
+    properties:
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  controllers.SecurityAlert:
+    properties:
+      count:
+        type: integer
+      description:
+        type: string
+      first_time:
+        type: string
+      last_time:
+        type: string
+      severity:
+        type: string
+      type:
+        type: string
+    type: object
+  controllers.SuspiciousActivity:
+    properties:
+      count:
+        type: integer
+      description:
+        type: string
+      first_time:
+        type: string
+      last_time:
+        type: string
+      operation:
+        type: string
+      risk_level:
+        type: string
+      time_range:
+        type: string
+      user_id:
+        type: string
+      username:
+        type: string
+    type: object
+  controllers.UpdateUserRequest:
+    properties:
+      is_active:
+        type: boolean
+      password:
+        minLength: 8
+        type: string
+      remark:
+        type: string
+      role:
+        enum:
+        - super_admin
+        - normal_user
+        - audit_user
+        - ops_user
+        type: string
+    type: object
+  controllers.UpdateUserStatusRequest:
+    properties:
+      is_active:
+        type: boolean
+    required:
+    - is_active
+    type: object
+  controllers.UserResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      last_login:
+        type: string
+      remark:
+        type: string
+      updated_at:
+        type: string
+      username:
+        type: string
+    type: object
+  controllers.UserStat:
+    properties:
+      count:
+        type: integer
+      last_activity:
+        type: string
+      user_id:
+        type: string
+      username:
+        type: string
+    type: object
+  dto.CPUInfo:
+    properties:
+      cache_size:
+        type: integer
+      cores:
+        type: integer
+      family:
+        type: string
+      load_avg:
+        $ref: '#/definitions/dto.LoadAvgInfo'
+      model_name:
+        type: string
+      per_cpu:
+        items:
+          $ref: '#/definitions/dto.PerCPUInfo'
+        type: array
+      speed_mhz:
+        type: number
+      temperature:
+        type: number
+      threads:
+        type: integer
+      usage_percent:
+        items:
+          type: number
+        type: array
+    type: object
+  dto.CreateLVRequest:
+    properties:
+      lv_name:
+        type: string
+      size:
+        type: string
+      vg_name:
+        type: string
+    required:
+    - lv_name
+    - size
+    - vg_name
+    type: object
+  dto.CreateSambaAccountRequest:
+    properties:
+      description:
+        type: string
+      is_enabled:
+        type: boolean
+      password:
+        minLength: 6
+        type: string
+      role:
+        enum:
+        - samba_admin
+        - samba_user
+        - samba_guest
+        - samba_backup
+        - samba_timemachine
+        type: string
+      samba_user:
+        maxLength: 50
+        minLength: 3
+        type: string
+      user_id:
+        type: string
+    required:
+    - password
+    - role
+    - samba_user
+    - user_id
+    type: object
+  dto.CreateSambaShareRequest:
+    properties:
+      allow_guest:
+        type: boolean
+      browseable:
+        type: boolean
+      comment:
+        type: string
+      create_mask:
+        type: string
+      directory_mask:
+        type: string
+      enable_multi_channel:
+        type: boolean
+      enable_recycle_bin:
+        type: boolean
+      enable_time_machine:
+        description: 高级功能配置
+        type: boolean
+      force_create_mode:
+        type: string
+      force_directory_mode:
+        type: string
+      guest_only:
+        type: boolean
+      is_enabled:
+        type: boolean
+      name:
+        maxLength: 100
+        minLength: 1
+        type: string
+      path:
+        type: string
+      recycle_bin_path:
+        type: string
+      time_machine_quota:
+        type: integer
+      writable:
+        type: boolean
+    required:
+    - name
+    - path
+    type: object
+  dto.CreateVGRequest:
+    properties:
+      devices:
+        items:
+          type: string
+        type: array
+      vg_name:
+        type: string
+    required:
+    - devices
+    - vg_name
+    type: object
+  dto.DiskIOInfo:
+    properties:
+      io_time:
+        type: integer
+      iops_in_progress:
+        type: integer
+      merged_read_count:
+        type: integer
+      merged_write_count:
+        type: integer
+      name:
+        type: string
+      read_bytes:
+        type: integer
+      read_count:
+        type: integer
+      read_time:
+        type: integer
+      weighted_io:
+        type: integer
+      write_bytes:
+        type: integer
+      write_count:
+        type: integer
+      write_time:
+        type: integer
+    type: object
+  dto.DiskInfo:
+    properties:
+      device:
+        type: string
+      free:
+        type: integer
+      fstype:
+        type: string
+      inodes_free:
+        type: integer
+      inodes_total:
+        type: integer
+      inodes_used:
+        type: integer
+      inodes_used_percent:
+        type: number
+      mountpoint:
+        type: string
+      total:
+        type: integer
+      used:
+        type: integer
+      used_percent:
+        type: number
+    type: object
+  dto.DiskResponse:
+    properties:
+      avail_size:
+        type: integer
+      file_system:
+        type: string
+      health:
+        type: string
+      is_online:
+        type: boolean
+      is_system_disk:
+        type: boolean
+      maj_min:
+        type: string
+      model:
+        type: string
+      mount_point:
+        type: string
+      name:
+        type: string
+      path:
+        type: string
+      rota:
+        type: boolean
+      serial:
+        type: string
+      size:
+        type: integer
+      temperature:
+        type: integer
+      type:
+        type: string
+      usage_rate:
+        type: number
+      used_size:
+        type: integer
+      vendor:
+        type: string
+    type: object
+  dto.ISCSITargetInfo:
+    properties:
+      iqn:
+        type: string
+      read_bytes:
+        type: integer
+      read_ops:
+        type: integer
+      sessions:
+        type: integer
+      status:
+        type: string
+      write_bytes:
+        type: integer
+      write_ops:
+        type: integer
+    type: object
+  dto.LoadAvgInfo:
+    properties:
+      load1:
+        type: number
+      load5:
+        type: number
+      load15:
+        type: number
+    type: object
+  dto.LogicalVolumeResponse:
+    properties:
+      lv_attr:
+        type: string
+      lv_name:
+        type: string
+      lv_size:
+        type: string
+      lv_uuid:
+        type: string
+      vg_name:
+        type: string
+    type: object
+  dto.MemoryInfo:
+    properties:
+      active:
+        type: integer
+      available:
+        type: integer
+      buffers:
+        type: integer
+      cached:
+        type: integer
+      free:
+        type: integer
+      inactive:
+        type: integer
+      laundry:
+        type: integer
+      shared:
+        type: integer
+      slab:
+        type: integer
+      swap_free:
+        type: integer
+      swap_percent:
+        type: number
+      swap_total:
+        type: integer
+      swap_used:
+        type: integer
+      total:
+        type: integer
+      used:
+        type: integer
+      used_percent:
+        type: number
+      wired:
+        type: integer
+    type: object
+  dto.MonitoringData:
+    properties:
+      cpu:
+        $ref: '#/definitions/dto.CPUInfo'
+      disk_io:
+        items:
+          $ref: '#/definitions/dto.DiskIOInfo'
+        type: array
+      disks:
+        items:
+          $ref: '#/definitions/dto.DiskInfo'
+        type: array
+      memory:
+        $ref: '#/definitions/dto.MemoryInfo'
+      network_io:
+        items:
+          $ref: '#/definitions/dto.NetworkIOInfo'
+        type: array
+      networks:
+        items:
+          $ref: '#/definitions/dto.NetworkInfo'
+        type: array
+      storage_protocols:
+        items:
+          $ref: '#/definitions/dto.StorageProtocolInfo'
+        type: array
+      system_info:
+        $ref: '#/definitions/dto.SystemInfo'
+      timestamp:
+        type: string
+    type: object
+  dto.NetworkAddr:
+    properties:
+      addr:
+        type: string
+      net:
+        type: string
+    type: object
+  dto.NetworkIOInfo:
+    properties:
+      bytes_recv:
+        type: integer
+      bytes_sent:
+        type: integer
+      dropin:
+        type: integer
+      dropout:
+        type: integer
+      errin:
+        type: integer
+      errout:
+        type: integer
+      fifoin:
+        type: integer
+      fifoout:
+        type: integer
+      name:
+        type: string
+      packets_recv:
+        type: integer
+      packets_sent:
+        type: integer
+    type: object
+  dto.NetworkInfo:
+    properties:
+      addrs:
+        items:
+          $ref: '#/definitions/dto.NetworkAddr'
+        type: array
+      flags:
+        items:
+          type: string
+        type: array
+      hardware_addr:
+        type: string
+      mtu:
+        type: integer
+      name:
+        type: string
+    type: object
+  dto.PerCPUInfo:
+    properties:
+      cpu:
+        type: string
+      guest:
+        type: number
+      idle:
+        type: number
+      iowait:
+        type: number
+      irq:
+        type: number
+      nice:
+        type: number
+      softirq:
+        type: number
+      steal:
+        type: number
+      system:
+        type: number
+      user:
+        type: number
+    type: object
+  dto.ShareInfo:
+    properties:
+      connections:
+        type: integer
+      name:
+        type: string
+      path:
+        type: string
+      protocol:
+        type: string
+      read_bytes:
+        type: integer
+      read_ops:
+        type: integer
+      status:
+        type: string
+      write_bytes:
+        type: integer
+      write_ops:
+        type: integer
+    type: object
+  dto.StorageOverviewResponse:
+    properties:
+      disks:
+        items:
+          $ref: '#/definitions/dto.DiskResponse'
+        type: array
+      logical_volumes:
+        items:
+          $ref: '#/definitions/dto.LogicalVolumeResponse'
+        type: array
+      total_disks:
+        type: integer
+      total_logical_volumes:
+        type: integer
+      total_volume_groups:
+        type: integer
+      volume_groups:
+        items:
+          $ref: '#/definitions/dto.VolumeGroupResponse'
+        type: array
+    type: object
+  dto.StorageProtocolInfo:
+    properties:
+      connections:
+        type: integer
+      protocol:
+        type: string
+      shares:
+        items:
+          $ref: '#/definitions/dto.ShareInfo'
+        type: array
+      statistics:
+        additionalProperties: true
+        type: object
+      status:
+        type: string
+      targets:
+        items:
+          $ref: '#/definitions/dto.ISCSITargetInfo'
+        type: array
+    type: object
+  dto.SystemInfo:
+    properties:
+      boot_time:
+        type: string
+      host_id:
+        type: string
+      hostname:
+        type: string
+      kernel_arch:
+        type: string
+      kernel_version:
+        type: string
+      os:
+        type: string
+      platform:
+        type: string
+      platform_family:
+        type: string
+      platform_version:
+        type: string
+      procs:
+        type: integer
+      uptime:
+        type: integer
+    type: object
+  dto.UpdateSambaAccountRequest:
+    properties:
+      description:
+        type: string
+      is_enabled:
+        type: boolean
+      password:
+        minLength: 6
+        type: string
+      role:
+        enum:
+        - samba_admin
+        - samba_user
+        - samba_guest
+        - samba_backup
+        - samba_timemachine
+        type: string
+    type: object
+  dto.UpdateSambaShareRequest:
+    properties:
+      allow_guest:
+        type: boolean
+      browseable:
+        type: boolean
+      comment:
+        type: string
+      create_mask:
+        type: string
+      directory_mask:
+        type: string
+      enable_multi_channel:
+        type: boolean
+      enable_recycle_bin:
+        type: boolean
+      enable_time_machine:
+        description: 高级功能配置
+        type: boolean
+      force_create_mode:
+        type: string
+      force_directory_mode:
+        type: string
+      guest_only:
+        type: boolean
+      is_enabled:
+        type: boolean
+      recycle_bin_path:
+        type: string
+      time_machine_quota:
+        type: integer
+      writable:
+        type: boolean
+    type: object
+  dto.VolumeGroupResponse:
+    properties:
+      vg_attr:
+        type: string
+      vg_extent_count:
+        type: string
+      vg_extent_size:
+        type: string
+      vg_free:
+        type: string
+      vg_free_count:
+        type: string
+      vg_name:
+        type: string
+      vg_size:
+        type: string
+      vg_uuid:
+        type: string
+    type: object
+  dto.WebSocketMessage:
+    properties:
+      client_id:
+        type: string
+      data: {}
+      timestamp:
+        type: string
+      type:
+        type: string
+    type: object
+  errors.ErrorResponse:
+    properties:
+      code:
+        type: integer
+      error:
+        type: string
+      message:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /api/v1/samba/accounts:
+    get:
+      consumes:
+      - application/json
+      description: 分页获取Samba账号列表，支持角色过滤
+      parameters:
+      - default: 0
+        description: 偏移量
+        in: query
+        name: offset
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: limit
+        type: integer
+      - description: 角色过滤
+        in: query
+        name: role
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 内部服务器错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取Samba账号列表
+      tags:
+      - Samba账号管理
+    post:
+      consumes:
+      - application/json
+      description: 创建新的Samba账号用于文件共享访问
+      parameters:
+      - description: 创建账号请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateSambaAccountRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 创建成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 内部服务器错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 创建Samba账号
+      tags:
+      - Samba账号管理
+  /api/v1/samba/accounts/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 根据ID删除指定的Samba账号
+      parameters:
+      - description: 账号ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 内部服务器错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 删除Samba账号
+      tags:
+      - Samba账号管理
+    get:
+      consumes:
+      - application/json
+      description: 根据ID获取指定Samba账号的详细信息
+      parameters:
+      - description: 账号ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: 账号不存在
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 内部服务器错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取单个Samba账号
+      tags:
+      - Samba账号管理
+    put:
+      consumes:
+      - application/json
+      description: 更新指定Samba账号的信息
+      parameters:
+      - description: 账号ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 更新账号请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateSambaAccountRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 内部服务器错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 更新Samba账号
+      tags:
+      - Samba账号管理
+  /api/v1/samba/monitoring/audit/logs:
+    get:
+      consumes:
+      - application/json
+      description: 分页获取Samba操作审计日志，支持多种过滤条件
+      parameters:
+      - default: 0
+        description: 偏移量
+        in: query
+        name: offset
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: limit
+        type: integer
+      - description: 用户名过滤
+        in: query
+        name: username
+        type: string
+      - description: 客户端IP过滤
+        in: query
+        name: client_ip
+        type: string
+      - description: 共享名称过滤
+        in: query
+        name: share_name
+        type: string
+      - description: 操作类型过滤
+        in: query
+        name: operation
+        type: string
+      - description: 成功状态过滤
+        in: query
+        name: success
+        type: boolean
+      - description: 开始时间过滤(RFC3339格式)
+        in: query
+        name: start_time
+        type: string
+      - description: 结束时间过滤(RFC3339格式)
+        in: query
+        name: end_time
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 内部服务器错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取Samba审计日志
+      tags:
+      - Samba监控管理
+  /api/v1/samba/monitoring/connections:
+    get:
+      consumes:
+      - application/json
+      description: 获取当前Samba服务的所有活跃连接信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 活跃连接列表
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 内部服务器错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取当前活跃连接
+      tags:
+      - Samba监控管理
+  /api/v1/samba/monitoring/status:
+    get:
+      consumes:
+      - application/json
+      description: 获取Samba服务的整体运行状态和统计信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 状态信息
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 内部服务器错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取Samba服务状态
+      tags:
+      - Samba监控管理
+  /api/v1/samba/shares:
+    get:
+      consumes:
+      - application/json
+      description: 分页获取Samba共享列表，支持状态过滤
+      parameters:
+      - default: 0
+        description: 偏移量
+        in: query
+        name: offset
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: limit
+        type: integer
+      - description: 启用状态过滤
+        in: query
+        name: enabled
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 内部服务器错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取Samba共享列表
+      tags:
+      - Samba共享管理
+    post:
+      consumes:
+      - application/json
+      description: 创建新的Samba文件共享目录
+      parameters:
+      - description: 创建共享请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateSambaShareRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 创建成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 内部服务器错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 创建Samba共享
+      tags:
+      - Samba共享管理
+  /api/v1/samba/shares/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 根据ID删除指定的Samba共享
+      parameters:
+      - description: 共享ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 内部服务器错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 删除Samba共享
+      tags:
+      - Samba共享管理
+    get:
+      consumes:
+      - application/json
+      description: 根据ID获取指定Samba共享的详细信息
+      parameters:
+      - description: 共享ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: 共享不存在
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 内部服务器错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取单个Samba共享
+      tags:
+      - Samba共享管理
+    put:
+      consumes:
+      - application/json
+      description: 更新指定Samba共享的配置信息
+      parameters:
+      - description: 共享ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 更新共享请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateSambaShareRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 内部服务器错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 更新Samba共享
+      tags:
+      - Samba共享管理
+  /api/v1/storage/disks:
+    get:
+      consumes:
+      - application/json
+      description: 获取系统中所有磁盘的信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.DiskResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      summary: 获取磁盘列表
+      tags:
+      - 存储管理
+  /api/v1/storage/lvs:
+    get:
+      consumes:
+      - application/json
+      description: 获取LVM逻辑卷信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.LogicalVolumeResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      summary: 获取逻辑卷列表
+      tags:
+      - 存储管理
+    post:
+      consumes:
+      - application/json
+      description: 创建LVM逻辑卷
+      parameters:
+      - description: 创建逻辑卷请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateLVRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      summary: 创建逻辑卷
+      tags:
+      - 存储管理
+  /api/v1/storage/overview:
+    get:
+      consumes:
+      - application/json
+      description: 获取存储系统整体概览信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.StorageOverviewResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      summary: 获取存储概览
+      tags:
+      - 存储管理
+  /api/v1/storage/vgs:
+    get:
+      consumes:
+      - application/json
+      description: 获取LVM卷组信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.VolumeGroupResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      summary: 获取卷组列表
+      tags:
+      - 存储管理
+    post:
+      consumes:
+      - application/json
+      description: 创建LVM卷组
+      parameters:
+      - description: 创建卷组请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateVGRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errors.ErrorResponse'
+      summary: 创建卷组
+      tags:
+      - 存储管理
+  /audit/anomalies:
+    get:
+      consumes:
+      - application/json
+      description: Detect suspicious activities and security anomalies
+      parameters:
+      - default: 24
+        description: Time range in hours
+        in: query
+        name: hours
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Anomaly detection results
+          schema:
+            $ref: '#/definitions/controllers.AnomalyDetectionResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Detect anomalies
+      tags:
+      - Audit
+  /audit/heatmap:
+    get:
+      consumes:
+      - application/json
+      description: Get file access heatmap data
+      parameters:
+      - default: 50
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: File access heatmap
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get file access heatmap
+      tags:
+      - Audit
+  /audit/logs:
+    get:
+      consumes:
+      - application/json
+      description: Get audit logs with filtering and pagination
+      parameters:
+      - description: User ID
+        in: query
+        name: user_id
+        type: string
+      - description: Username
+        in: query
+        name: username
+        type: string
+      - description: Operation type
+        in: query
+        name: operation
+        type: string
+      - description: File path
+        in: query
+        name: file_path
+        type: string
+      - description: Status
+        in: query
+        name: status
+        type: string
+      - description: Source
+        in: query
+        name: source
+        type: string
+      - description: Start time (RFC3339)
+        in: query
+        name: start_time
+        type: string
+      - description: End time (RFC3339)
+        in: query
+        name: end_time
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: Page size
+        in: query
+        name: page_size
+        type: integer
+      - default: created_at
+        description: Order by field
+        in: query
+        name: order_by
+        type: string
+      - default: desc
+        description: Order direction
+        in: query
+        name: order_dir
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Audit logs
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get audit logs
+      tags:
+      - Audit
+  /audit/stats:
+    get:
+      consumes:
+      - application/json
+      description: Get comprehensive audit statistics
+      parameters:
+      - description: Start time (RFC3339)
+        in: query
+        name: start_time
+        type: string
+      - description: End time (RFC3339)
+        in: query
+        name: end_time
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Audit statistics
+          schema:
+            $ref: '#/definitions/controllers.AuditStatsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get audit statistics
+      tags:
+      - Audit
+  /audit/users/{user_id}/timeline:
+    get:
+      consumes:
+      - application/json
+      description: Get detailed activity timeline for a specific user
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Start time (RFC3339)
+        in: query
+        name: start_time
+        type: string
+      - description: End time (RFC3339)
+        in: query
+        name: end_time
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User activity timeline
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get user activity timeline
+      tags:
+      - Audit
+  /auth/assign:
+    post:
+      consumes:
+      - application/json
+      description: Assign a predefined role to a user
+      parameters:
+      - description: Role assignment details
+        in: body
+        name: assignment
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.AssignRoleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Assign role to user
+      tags:
+      - Authorization
+  /auth/revoke:
+    post:
+      consumes:
+      - application/json
+      description: Revoke a role from a user
+      parameters:
+      - description: Role revocation details
+        in: body
+        name: revocation
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.RevokeRoleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Revoke role from user
+      tags:
+      - Authorization
+  /auth/roles/{role_id}/users:
+    get:
+      consumes:
+      - application/json
+      description: Get users assigned to a role
+      parameters:
+      - description: Role ID
+        in: path
+        name: role_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get role users
+      tags:
+      - Authorization
+  /auth/users/{user_id}/roles:
+    get:
+      consumes:
+      - application/json
+      description: Get roles assigned to a user
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get user roles
+      tags:
+      - Authorization
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return JWT token
+      parameters:
+      - description: Login credentials
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: User login
+      tags:
+      - Authentication
+  /monitoring/complete:
+    get:
+      consumes:
+      - application/json
+      description: Get all available monitoring data in a single response
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Complete monitoring data
+          schema:
+            $ref: '#/definitions/dto.MonitoringData'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get complete monitoring data
+      tags:
+      - Monitoring
+  /monitoring/cpu:
+    get:
+      consumes:
+      - application/json
+      description: Get detailed CPU information including usage, load average, and
+        per-CPU statistics
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: CPU information
+          schema:
+            $ref: '#/definitions/dto.CPUInfo'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get CPU information
+      tags:
+      - Monitoring
+  /monitoring/disk:
+    get:
+      consumes:
+      - application/json
+      description: Get detailed disk information including usage and I/O statistics
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Disk information including usage and I/O
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get disk information
+      tags:
+      - Monitoring
+  /monitoring/memory:
+    get:
+      consumes:
+      - application/json
+      description: Get detailed memory information including RAM and swap usage
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Memory information
+          schema:
+            $ref: '#/definitions/dto.MemoryInfo'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get memory information
+      tags:
+      - Monitoring
+  /monitoring/metrics:
+    get:
+      consumes:
+      - application/json
+      description: Get system metrics in Prometheus format for monitoring integration
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: Prometheus metrics format
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get system metrics
+      tags:
+      - Monitoring
+  /monitoring/network:
+    get:
+      consumes:
+      - application/json
+      description: Get detailed network information including interfaces and I/O statistics
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Network information including interfaces and I/O
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get network information
+      tags:
+      - Monitoring
+  /monitoring/service/status:
+    get:
+      consumes:
+      - application/json
+      description: Get status information for specific system services
+      parameters:
+      - description: Service name to check
+        in: query
+        name: service
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Service status information
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get service status
+      tags:
+      - Monitoring
+  /monitoring/storage-protocols:
+    get:
+      consumes:
+      - application/json
+      description: Get monitoring information for storage protocols (SMB, NFS, iSCSI)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Storage protocol information
+          schema:
+            items:
+              $ref: '#/definitions/dto.StorageProtocolInfo'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get storage protocol information
+      tags:
+      - Monitoring
+  /monitoring/system:
+    get:
+      consumes:
+      - application/json
+      description: Get detailed system information including OS, kernel, hardware
+        details
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: System information
+          schema:
+            $ref: '#/definitions/dto.SystemInfo'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get system information
+      tags:
+      - Monitoring
+  /monitoring/websocket:
+    get:
+      consumes:
+      - application/json
+      description: Establish WebSocket connection for real-time monitoring data
+      produces:
+      - application/json
+      responses:
+        "101":
+          description: Switching Protocols
+          schema:
+            type: string
+      summary: WebSocket endpoint for real-time monitoring
+      tags:
+      - Monitoring
+  /monitoring/websocket/broadcast:
+    post:
+      consumes:
+      - application/json
+      description: Send a message to all connected WebSocket clients
+      parameters:
+      - description: Message to broadcast
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/dto.WebSocketMessage'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Broadcast message to WebSocket clients
+      tags:
+      - Monitoring
+  /monitoring/websocket/client/{client_id}:
+    post:
+      consumes:
+      - application/json
+      description: Send a message to a specific connected WebSocket client
+      parameters:
+      - description: Client ID
+        in: path
+        name: client_id
+        required: true
+        type: string
+      - description: Message to send
+        in: body
+        name: message
+        required: true
+        schema:
+          $ref: '#/definitions/dto.WebSocketMessage'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Send message to specific WebSocket client
+      tags:
+      - Monitoring
+  /monitoring/websocket/info:
+    get:
+      consumes:
+      - application/json
+      description: Get information about current WebSocket connections
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: WebSocket connection information
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get WebSocket information
+      tags:
+      - Monitoring
+  /roles:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of predefined roles with pagination
+      parameters:
+      - description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Page size (default: 20)'
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get roles
+      tags:
+      - Roles
+  /roles/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get detailed information about a predefined role by ID
+      parameters:
+      - description: Role ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.RoleResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get role by ID
+      tags:
+      - Roles
+  /storage/create_vg:
+    post:
+      consumes:
+      - application/json
+      description: Create a new LVM volume group with specified devices
+      parameters:
+      - description: Volume group creation details
+        in: body
+        name: vg
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.CreateVGRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create volume group
+      tags:
+      - Storage
+  /storage/disks:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all available disks in the system
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Disk information
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get system disks
+      tags:
+      - Storage
+  /storage/lvs:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all LVM logical volumes
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Logical volume information
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get logical volumes
+      tags:
+      - Storage
+  /storage/vgs:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all LVM volume groups
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Volume group information
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get volume groups
+      tags:
+      - Storage
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of users with optional filtering and pagination
+      parameters:
+      - description: Username filter
+        in: query
+        name: username
+        type: string
+      - description: Role filter
+        in: query
+        name: role
+        type: string
+      - description: Status filter (active/inactive)
+        in: query
+        name: status
+        type: string
+      - description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Page size (default: 20)'
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get users
+      tags:
+      - Users
+    post:
+      consumes:
+      - application/json
+      description: Create a new user with the provided details
+      parameters:
+      - description: User details
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controllers.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a new user
+      tags:
+      - Users
+  /users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete user
+      tags:
+      - Users
+    get:
+      consumes:
+      - application/json
+      description: Get detailed information about a user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get user by ID
+      tags:
+      - Users
+    put:
+      consumes:
+      - application/json
+      description: Update a user's information
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User update details
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update user
+      tags:
+      - Users
+  /users/{id}/status:
+    put:
+      consumes:
+      - application/json
+      description: Update a user's status (active/inactive)
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User status
+        in: body
+        name: status
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.UpdateUserStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update user status
+      tags:
+      - Users
+swagger: "2.0"

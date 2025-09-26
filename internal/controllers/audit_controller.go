@@ -27,6 +27,21 @@ type AuditQueryParams struct {
 	OrderDir    string `form:"order_dir" json:"order_dir"`
 }
 
+// FileAuditLogResponse 文件审计日志响应结构（用于Swagger）
+type FileAuditLogResponse struct {
+	ID        string    `json:"id"`
+	UserID    string    `json:"user_id"`
+	Username  string    `json:"username"`
+	Operation string    `json:"operation"`
+	FilePath  string    `json:"file_path"`
+	Success   bool      `json:"success"`
+	Message   string    `json:"message"`
+	Source    string    `json:"source"`
+	ClientIP  string    `json:"client_ip"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
 // AuditStatsResponse 审计统计响应
 type AuditStatsResponse struct {
 	TotalCount       int64                    `json:"total_count"`
@@ -37,7 +52,7 @@ type AuditStatsResponse struct {
 	HourlyStats      []HourlyStats            `json:"hourly_stats"`
 	DailyStats       []DailyStats             `json:"daily_stats"`
 	TopFiles         []FileAccessStat         `json:"top_files"`
-	RecentActivities []models.FileAuditLog    `json:"recent_activities"`
+	RecentActivities []FileAuditLogResponse   `json:"recent_activities"`
 }
 
 type OperationStat struct {
@@ -342,7 +357,25 @@ func GetAuditStats(c *gin.Context) {
 		Order("created_at DESC").
 		Limit(20).
 		Find(&recentActivities)
-	response.RecentActivities = recentActivities
+
+	// 转换为响应结构体
+	recentActivitiesResponse := make([]FileAuditLogResponse, len(recentActivities))
+	for i, activity := range recentActivities {
+		recentActivitiesResponse[i] = FileAuditLogResponse{
+			ID:        activity.ID,
+			UserID:    activity.UserID,
+			Username:  activity.Username,
+			Operation: activity.Operation,
+			FilePath:  activity.FilePath,
+			Success:   activity.Status == "success",
+			Message:   activity.ErrorMsg,
+			Source:    activity.Source,
+			ClientIP:  activity.ClientIP,
+			CreatedAt: activity.CreatedAt,
+			UpdatedAt: activity.UpdatedAt,
+		}
+	}
+	response.RecentActivities = recentActivitiesResponse
 
 	c.JSON(http.StatusOK, response)
 }
