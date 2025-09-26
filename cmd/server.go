@@ -49,10 +49,23 @@ func init() {
 // @name Authorization
 // @description Type "Bearer" followed by a space and JWT token.
 func startServer() {
+	// Ensure configuration file exists
+	configPath := "config.yaml"
+	if err := config.EnsureConfigExists(configPath); err != nil {
+		log.Fatalf("Failed to ensure config exists: %v", err)
+	}
+
 	// Load configuration
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		log.Fatalf("Failed to load config: %v", err)
+	}
+
+	// Ensure audit directories exist
+	for _, path := range cfg.Audit.WatchPaths {
+		if err := config.EnsureDirectoryExists(path); err != nil {
+			log.Printf("Warning: Failed to create audit directory %s: %v", path, err)
+		}
 	}
 
 	// Initialize logger
@@ -61,8 +74,8 @@ func startServer() {
 	}
 	defer logging.Sync()
 
-	// Initialize database
-	if err := database.InitDatabase(&cfg.Database); err != nil {
+	// Initialize database with migrations
+	if err := database.InitDatabaseWithMigrations(&cfg.Database); err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
 

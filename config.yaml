@@ -1,33 +1,37 @@
 server:
   port: "8080"
-  debug: true
-  version: "1.0.0"
-  title: "PNAS - Personal Network Attached Storage"
-  description: "个人网络附加存储系统"
-
+  debug: false
+  version: 1.0.0
+  title: PNAS - Personal Network Attached Storage
+  description: 个人网络附加存储系统
 database:
-  path: "pnas.db"
-
+  path: pnas.db
 jwt:
-  secret: "pnas-dev-secret-key"
+  secret: your-secret-key-change-this
   expire: 24
-
-# 文件审计配置
 audit:
   enabled: true
-  watch_paths:
-    - "./test_audit_dir"  # 使用当前目录下的测试目录
-    - "./uploads"         # 上传目录
-  exclude_patterns:
-    - ".DS_Store"
-    - ".git"
-    - ".gitignore"
-    - "*.log"
-    - "*.tmp"
-    - "*.swp"
-  batch_size: 10          # 测试环境用小一点的批次
-  flush_interval: 2       # 2秒刷新，便于测试
-  recursive_watch: true
-  enable_api: true
-  enable_filesystem: true
-  retention_days: 30
+  watchpaths:
+  - /wuzhou
+  excludepatterns:
+  - .DS_Store
+  - .Spotlight-V100
+  - .Trashes
+  - .fseventsd
+  - .TemporaryItems
+  - Thumbs.db
+  - desktop.ini
+  - ~$*
+  - .tmp
+  - .temp
+  - .swp
+  - .~
+  - '#*'
+  - '*.log'
+  - '*.lock'
+  batchsize: 100
+  flushinterval: 5
+  recursivewatch: true
+  enableapi: true
+  enablefilesystem: true
+  retentiondays: 90

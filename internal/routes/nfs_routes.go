@@ -24,15 +24,15 @@ func RegisterNFSRoutes(router *gin.Engine, db *gorm.DB) {
 			exports.DELETE("/:id", handler.DeleteExport)
 
 			// Export-specific multipath routes
-			exports.GET("/:export_id/multipath", handler.GetMultipathConfs)
-			exports.GET("/:export_id/multipath/load-balance", handler.GetPathLoadBalance)
-			exports.POST("/:export_id/multipath/optimize", handler.AutoOptimizePaths)
+			exports.GET("/:id/multipath", handler.GetMultipathConfs)
+			exports.GET("/:id/multipath/load-balance", handler.GetPathLoadBalance)
+			exports.POST("/:id/multipath/optimize", handler.AutoOptimizePaths)
 
 			// Export-specific client access routes
-			exports.GET("/:export_id/client-access", handler.GetClientAccess)
+			exports.GET("/:id/client-access", handler.GetClientAccess)
 
 			// Export-specific quota routes
-			exports.GET("/:export_id/quotas", handler.GetQuotas)
+			exports.GET("/:id/quotas", handler.GetQuotas)
 		}
 
 		// Global configuration routes

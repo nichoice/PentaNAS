@@ -3,8 +3,11 @@ package config
 import (
 	"fmt"
 	"log"
+	"os"
+	"path/filepath"
 
 	"github.com/spf13/viper"
+	"gopkg.in/yaml.v2"
 )
 
 // Config holds the application configuration
@@ -68,7 +71,7 @@ func LoadConfig() (*Config, error) {
 
 	// Audit default values
 	viper.SetDefault("audit.enabled", true)
-	viper.SetDefault("audit.watch_paths", []string{"/home", "/var/data", "/opt/shared"})
+	viper.SetDefault("audit.watch_paths", []string{"/wuzhou"})
 	viper.SetDefault("audit.exclude_patterns", []string{
 		".DS_Store", ".Spotlight-V100", ".Trashes", ".fseventsd",
 		".TemporaryItems", "Thumbs.db", "desktop.ini", "~$*",
@@ -96,4 +99,81 @@ func LoadConfig() (*Config, error) {
 
 	AppConfig = &config
 	return AppConfig, nil
+}
+
+// GenerateDefaultConfig creates a default configuration file
+func GenerateDefaultConfig(configPath string) error {
+	// Create default config
+	defaultConfig := Config{
+		Server: ServerConfig{
+			Port:        "8080",
+			Debug:       false,
+			Version:     "1.0.0",
+			Title:       "PNAS - Personal Network Attached Storage",
+			Description: "个人网络附加存储系统",
+		},
+		Database: DatabaseConfig{
+			Path: "pnas.db",
+		},
+		JWT: JWTConfig{
+			Secret: "your-secret-key-change-this",
+			Expire: 24,
+		},
+		Audit: AuditConfig{
+			Enabled:    true,
+			WatchPaths: []string{"/wuzhou"},
+			ExcludePatterns: []string{
+				".DS_Store", ".Spotlight-V100", ".Trashes", ".fseventsd",
+				".TemporaryItems", "Thumbs.db", "desktop.ini", "~$*",
+				".tmp", ".temp", ".swp", ".~", "#*", "*.log", "*.lock",
+			},
+			BatchSize:        100,
+			FlushInterval:    5,
+			RecursiveWatch:   true,
+			EnableAPI:        true,
+			EnableFilesystem: true,
+			RetentionDays:    90,
+		},
+	}
+
+	// Create directory if it doesn't exist
+	dir := filepath.Dir(configPath)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return fmt.Errorf("failed to create config directory: %w", err)
+	}
+
+	// Marshal to YAML
+	yamlData, err := yaml.Marshal(&defaultConfig)
+	if err != nil {
+		return fmt.Errorf("failed to marshal config to YAML: %w", err)
+	}
+
+	// Write to file
+	if err := os.WriteFile(configPath, yamlData, 0644); err != nil {
+		return fmt.Errorf("failed to write config file: %w", err)
+	}
+
+	log.Printf("Generated default configuration file: %s", configPath)
+	return nil
+}
+
+// EnsureConfigExists checks if config file exists, if not, creates a default one
+func EnsureConfigExists(configPath string) error {
+	if _, err := os.Stat(configPath); os.IsNotExist(err) {
+		log.Printf("Configuration file %s not found, generating default configuration", configPath)
+		return GenerateDefaultConfig(configPath)
+	}
+	return nil
+}
+
+// EnsureDirectoryExists ensures the specified directory exists
+func EnsureDirectoryExists(dirPath string) error {
+	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
+		log.Printf("Directory %s not found, creating it", dirPath)
+		if err := os.MkdirAll(dirPath, 0755); err != nil {
+			return fmt.Errorf("failed to create directory %s: %w", dirPath, err)
+		}
+		log.Printf("Created directory: %s", dirPath)
+	}
+	return nil
 }

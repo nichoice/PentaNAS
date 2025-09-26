@@ -260,9 +260,9 @@ func (h *NFSHandler) CreateClientAccess(c *gin.Context) {
 // @Success 200 {array} dto.NFSClientAccessResponse
 // @Failure 404 {object} map[string]string
 // @Failure 500 {object} map[string]string
-// @Router /nfs/exports/{export_id}/client-access [get]
+// @Router /nfs/exports/{id}/client-access [get]
 func (h *NFSHandler) GetClientAccess(c *gin.Context) {
-	exportID := c.Param("export_id")
+	exportID := c.Param("id")
 
 	access, err := h.configService.GetClientAccess(exportID)
 	if err != nil {
@@ -515,9 +515,9 @@ func (h *NFSHandler) CreateMultipathConf(c *gin.Context) {
 // @Success 200 {array} dto.NFSMultipathConfResponse
 // @Failure 404 {object} map[string]string
 // @Failure 500 {object} map[string]string
-// @Router /nfs/exports/{export_id}/multipath [get]
+// @Router /nfs/exports/{id}/multipath [get]
 func (h *NFSHandler) GetMultipathConfs(c *gin.Context) {
-	exportID := c.Param("export_id")
+	exportID := c.Param("id")
 
 	confs, err := h.multipathService.GetMultipathConfs(exportID)
 	if err != nil {
@@ -630,9 +630,9 @@ func (h *NFSHandler) CheckMultipathHealth(c *gin.Context) {
 // @Success 200 {object} map[string]interface{}
 // @Failure 404 {object} map[string]string
 // @Failure 500 {object} map[string]string
-// @Router /nfs/exports/{export_id}/multipath/load-balance [get]
+// @Router /nfs/exports/{id}/multipath/load-balance [get]
 func (h *NFSHandler) GetPathLoadBalance(c *gin.Context) {
-	exportID := c.Param("export_id")
+	exportID := c.Param("id")
 
 	balance, err := h.multipathService.GetPathLoadBalance(exportID)
 	if err != nil {
@@ -651,9 +651,9 @@ func (h *NFSHandler) GetPathLoadBalance(c *gin.Context) {
 // @Success 200 {object} map[string]interface{}
 // @Failure 404 {object} map[string]string
 // @Failure 500 {object} map[string]string
-// @Router /nfs/exports/{export_id}/multipath/optimize [post]
+// @Router /nfs/exports/{id}/multipath/optimize [post]
 func (h *NFSHandler) AutoOptimizePaths(c *gin.Context) {
-	exportID := c.Param("export_id")
+	exportID := c.Param("id")
 
 	result, err := h.multipathService.AutoOptimizePaths(exportID)
 	if err != nil {
@@ -700,9 +700,9 @@ func (h *NFSHandler) CreateQuota(c *gin.Context) {
 // @Success 200 {array} dto.NFSQuotaResponse
 // @Failure 404 {object} map[string]string
 // @Failure 500 {object} map[string]string
-// @Router /nfs/exports/{export_id}/quotas [get]
+// @Router /nfs/exports/{id}/quotas [get]
 func (h *NFSHandler) GetQuotas(c *gin.Context) {
-	exportID := c.Param("export_id")
+	exportID := c.Param("id")
 
 	quotas, err := h.configService.GetQuotas(exportID)
 	if err != nil {

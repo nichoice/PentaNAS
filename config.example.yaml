@@ -22,11 +22,7 @@ audit:
 
   # 监控的目录列表
   watch_paths:
-    - "/home"
-    - "/var/data"
-    - "/opt/shared"
-    - "/srv/nfs"
-    - "/media/storage"
+    - "/wuzhou"
 
   # 排除的文件模式
   exclude_patterns:
