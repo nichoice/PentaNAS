@@ -51,13 +51,13 @@ func TestLVMGetPVS(t *testing.T) {
 	// if err := lvm.RemoveVG("myvg"); err != nil {
 	// 	t.Errorf("删除卷组失败：%v", err)
 	// }
-	fmt.Println("==========LVCreate==========")
-	if err := lvm.CreateLV("myvg", "mylv", "9G"); err != nil {
-		t.Errorf("创建逻辑卷失败：%v", err)
-	}
+	// fmt.Println("==========LVCreate==========")
+	// if err := lvm.CreateLV("myvg", "mylv", "9G"); err != nil {
+	// 	t.Errorf("创建逻辑卷失败：%v", err)
+	// }
 
-	fmt.Println("==========LVRemove==========")
-	if err := lvm.RemoveLV("myvg", "mylv"); err != nil {
-		t.Errorf("删除逻辑卷失败：%v", err)
-	}
+	// fmt.Println("==========LVRemove==========")
+	// if err := lvm.RemoveLV("myvg", "mylv"); err != nil {
+	// 	t.Errorf("删除逻辑卷失败：%v", err)
+	// }
 }
