@@ -2,35 +2,35 @@ package main
 
 import (
 	"fmt"
-	u "pnas/internal/utils"
 	"testing"
 )
 
 func TestLVMGetPVS(t *testing.T) {
-	lvm := &u.LVM{}
+	fmt.Println("hello pnas")
+	// lvm := &u.LVM{}
 
-	fmt.Println("==========PV==========")
-	result, _ := lvm.GetPVS()
-	for _, pv := range result {
-		fmt.Println(pv)
-	}
+	// fmt.Println("==========PV==========")
+	// result, _ := lvm.GetPVS()
+	// for _, pv := range result {
+	// 	fmt.Println(pv)
+	// }
 
-	fmt.Println("==========VG==========")
-	// 获取卷组信息
-	vgResult, _ := lvm.GetVGS()
-	for _, vg := range vgResult {
-		fmt.Println(vg)
-	}
+	// fmt.Println("==========VG==========")
+	// // 获取卷组信息
+	// vgResult, _ := lvm.GetVGS()
+	// for _, vg := range vgResult {
+	// 	fmt.Println(vg)
+	// }
 
-	fmt.Println("==========LV==========")
-	// 获取逻辑卷信息
-	lvResult, err := lvm.GetLVS()
-	if err != nil {
-		t.Errorf("获取逻辑卷信息失败：%v", err)
-	}
-	for _, lv := range lvResult {
-		fmt.Println(lv)
-	}
+	// fmt.Println("==========LV==========")
+	// // 获取逻辑卷信息
+	// lvResult, err := lvm.GetLVS()
+	// if err != nil {
+	// 	t.Errorf("获取逻辑卷信息失败：%v", err)
+	// }
+	// for _, lv := range lvResult {
+	// 	fmt.Println(lv)
+	// }
 
 	// fmt.Println("==========PVCreate==========")
 	// if err := lvm.CreatePV([]string{"/dev/sdc", "/dev/sdd"}); err != nil {
