@@ -140,3 +140,8 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+# Go binaries
+pnas
+harborark
+*.exe
