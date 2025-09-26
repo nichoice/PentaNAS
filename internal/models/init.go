@@ -178,3 +178,64 @@ func InitNFSModels(db *gorm.DB) {
 		log.Println("NFS configuration already exists")
 	}
 }
+
+// InitiSCSIModels initializes the iSCSI-related models in the database
+func InitiSCSIModels(db *gorm.DB) {
+	// Auto-migrate all iSCSI models
+	err := db.AutoMigrate(
+		&iSCSITarget{},
+		&iSCSILUN{},
+		&iSCSIACL{},
+		&iSCSILUNMapping{},
+		&iSCSIGlobalConfig{},
+		&iSCSIService{},
+		&iSCSISession{},
+		&iSCSIConnection{},
+		&iSCSIAuditLog{},
+		&iSCSIStoragePool{},
+		&iSCSIPerformanceStats{},
+	)
+
+	if err != nil {
+		log.Printf("Failed to migrate iSCSI models: %v", err)
+	} else {
+		log.Println("iSCSI models migrated successfully")
+	}
+
+	// Initialize default iSCSI global configuration
+	var config iSCSIGlobalConfig
+	result := db.Where("is_active = ?", true).First(&config)
+
+	if result.Error != nil {
+		// Create default configuration
+		defaultConfig := iSCSIGlobalConfig{
+			Base:                         Base{ID: "default-iscsi-config"},
+			TargetPort:                   3260,
+			MaxSessions:                  256,
+			MaxConnections:               1,
+			MaxRecvDataSegmentLength:     8192,
+			MaxXmitDataSegmentLength:     8192,
+			MaxBurstLength:               262144,
+			FirstBurstLength:             65536,
+			MaxOutstandingR2T:            1,
+			DefaultTime2Wait:             2,
+			DefaultTime2Retain:           20,
+			LoginTimeout:                 30,
+			LogoutTimeout:                30,
+			RequireAuth:                  false,
+			AllowDuplicateSessions:       false,
+			LogLevel:                     1,
+			LogFile:                      "/var/log/iscsi/iscsi.log",
+			EnableDebugLog:               false,
+			IsActive:                     true,
+		}
+
+		if err := db.Create(&defaultConfig).Error; err != nil {
+			log.Printf("Failed to create default iSCSI configuration: %v", err)
+		} else {
+			log.Println("Created default iSCSI configuration")
+		}
+	} else {
+		log.Println("iSCSI configuration already exists")
+	}
+}

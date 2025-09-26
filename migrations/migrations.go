@@ -14,6 +14,7 @@ func init() {
 	database.RegisterMigration("20240101000003", "create_audit_tables", createAuditTables, dropAuditTables)
 	database.RegisterMigration("20240101000004", "create_samba_tables", createSambaTables, dropSambaTables)
 	database.RegisterMigration("20240101000005", "create_nfs_tables", createNFSTables, dropNFSTables)
+	database.RegisterMigration("20240101000006", "create_iscsi_tables", createiSCSITables, dropiSCSITables)
 }
 
 // Migration functions
@@ -218,6 +219,85 @@ func initNFSConfig(db *gorm.DB) error {
 			MultipathPolicy:     "round_robin",
 			HealthCheckInterval: 30,
 			IsActive:            true,
+		}
+		return db.Create(&defaultConfig).Error
+	}
+	return nil
+}
+
+func createiSCSITables(db *gorm.DB) error {
+	tables := []interface{}{
+		&models.iSCSITarget{},
+		&models.iSCSILUN{},
+		&models.iSCSIACL{},
+		&models.iSCSILUNMapping{},
+		&models.iSCSIGlobalConfig{},
+		&models.iSCSIService{},
+		&models.iSCSISession{},
+		&models.iSCSIConnection{},
+		&models.iSCSIAuditLog{},
+		&models.iSCSIStoragePool{},
+		&models.iSCSIPerformanceStats{},
+	}
+
+	for _, table := range tables {
+		if err := db.AutoMigrate(table); err != nil {
+			return err
+		}
+	}
+
+	// Initialize default iSCSI configuration
+	return initiSCSIConfig(db)
+}
+
+func dropiSCSITables(db *gorm.DB) error {
+	tables := []interface{}{
+		&models.iSCSIPerformanceStats{},
+		&models.iSCSIStoragePool{},
+		&models.iSCSIAuditLog{},
+		&models.iSCSIConnection{},
+		&models.iSCSISession{},
+		&models.iSCSIService{},
+		&models.iSCSILUNMapping{},
+		&models.iSCSIACL{},
+		&models.iSCSILUN{},
+		&models.iSCSITarget{},
+		&models.iSCSIGlobalConfig{},
+	}
+
+	for _, table := range tables {
+		if err := db.Migrator().DropTable(table); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func initiSCSIConfig(db *gorm.DB) error {
+	var config models.iSCSIGlobalConfig
+	result := db.Where("is_active = ?", true).First(&config)
+
+	if result.Error != nil {
+		defaultConfig := models.iSCSIGlobalConfig{
+			Base:                         models.Base{ID: "default-iscsi-config"},
+			TargetPort:                   3260,
+			MaxSessions:                  256,
+			MaxConnections:               1,
+			MaxRecvDataSegmentLength:     8192,
+			MaxXmitDataSegmentLength:     8192,
+			MaxBurstLength:               262144,
+			FirstBurstLength:             65536,
+			MaxOutstandingR2T:            1,
+			DefaultTime2Wait:             2,
+			DefaultTime2Retain:           20,
+			LoginTimeout:                 30,
+			LogoutTimeout:                30,
+			RequireAuth:                  false,
+			AllowDuplicateSessions:       false,
+			LogLevel:                     1,
+			LogFile:                      "/var/log/iscsi/iscsi.log",
+			EnableDebugLog:               false,
+			IsActive:                     true,
 		}
 		return db.Create(&defaultConfig).Error
 	}

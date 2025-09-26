@@ -119,4 +119,7 @@ func SetupRoutes(router *gin.Engine) {
 
 	// Register NFS routes
 	RegisterNFSRoutes(router, database.DB)
+
+	// Register iSCSI routes
+	SetupIscsiRoutes(router)
 }
