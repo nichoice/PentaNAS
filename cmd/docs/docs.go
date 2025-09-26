@@ -10,15 +10,747 @@ const docTemplate = `{
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
         "contact": {},
-        "license": {
-            "name": "Apache 2.0",
-            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
-        },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v1/samba/accounts": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "分页获取Samba账号列表，支持角色过滤",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Samba账号管理"
+                ],
+                "summary": "获取Samba账号列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "偏移量",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "每页数量",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "角色过滤",
+                        "name": "role",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "内部服务器错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "创建新的Samba账号用于文件共享访问",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Samba账号管理"
+                ],
+                "summary": "创建Samba账号",
+                "parameters": [
+                    {
+                        "description": "创建账号请求",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateSambaAccountRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "创建成功",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "内部服务器错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/samba/accounts/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "根据ID获取指定Samba账号的详细信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Samba账号管理"
+                ],
+                "summary": "获取单个Samba账号",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "账号ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "账号不存在",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "内部服务器错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "更新指定Samba账号的信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Samba账号管理"
+                ],
+                "summary": "更新Samba账号",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "账号ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "更新账号请求",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateSambaAccountRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "更新成功",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "内部服务器错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "根据ID删除指定的Samba账号",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Samba账号管理"
+                ],
+                "summary": "删除Samba账号",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "账号ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除成功",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "内部服务器错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/samba/monitoring/audit/logs": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "分页获取Samba操作审计日志，支持多种过滤条件",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Samba监控管理"
+                ],
+                "summary": "获取Samba审计日志",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "偏移量",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "每页数量",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户名过滤",
+                        "name": "username",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "客户端IP过滤",
+                        "name": "client_ip",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "共享名称过滤",
+                        "name": "share_name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "操作类型过滤",
+                        "name": "operation",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "成功状态过滤",
+                        "name": "success",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "开始时间过滤(RFC3339格式)",
+                        "name": "start_time",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "结束时间过滤(RFC3339格式)",
+                        "name": "end_time",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "内部服务器错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/samba/monitoring/connections": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "获取当前Samba服务的所有活跃连接信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Samba监控管理"
+                ],
+                "summary": "获取当前活跃连接",
+                "responses": {
+                    "200": {
+                        "description": "活跃连接列表",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "内部服务器错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/samba/monitoring/status": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "获取Samba服务的整体运行状态和统计信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Samba监控管理"
+                ],
+                "summary": "获取Samba服务状态",
+                "responses": {
+                    "200": {
+                        "description": "状态信息",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "内部服务器错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/samba/shares": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "分页获取Samba共享列表，支持状态过滤",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Samba共享管理"
+                ],
+                "summary": "获取Samba共享列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 0,
+                        "description": "偏移量",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "每页数量",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "启用状态过滤",
+                        "name": "enabled",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "内部服务器错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "创建新的Samba文件共享目录",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Samba共享管理"
+                ],
+                "summary": "创建Samba共享",
+                "parameters": [
+                    {
+                        "description": "创建共享请求",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateSambaShareRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "创建成功",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "内部服务器错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/samba/shares/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "根据ID获取指定Samba共享的详细信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Samba共享管理"
+                ],
+                "summary": "获取单个Samba共享",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "共享ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "共享不存在",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "内部服务器错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "更新指定Samba共享的配置信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Samba共享管理"
+                ],
+                "summary": "更新Samba共享",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "共享ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "更新共享请求",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateSambaShareRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "更新成功",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "内部服务器错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "根据ID删除指定的Samba共享",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Samba共享管理"
+                ],
+                "summary": "删除Samba共享",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "共享ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "删除成功",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "内部服务器错误",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/storage/disks": {
             "get": {
                 "description": "获取系统中所有磁盘的信息",
@@ -233,6 +965,352 @@ const docTemplate = `{
                         "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/errors.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/audit/anomalies": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Detect suspicious activities and security anomalies",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Audit"
+                ],
+                "summary": "Detect anomalies",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 24,
+                        "description": "Time range in hours",
+                        "name": "hours",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Anomaly detection results",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.AnomalyDetectionResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/audit/heatmap": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get file access heatmap data",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Audit"
+                ],
+                "summary": "Get file access heatmap",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 50,
+                        "description": "Limit",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "File access heatmap",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/audit/logs": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get audit logs with filtering and pagination",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Audit"
+                ],
+                "summary": "Get audit logs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Username",
+                        "name": "username",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Operation type",
+                        "name": "operation",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "File path",
+                        "name": "file_path",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Status",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Source",
+                        "name": "source",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start time (RFC3339)",
+                        "name": "start_time",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End time (RFC3339)",
+                        "name": "end_time",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Page size",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "default": "created_at",
+                        "description": "Order by field",
+                        "name": "order_by",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "default": "desc",
+                        "description": "Order direction",
+                        "name": "order_dir",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Audit logs",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/audit/stats": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get comprehensive audit statistics",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Audit"
+                ],
+                "summary": "Get audit statistics",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Start time (RFC3339)",
+                        "name": "start_time",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End time (RFC3339)",
+                        "name": "end_time",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Audit statistics",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.AuditStatsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/audit/users/{user_id}/timeline": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get detailed activity timeline for a specific user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Audit"
+                ],
+                "summary": "Get user activity timeline",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start time (RFC3339)",
+                        "name": "start_time",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End time (RFC3339)",
+                        "name": "end_time",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User activity timeline",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     }
                 }
@@ -461,6 +1539,2076 @@ const docTemplate = `{
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/iscsi/acls": {
+            "get": {
+                "description": "Get a list of all ACLs with optional filtering",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Get all ACLs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by target ID",
+                        "name": "target_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ISCSIACLListResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new Access Control List entry for iSCSI target access",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Create ACL",
+                "parameters": [
+                    {
+                        "description": "ACL configuration",
+                        "name": "acl",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateISCSIACLRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ISCSIACLResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/iscsi/acls/{id}": {
+            "get": {
+                "description": "Get detailed information about a specific ACL",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Get ACL by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ACL ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ISCSIACLResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an existing ACL configuration",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Update ACL",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ACL ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated ACL configuration",
+                        "name": "acl",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateISCSIACLRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ISCSIACLResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete an ACL and revoke target access",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Delete ACL",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ACL ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/iscsi/audit/logs": {
+            "get": {
+                "description": "Get audit logs for iSCSI operations",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Get audit logs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by action type",
+                        "name": "action",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by user ID",
+                        "name": "user_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start date (YYYY-MM-DD)",
+                        "name": "from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date (YYYY-MM-DD)",
+                        "name": "to",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ISCSIAuditLogListResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/iscsi/audit/stats": {
+            "get": {
+                "description": "Get statistical information about audit activities",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Get audit statistics",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Start date (YYYY-MM-DD)",
+                        "name": "from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date (YYYY-MM-DD)",
+                        "name": "to",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ISCSIAuditStatsResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/iscsi/config": {
+            "get": {
+                "description": "Get the current global iSCSI configuration",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Get global configuration",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ISCSIGlobalConfigResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update the global iSCSI configuration",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Update global configuration",
+                "parameters": [
+                    {
+                        "description": "Updated configuration",
+                        "name": "config",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateISCSIGlobalConfigRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ISCSIGlobalConfigResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/iscsi/config/reset": {
+            "post": {
+                "description": "Reset the global iSCSI configuration to defaults",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Reset global configuration",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ISCSIGlobalConfigResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/iscsi/connections": {
+            "get": {
+                "description": "Get a list of all active iSCSI connections",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Get all connections",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ISCSIConnectionListResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/iscsi/connections/history": {
+            "get": {
+                "description": "Get historical connection data for analysis",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Get connection history",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Start date (YYYY-MM-DD)",
+                        "name": "from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date (YYYY-MM-DD)",
+                        "name": "to",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ISCSIConnectionHistoryResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/iscsi/luns": {
+            "get": {
+                "description": "Get a list of all LUNs with optional filtering",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Get all LUNs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by device type",
+                        "name": "device_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ISCSILUNListResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new LUN with specified storage configuration",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Create iSCSI LUN",
+                "parameters": [
+                    {
+                        "description": "LUN configuration",
+                        "name": "lun",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateISCSILUNRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ISCSILUNResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/iscsi/luns/{id}": {
+            "get": {
+                "description": "Get detailed information about a specific LUN",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Get LUN by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "LUN ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ISCSILUNResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an existing LUN configuration",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Update LUN",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "LUN ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated LUN configuration",
+                        "name": "lun",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateISCSILUNRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ISCSILUNResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a LUN and unmap it from all targets",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Delete LUN",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "LUN ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/iscsi/luns/{id}/map": {
+            "post": {
+                "description": "Map a LUN to a specific target",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Map LUN to target",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "LUN ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Mapping configuration",
+                        "name": "mapping",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.MapLUNRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ISCSILUNMappingResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/iscsi/luns/{id}/map/{target_id}": {
+            "delete": {
+                "description": "Remove a LUN mapping from a specific target",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Unmap LUN from target",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "LUN ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Target ID",
+                        "name": "target_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/iscsi/monitoring/luns/{lun_id}/stats": {
+            "get": {
+                "description": "Get performance statistics for a specific LUN",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Get LUN performance statistics",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "LUN ID",
+                        "name": "lun_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start date (YYYY-MM-DD)",
+                        "name": "from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date (YYYY-MM-DD)",
+                        "name": "to",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ISCSILUNPerformanceResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/iscsi/monitoring/performance": {
+            "get": {
+                "description": "Get overall performance statistics for the iSCSI service",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Get performance statistics",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Start date (YYYY-MM-DD)",
+                        "name": "from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date (YYYY-MM-DD)",
+                        "name": "to",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ISCSIPerformanceStatsResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/iscsi/monitoring/targets/{target_id}/stats": {
+            "get": {
+                "description": "Get performance statistics for a specific target",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Get target performance statistics",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Target ID",
+                        "name": "target_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start date (YYYY-MM-DD)",
+                        "name": "from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date (YYYY-MM-DD)",
+                        "name": "to",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ISCSITargetPerformanceResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/iscsi/pools": {
+            "get": {
+                "description": "Get a list of all storage pools",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Get all storage pools",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ISCSIStoragePoolListResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new storage pool for LUN allocation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Create storage pool",
+                "parameters": [
+                    {
+                        "description": "Pool configuration",
+                        "name": "pool",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateISCSIStoragePoolRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ISCSIStoragePoolResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/iscsi/pools/{id}": {
+            "get": {
+                "description": "Get detailed information about a specific storage pool",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Get storage pool by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Pool ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ISCSIStoragePoolResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an existing storage pool configuration",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Update storage pool",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Pool ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated pool configuration",
+                        "name": "pool",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateISCSIStoragePoolRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ISCSIStoragePoolResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a storage pool and all its LUNs",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Delete storage pool",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Pool ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/iscsi/service/restart": {
+            "post": {
+                "description": "Restart the iSCSI service",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Restart service",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/iscsi/service/start": {
+            "post": {
+                "description": "Start the iSCSI service",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Start service",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/iscsi/service/status": {
+            "get": {
+                "description": "Get the current status of the iSCSI service",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Get service status",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ISCSIServiceStatusResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/iscsi/service/stop": {
+            "post": {
+                "description": "Stop the iSCSI service",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Stop service",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/iscsi/sessions": {
+            "get": {
+                "description": "Get a list of all active iSCSI sessions",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Get all sessions",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by target ID",
+                        "name": "target_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ISCSISessionListResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/iscsi/sessions/{id}": {
+            "get": {
+                "description": "Get detailed information about a specific session",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Get session by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ISCSISessionResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Forcefully terminate an active iSCSI session",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Terminate session",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Session ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/iscsi/targets": {
+            "get": {
+                "description": "Get a list of all iSCSI targets with optional filtering",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Get all iSCSI targets",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by target status",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ISCSITargetListResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new iSCSI target with specified IQN",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Create iSCSI target",
+                "parameters": [
+                    {
+                        "description": "Target configuration",
+                        "name": "target",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateISCSITargetRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ISCSITargetResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/iscsi/targets/{id}": {
+            "get": {
+                "description": "Get detailed information about a specific iSCSI target",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Get iSCSI target by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Target ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ISCSITargetResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an existing iSCSI target configuration",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Update iSCSI target",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Target ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated target configuration",
+                        "name": "target",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateISCSITargetRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ISCSITargetResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete an iSCSI target and all its associated resources",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Delete iSCSI target",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Target ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/iscsi/targets/{id}/luns": {
+            "get": {
+                "description": "Get all LUNs associated with a specific target",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Get target LUNs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Target ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ISCSILUNListResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/iscsi/targets/{id}/start": {
+            "post": {
+                "description": "Start an inactive iSCSI target",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Start iSCSI target",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Target ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/iscsi/targets/{id}/status": {
+            "get": {
+                "description": "Get the current operational status of an iSCSI target",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Get target status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Target ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ISCSITargetStatusResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/iscsi/targets/{id}/stop": {
+            "post": {
+                "description": "Stop an active iSCSI target",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "iSCSI"
+                ],
+                "summary": "Stop iSCSI target",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Target ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "404": {
@@ -1090,6 +4238,1250 @@ const docTemplate = `{
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/nfs/client-access": {
+            "post": {
+                "description": "Create a new client access control for an NFS export",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NFS Access Control"
+                ],
+                "summary": "Create client access control",
+                "parameters": [
+                    {
+                        "description": "Client access configuration",
+                        "name": "access",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateNFSClientAccessRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.NFSClientAccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/nfs/client-access/{id}": {
+            "put": {
+                "description": "Update a client access control",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NFS Access Control"
+                ],
+                "summary": "Update client access control",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Access control ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated access configuration",
+                        "name": "access",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.NFSClientAccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a client access control",
+                "tags": [
+                    "NFS Access Control"
+                ],
+                "summary": "Delete client access control",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Access control ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/nfs/config": {
+            "get": {
+                "description": "Get the current NFS global configuration",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NFS Configuration"
+                ],
+                "summary": "Get NFS global configuration",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.NFSGlobalConfigResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update the NFS global configuration",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NFS Configuration"
+                ],
+                "summary": "Update NFS global configuration",
+                "parameters": [
+                    {
+                        "description": "Updated configuration",
+                        "name": "config",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateNFSGlobalConfigRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.NFSGlobalConfigResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/nfs/config/reset": {
+            "post": {
+                "description": "Reset the NFS global configuration to defaults",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NFS Configuration"
+                ],
+                "summary": "Reset NFS global configuration",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.NFSGlobalConfigResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/nfs/exports": {
+            "get": {
+                "description": "Get all NFS exports, optionally filtered by enabled status",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NFS"
+                ],
+                "summary": "Get NFS exports",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "Filter by enabled status",
+                        "name": "enabled",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.NFSExportResponse"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new NFS export with specified configuration",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NFS"
+                ],
+                "summary": "Create NFS export",
+                "parameters": [
+                    {
+                        "description": "Export configuration",
+                        "name": "export",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateNFSExportRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.NFSExportResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/nfs/exports/{id}": {
+            "get": {
+                "description": "Get a specific NFS export by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NFS"
+                ],
+                "summary": "Get NFS export",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Export ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.NFSExportResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an existing NFS export",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NFS"
+                ],
+                "summary": "Update NFS export",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Export ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated export configuration",
+                        "name": "export",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateNFSExportRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.NFSExportResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete an NFS export",
+                "tags": [
+                    "NFS"
+                ],
+                "summary": "Delete NFS export",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Export ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/nfs/exports/{id}/client-access": {
+            "get": {
+                "description": "Get client access controls for an NFS export",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NFS Access Control"
+                ],
+                "summary": "Get client access controls",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Export ID",
+                        "name": "export_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.NFSClientAccessResponse"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/nfs/exports/{id}/multipath": {
+            "get": {
+                "description": "Get multipath configurations for an NFS export",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NFS Multipath"
+                ],
+                "summary": "Get multipath configurations",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Export ID",
+                        "name": "export_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.NFSMultipathConfResponse"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/nfs/exports/{id}/multipath/load-balance": {
+            "get": {
+                "description": "Get load balancing information for multipath configurations",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NFS Multipath"
+                ],
+                "summary": "Get path load balance",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Export ID",
+                        "name": "export_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/nfs/exports/{id}/multipath/optimize": {
+            "post": {
+                "description": "Automatically optimize multipath configuration",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NFS Multipath"
+                ],
+                "summary": "Auto optimize paths",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Export ID",
+                        "name": "export_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/nfs/exports/{id}/quotas": {
+            "get": {
+                "description": "Get NFS quotas for an export",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NFS Quotas"
+                ],
+                "summary": "Get NFS quotas",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Export ID",
+                        "name": "export_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.NFSQuotaResponse"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/nfs/multipath": {
+            "post": {
+                "description": "Create a new multipath configuration for an NFS export",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NFS Multipath"
+                ],
+                "summary": "Create multipath configuration",
+                "parameters": [
+                    {
+                        "description": "Multipath configuration",
+                        "name": "multipath",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateNFSMultipathConfRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.NFSMultipathConfResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/nfs/multipath/health": {
+            "get": {
+                "description": "Check the health status of all multipath configurations",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NFS Multipath"
+                ],
+                "summary": "Check multipath health",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.NFSHealthCheckResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/nfs/multipath/{id}": {
+            "put": {
+                "description": "Update a multipath configuration",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NFS Multipath"
+                ],
+                "summary": "Update multipath configuration",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Multipath configuration ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated multipath configuration",
+                        "name": "multipath",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.NFSMultipathConfResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a multipath configuration",
+                "tags": [
+                    "NFS Multipath"
+                ],
+                "summary": "Delete multipath configuration",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Multipath configuration ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/nfs/operations": {
+            "get": {
+                "description": "Get all NFS operations with optional status filter",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NFS Operations"
+                ],
+                "summary": "Get all operations",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by operation status",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.NFSOperationResponse"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/nfs/operations/async": {
+            "post": {
+                "description": "Execute an asynchronous NFS operation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NFS Operations"
+                ],
+                "summary": "Execute async NFS operation",
+                "parameters": [
+                    {
+                        "description": "Operation configuration",
+                        "name": "operation",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.NFSOperationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/dto.NFSOperationResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/nfs/operations/sync": {
+            "post": {
+                "description": "Execute a synchronous NFS operation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NFS Operations"
+                ],
+                "summary": "Execute sync NFS operation",
+                "parameters": [
+                    {
+                        "description": "Operation configuration",
+                        "name": "operation",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.NFSOperationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.NFSOperationResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/nfs/operations/{operation_id}": {
+            "get": {
+                "description": "Get the status of an NFS operation",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NFS Operations"
+                ],
+                "summary": "Get operation status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Operation ID",
+                        "name": "operation_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.NFSOperationResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/nfs/operations/{operation_id}/cancel": {
+            "post": {
+                "description": "Cancel a pending or running NFS operation",
+                "tags": [
+                    "NFS Operations"
+                ],
+                "summary": "Cancel operation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Operation ID",
+                        "name": "operation_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/nfs/quotas": {
+            "post": {
+                "description": "Create a new NFS quota",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "NFS Quotas"
+                ],
+                "summary": "Create NFS quota",
+                "parameters": [
+                    {
+                        "description": "Quota configuration",
+                        "name": "quota",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateNFSQuotaRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.NFSQuotaResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
                         }
                     },
                     "500": {
@@ -1768,6 +6160,26 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "controllers.AnomalyDetectionResponse": {
+            "type": "object",
+            "properties": {
+                "alerts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controllers.SecurityAlert"
+                    }
+                },
+                "risk_score": {
+                    "type": "number"
+                },
+                "suspicious_activities": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controllers.SuspiciousActivity"
+                    }
+                }
+            }
+        },
         "controllers.AssignRoleRequest": {
             "type": "object",
             "required": [
@@ -1786,6 +6198,56 @@ const docTemplate = `{
                 },
                 "user_id": {
                     "type": "string"
+                }
+            }
+        },
+        "controllers.AuditStatsResponse": {
+            "type": "object",
+            "properties": {
+                "daily_stats": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controllers.DailyStats"
+                    }
+                },
+                "failed_count": {
+                    "type": "integer"
+                },
+                "hourly_stats": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controllers.HourlyStats"
+                    }
+                },
+                "operation_stats": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controllers.OperationStat"
+                    }
+                },
+                "recent_activities": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controllers.FileAuditLogResponse"
+                    }
+                },
+                "success_count": {
+                    "type": "integer"
+                },
+                "top_files": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controllers.FileAccessStat"
+                    }
+                },
+                "total_count": {
+                    "type": "integer"
+                },
+                "user_stats": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controllers.UserStat"
+                    }
                 }
             }
         },
@@ -1842,6 +6304,89 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.DailyStats": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "date": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.FileAccessStat": {
+            "type": "object",
+            "properties": {
+                "access_count": {
+                    "type": "integer"
+                },
+                "file_name": {
+                    "type": "string"
+                },
+                "file_path": {
+                    "type": "string"
+                },
+                "file_size": {
+                    "type": "integer"
+                },
+                "last_access": {
+                    "type": "string"
+                },
+                "user_count": {
+                    "type": "integer"
+                }
+            }
+        },
+        "controllers.FileAuditLogResponse": {
+            "type": "object",
+            "properties": {
+                "client_ip": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "file_path": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "operation": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.HourlyStats": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "hour": {
+                    "type": "integer"
+                }
+            }
+        },
         "controllers.LoginRequest": {
             "type": "object",
             "required": [
@@ -1871,6 +6416,20 @@ const docTemplate = `{
                 },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "controllers.OperationStat": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "operation": {
+                    "type": "string"
+                },
+                "percentage": {
+                    "type": "number"
                 }
             }
         },
@@ -1905,6 +6464,61 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.SecurityAlert": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "first_time": {
+                    "type": "string"
+                },
+                "last_time": {
+                    "type": "string"
+                },
+                "severity": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.SuspiciousActivity": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "first_time": {
+                    "type": "string"
+                },
+                "last_time": {
+                    "type": "string"
+                },
+                "operation": {
+                    "type": "string"
+                },
+                "risk_level": {
+                    "type": "string"
+                },
+                "time_range": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "username": {
                     "type": "string"
                 }
             }
@@ -1970,6 +6584,23 @@ const docTemplate = `{
                 }
             }
         },
+        "controllers.UserStat": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "last_activity": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.CPUInfo": {
             "type": "object",
             "properties": {
@@ -2011,6 +6642,126 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.CreateISCSIACLRequest": {
+            "type": "object",
+            "required": [
+                "initiator_iqn",
+                "target_id"
+            ],
+            "properties": {
+                "auth_type": {
+                    "$ref": "#/definitions/models.ISCSIAuthType"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "initiator_iqn": {
+                    "type": "string"
+                },
+                "is_enabled": {
+                    "type": "boolean"
+                },
+                "mutual_password": {
+                    "type": "string"
+                },
+                "mutual_username": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "permission": {
+                    "$ref": "#/definitions/models.ISCSIPermission"
+                },
+                "target_id": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.CreateISCSILUNRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "size"
+            ],
+            "properties": {
+                "block_size": {
+                    "type": "integer"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "device_path": {
+                    "type": "string"
+                },
+                "device_type": {
+                    "$ref": "#/definitions/models.ISCSIDeviceType"
+                },
+                "is_enabled": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "read_only": {
+                    "type": "boolean"
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "storage_pool_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.CreateISCSIStoragePoolRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "path"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "is_enabled": {
+                    "type": "boolean"
+                },
+                "max_size": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.CreateISCSITargetRequest": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "alias": {
+                    "type": "string"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "is_enabled": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "description": "IQN format",
+                    "type": "string"
+                }
+            }
+        },
         "dto.CreateLVRequest": {
             "type": "object",
             "required": [
@@ -2027,6 +6778,273 @@ const docTemplate = `{
                 },
                 "vg_name": {
                     "type": "string"
+                }
+            }
+        },
+        "dto.CreateNFSClientAccessRequest": {
+            "type": "object",
+            "required": [
+                "client_host",
+                "export_id",
+                "permission"
+            ],
+            "properties": {
+                "all_squash": {
+                    "type": "boolean"
+                },
+                "anon_gid": {
+                    "type": "integer"
+                },
+                "anon_uid": {
+                    "type": "integer"
+                },
+                "client_host": {
+                    "type": "string"
+                },
+                "export_id": {
+                    "type": "string"
+                },
+                "permission": {
+                    "$ref": "#/definitions/models.NFSPermission"
+                },
+                "root_squash": {
+                    "type": "boolean"
+                },
+                "security_flavor": {
+                    "$ref": "#/definitions/models.NFSSecurityFlavor"
+                }
+            }
+        },
+        "dto.CreateNFSExportRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "path"
+            ],
+            "properties": {
+                "all_squash": {
+                    "type": "boolean"
+                },
+                "allowed_hosts": {
+                    "type": "string"
+                },
+                "anon_gid": {
+                    "type": "integer"
+                },
+                "anon_uid": {
+                    "type": "integer"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "denied_hosts": {
+                    "type": "string"
+                },
+                "enable_multipath": {
+                    "type": "boolean"
+                },
+                "enable_versioning": {
+                    "type": "boolean"
+                },
+                "max_versions": {
+                    "type": "integer"
+                },
+                "multipath_policy": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "operation_mode": {
+                    "$ref": "#/definitions/models.NFSOperationMode"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "permission": {
+                    "$ref": "#/definitions/models.NFSPermission"
+                },
+                "read_size": {
+                    "type": "integer"
+                },
+                "root_squash": {
+                    "type": "boolean"
+                },
+                "security_flavor": {
+                    "$ref": "#/definitions/models.NFSSecurityFlavor"
+                },
+                "subtree_check": {
+                    "type": "boolean"
+                },
+                "version": {
+                    "$ref": "#/definitions/models.NFSVersion"
+                },
+                "version_retention": {
+                    "type": "integer"
+                },
+                "write_size": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.CreateNFSMultipathConfRequest": {
+            "type": "object",
+            "required": [
+                "export_id",
+                "network_path",
+                "path_name"
+            ],
+            "properties": {
+                "export_id": {
+                    "type": "string"
+                },
+                "network_path": {
+                    "type": "string"
+                },
+                "path_name": {
+                    "type": "string"
+                },
+                "priority": {
+                    "type": "integer"
+                },
+                "weight": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.CreateNFSQuotaRequest": {
+            "type": "object",
+            "required": [
+                "export_id",
+                "quota_type",
+                "target_id"
+            ],
+            "properties": {
+                "export_id": {
+                    "type": "string"
+                },
+                "grace_period": {
+                    "type": "integer"
+                },
+                "hard_limit_files": {
+                    "type": "integer"
+                },
+                "hard_limit_size": {
+                    "type": "integer"
+                },
+                "quota_type": {
+                    "type": "string"
+                },
+                "soft_limit_files": {
+                    "type": "integer"
+                },
+                "soft_limit_size": {
+                    "type": "integer"
+                },
+                "target_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.CreateSambaAccountRequest": {
+            "type": "object",
+            "required": [
+                "password",
+                "role",
+                "samba_user",
+                "user_id"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "is_enabled": {
+                    "type": "boolean"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 6
+                },
+                "role": {
+                    "type": "string",
+                    "enum": [
+                        "samba_admin",
+                        "samba_user",
+                        "samba_guest",
+                        "samba_backup",
+                        "samba_timemachine"
+                    ]
+                },
+                "samba_user": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 3
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.CreateSambaShareRequest": {
+            "type": "object",
+            "required": [
+                "name",
+                "path"
+            ],
+            "properties": {
+                "allow_guest": {
+                    "type": "boolean"
+                },
+                "browseable": {
+                    "type": "boolean"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "create_mask": {
+                    "type": "string"
+                },
+                "directory_mask": {
+                    "type": "string"
+                },
+                "enable_multi_channel": {
+                    "type": "boolean"
+                },
+                "enable_recycle_bin": {
+                    "type": "boolean"
+                },
+                "enable_time_machine": {
+                    "description": "高级功能配置",
+                    "type": "boolean"
+                },
+                "force_create_mode": {
+                    "type": "string"
+                },
+                "force_directory_mode": {
+                    "type": "string"
+                },
+                "guest_only": {
+                    "type": "boolean"
+                },
+                "is_enabled": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 1
+                },
+                "path": {
+                    "type": "string"
+                },
+                "recycle_bin_path": {
+                    "type": "string"
+                },
+                "time_machine_quota": {
+                    "type": "integer"
+                },
+                "writable": {
+                    "type": "boolean"
                 }
             }
         },
@@ -2186,6 +7204,594 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.ISCSIACLListResponse": {
+            "type": "object",
+            "properties": {
+                "acls": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ISCSIACLResponse"
+                    }
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.ISCSIACLResponse": {
+            "type": "object",
+            "properties": {
+                "auth_type": {
+                    "$ref": "#/definitions/models.ISCSIAuthType"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "initiator_iqn": {
+                    "type": "string"
+                },
+                "is_enabled": {
+                    "type": "boolean"
+                },
+                "mutual_username": {
+                    "type": "string"
+                },
+                "permission": {
+                    "$ref": "#/definitions/models.ISCSIPermission"
+                },
+                "target_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ISCSIAuditLogListResponse": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer"
+                },
+                "logs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ISCSIAuditLogResponse"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.ISCSIAuditLogResponse": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "client_ip": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "details": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "error_message": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "resource_id": {
+                    "type": "string"
+                },
+                "resource_type": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ISCSIAuditStatsResponse": {
+            "type": "object",
+            "properties": {
+                "actions_by_hour": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                },
+                "actions_by_type": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                },
+                "actions_by_user": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                },
+                "failed_actions": {
+                    "type": "integer"
+                },
+                "most_active_users": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "most_common_actions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "successful_actions": {
+                    "type": "integer"
+                },
+                "total_actions": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.ISCSIConnectionHistoryResponse": {
+            "type": "object",
+            "properties": {
+                "history": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ISCSIConnectionResponse"
+                    }
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.ISCSIConnectionListResponse": {
+            "type": "object",
+            "properties": {
+                "connections": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ISCSIConnectionResponse"
+                    }
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.ISCSIConnectionResponse": {
+            "type": "object",
+            "properties": {
+                "bytes_transferred": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "initiator_address": {
+                    "type": "string"
+                },
+                "last_activity": {
+                    "type": "string"
+                },
+                "session_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "target_address": {
+                    "type": "string"
+                },
+                "target_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ISCSIGlobalConfigResponse": {
+            "type": "object",
+            "properties": {
+                "allow_duplicate_sessions": {
+                    "type": "boolean"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "default_time2_retain": {
+                    "type": "integer"
+                },
+                "default_time2_wait": {
+                    "type": "integer"
+                },
+                "enable_debug_log": {
+                    "type": "boolean"
+                },
+                "first_burst_length": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "log_file": {
+                    "type": "string"
+                },
+                "log_level": {
+                    "type": "integer"
+                },
+                "login_timeout": {
+                    "type": "integer"
+                },
+                "logout_timeout": {
+                    "type": "integer"
+                },
+                "max_burst_length": {
+                    "type": "integer"
+                },
+                "max_connections": {
+                    "type": "integer"
+                },
+                "max_outstanding_r2t": {
+                    "type": "integer"
+                },
+                "max_recv_data_segment_length": {
+                    "type": "integer"
+                },
+                "max_sessions": {
+                    "type": "integer"
+                },
+                "max_xmit_data_segment_length": {
+                    "type": "integer"
+                },
+                "require_auth": {
+                    "type": "boolean"
+                },
+                "target_port": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ISCSILUNListResponse": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer"
+                },
+                "luns": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ISCSILUNResponse"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.ISCSILUNMappingResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "lun": {
+                    "type": "integer"
+                },
+                "lun_id": {
+                    "type": "string"
+                },
+                "target_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ISCSILUNPerformanceResponse": {
+            "type": "object",
+            "properties": {
+                "average_latency": {
+                    "type": "number"
+                },
+                "data_transfer": {
+                    "type": "integer"
+                },
+                "error_count": {
+                    "type": "integer"
+                },
+                "iops": {
+                    "type": "integer"
+                },
+                "lun_id": {
+                    "type": "string"
+                },
+                "lun_name": {
+                    "type": "string"
+                },
+                "throughput": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.ISCSILUNResponse": {
+            "type": "object",
+            "properties": {
+                "block_size": {
+                    "type": "integer"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "device_path": {
+                    "type": "string"
+                },
+                "device_type": {
+                    "$ref": "#/definitions/models.ISCSIDeviceType"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_enabled": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "read_only": {
+                    "type": "boolean"
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "storage_pool_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ISCSIPerformanceStatsResponse": {
+            "type": "object",
+            "properties": {
+                "active_sessions": {
+                    "type": "integer"
+                },
+                "active_targets": {
+                    "type": "integer"
+                },
+                "average_latency": {
+                    "type": "number"
+                },
+                "error_count": {
+                    "type": "integer"
+                },
+                "read_iops": {
+                    "type": "integer"
+                },
+                "read_latency": {
+                    "type": "number"
+                },
+                "read_throughput": {
+                    "type": "integer"
+                },
+                "total_data_transfer": {
+                    "type": "integer"
+                },
+                "total_iops": {
+                    "type": "integer"
+                },
+                "total_throughput": {
+                    "type": "integer"
+                },
+                "write_iops": {
+                    "type": "integer"
+                },
+                "write_latency": {
+                    "type": "number"
+                },
+                "write_throughput": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.ISCSIServiceStatusResponse": {
+            "type": "object",
+            "properties": {
+                "active_sessions": {
+                    "type": "integer"
+                },
+                "active_targets": {
+                    "type": "integer"
+                },
+                "last_started": {
+                    "type": "string"
+                },
+                "process_id": {
+                    "type": "integer"
+                },
+                "service_name": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "total_connections": {
+                    "type": "integer"
+                },
+                "uptime": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ISCSISessionListResponse": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "sessions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ISCSISessionResponse"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.ISCSISessionResponse": {
+            "type": "object",
+            "properties": {
+                "connection_count": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "initiator_address": {
+                    "type": "string"
+                },
+                "initiator_iqn": {
+                    "type": "string"
+                },
+                "last_activity": {
+                    "type": "string"
+                },
+                "session_type": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "target_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ISCSIStoragePoolListResponse": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "pools": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ISCSIStoragePoolResponse"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.ISCSIStoragePoolResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "free_size": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_enabled": {
+                    "type": "boolean"
+                },
+                "max_size": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "used_size": {
+                    "type": "integer"
+                }
+            }
+        },
         "dto.ISCSITargetInfo": {
             "type": "object",
             "properties": {
@@ -2208,6 +7814,107 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "write_ops": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.ISCSITargetListResponse": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "targets": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ISCSITargetResponse"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.ISCSITargetPerformanceResponse": {
+            "type": "object",
+            "properties": {
+                "active_sessions": {
+                    "type": "integer"
+                },
+                "average_latency": {
+                    "type": "number"
+                },
+                "data_transfer": {
+                    "type": "integer"
+                },
+                "error_count": {
+                    "type": "integer"
+                },
+                "iops": {
+                    "type": "integer"
+                },
+                "target_id": {
+                    "type": "string"
+                },
+                "target_name": {
+                    "type": "string"
+                },
+                "throughput": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.ISCSITargetResponse": {
+            "type": "object",
+            "properties": {
+                "alias": {
+                    "type": "string"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_enabled": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/models.ISCSITargetStatus"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ISCSITargetStatusResponse": {
+            "type": "object",
+            "properties": {
+                "active_sessions": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "last_activity": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/models.ISCSITargetStatus"
+                },
+                "total_luns": {
                     "type": "integer"
                 }
             }
@@ -2242,6 +7949,21 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "vg_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.MapLUNRequest": {
+            "type": "object",
+            "required": [
+                "lun",
+                "target_id"
+            ],
+            "properties": {
+                "lun": {
+                    "type": "integer"
+                },
+                "target_id": {
                     "type": "string"
                 }
             }
@@ -2345,6 +8067,519 @@ const docTemplate = `{
                     "$ref": "#/definitions/dto.SystemInfo"
                 },
                 "timestamp": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.NFSClientAccessResponse": {
+            "type": "object",
+            "properties": {
+                "all_squash": {
+                    "type": "boolean"
+                },
+                "anon_gid": {
+                    "type": "integer"
+                },
+                "anon_uid": {
+                    "type": "integer"
+                },
+                "client_host": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "export_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "permission": {
+                    "$ref": "#/definitions/models.NFSPermission"
+                },
+                "root_squash": {
+                    "type": "boolean"
+                },
+                "security_flavor": {
+                    "$ref": "#/definitions/models.NFSSecurityFlavor"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.NFSExportHealthResponse": {
+            "type": "object",
+            "properties": {
+                "accessibility": {
+                    "type": "boolean"
+                },
+                "active_paths": {
+                    "type": "integer"
+                },
+                "export_id": {
+                    "type": "string"
+                },
+                "export_name": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "response_time": {
+                    "type": "number"
+                },
+                "status": {
+                    "description": "healthy, warning, critical",
+                    "type": "string"
+                },
+                "total_paths": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.NFSExportResponse": {
+            "type": "object",
+            "properties": {
+                "all_squash": {
+                    "type": "boolean"
+                },
+                "allowed_hosts": {
+                    "type": "string"
+                },
+                "anon_gid": {
+                    "type": "integer"
+                },
+                "anon_uid": {
+                    "type": "integer"
+                },
+                "client_access": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.NFSClientAccessResponse"
+                    }
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "denied_hosts": {
+                    "type": "string"
+                },
+                "enable_multipath": {
+                    "type": "boolean"
+                },
+                "enable_versioning": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_enabled": {
+                    "type": "boolean"
+                },
+                "max_versions": {
+                    "type": "integer"
+                },
+                "multipath_conf": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.NFSMultipathConfResponse"
+                    }
+                },
+                "multipath_policy": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "operation_mode": {
+                    "$ref": "#/definitions/models.NFSOperationMode"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "permission": {
+                    "$ref": "#/definitions/models.NFSPermission"
+                },
+                "read_size": {
+                    "type": "integer"
+                },
+                "root_squash": {
+                    "type": "boolean"
+                },
+                "security_flavor": {
+                    "$ref": "#/definitions/models.NFSSecurityFlavor"
+                },
+                "snapshots": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.NFSSnapshotResponse"
+                    }
+                },
+                "subtree_check": {
+                    "type": "boolean"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "version": {
+                    "$ref": "#/definitions/models.NFSVersion"
+                },
+                "version_retention": {
+                    "type": "integer"
+                },
+                "write_size": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.NFSGlobalConfigResponse": {
+            "type": "object",
+            "properties": {
+                "attribute_timeout": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "directory_timeout": {
+                    "type": "integer"
+                },
+                "enable_debug_log": {
+                    "type": "boolean"
+                },
+                "enable_multipath": {
+                    "type": "boolean"
+                },
+                "enable_tcp": {
+                    "type": "boolean"
+                },
+                "enable_udp": {
+                    "type": "boolean"
+                },
+                "health_check_interval": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "lockd_port": {
+                    "type": "integer"
+                },
+                "log_file": {
+                    "type": "string"
+                },
+                "log_level": {
+                    "type": "integer"
+                },
+                "max_connections": {
+                    "type": "integer"
+                },
+                "mountd_port": {
+                    "type": "integer"
+                },
+                "multipath_policy": {
+                    "type": "string"
+                },
+                "nfs_port": {
+                    "type": "integer"
+                },
+                "portmapper_port": {
+                    "type": "integer"
+                },
+                "read_ahead": {
+                    "type": "integer"
+                },
+                "require_secure_port": {
+                    "type": "boolean"
+                },
+                "statd_port": {
+                    "type": "integer"
+                },
+                "thread_count": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "version": {
+                    "$ref": "#/definitions/models.NFSVersion"
+                },
+                "write_buffer": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.NFSHealthCheckResponse": {
+            "type": "object",
+            "properties": {
+                "check_time": {
+                    "type": "string"
+                },
+                "exports": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.NFSExportHealthResponse"
+                    }
+                },
+                "multipath_health": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.NFSMultipathHealthResponse"
+                    }
+                },
+                "overall": {
+                    "description": "healthy, degraded, critical",
+                    "type": "string"
+                },
+                "services": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.NFSServiceResponse"
+                    }
+                }
+            }
+        },
+        "dto.NFSMultipathConfResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "export_id": {
+                    "type": "string"
+                },
+                "health_status": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "last_check_time": {
+                    "type": "string"
+                },
+                "network_path": {
+                    "type": "string"
+                },
+                "path_name": {
+                    "type": "string"
+                },
+                "priority": {
+                    "type": "integer"
+                },
+                "response_time": {
+                    "type": "number"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "weight": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.NFSMultipathHealthResponse": {
+            "type": "object",
+            "properties": {
+                "active_paths": {
+                    "type": "integer"
+                },
+                "export_id": {
+                    "type": "string"
+                },
+                "path_name": {
+                    "type": "string"
+                },
+                "response_time": {
+                    "type": "number"
+                },
+                "status": {
+                    "description": "healthy, degraded, failed",
+                    "type": "string"
+                },
+                "total_paths": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.NFSOperationRequest": {
+            "type": "object",
+            "required": [
+                "operation_type"
+            ],
+            "properties": {
+                "export_id": {
+                    "type": "string"
+                },
+                "operation_type": {
+                    "description": "export_reload, service_restart, snapshot_create",
+                    "type": "string"
+                },
+                "parameters": {},
+                "priority": {
+                    "description": "1-10, 1 = highest",
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.NFSOperationResponse": {
+            "type": "object",
+            "properties": {
+                "end_time": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "operation_id": {
+                    "type": "string"
+                },
+                "progress": {
+                    "description": "0-100",
+                    "type": "integer"
+                },
+                "result": {},
+                "start_time": {
+                    "type": "string"
+                },
+                "status": {
+                    "description": "pending, running, completed, failed",
+                    "type": "string"
+                }
+            }
+        },
+        "dto.NFSQuotaResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "current_files": {
+                    "type": "integer"
+                },
+                "current_size": {
+                    "type": "integer"
+                },
+                "export_id": {
+                    "type": "string"
+                },
+                "grace_period": {
+                    "type": "integer"
+                },
+                "hard_limit_files": {
+                    "type": "integer"
+                },
+                "hard_limit_size": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_enabled": {
+                    "type": "boolean"
+                },
+                "quota_type": {
+                    "type": "string"
+                },
+                "soft_limit_files": {
+                    "type": "integer"
+                },
+                "soft_limit_size": {
+                    "type": "integer"
+                },
+                "target_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.NFSServiceResponse": {
+            "type": "object",
+            "properties": {
+                "connection_count": {
+                    "type": "integer"
+                },
+                "cpu_usage": {
+                    "type": "number"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "export_count": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "last_check_time": {
+                    "type": "string"
+                },
+                "memory_usage": {
+                    "type": "integer"
+                },
+                "process_id": {
+                    "type": "integer"
+                },
+                "service_name": {
+                    "type": "string"
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.NFSSnapshotResponse": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "expires_at": {
+                    "type": "string"
+                },
+                "export_id": {
+                    "type": "string"
+                },
+                "file_size": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_auto_snapshot": {
+                    "type": "boolean"
+                },
+                "snapshot_name": {
+                    "type": "string"
+                },
+                "snapshot_path": {
+                    "type": "string"
+                },
+                "updated_at": {
                     "type": "string"
                 }
             }
@@ -2591,6 +8826,345 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.UpdateISCSIACLRequest": {
+            "type": "object",
+            "properties": {
+                "auth_type": {
+                    "$ref": "#/definitions/models.ISCSIAuthType"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "is_enabled": {
+                    "type": "boolean"
+                },
+                "mutual_password": {
+                    "type": "string"
+                },
+                "mutual_username": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "permission": {
+                    "$ref": "#/definitions/models.ISCSIPermission"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.UpdateISCSIGlobalConfigRequest": {
+            "type": "object",
+            "properties": {
+                "allow_duplicate_sessions": {
+                    "type": "boolean"
+                },
+                "default_time2_retain": {
+                    "type": "integer"
+                },
+                "default_time2_wait": {
+                    "type": "integer"
+                },
+                "enable_debug_log": {
+                    "type": "boolean"
+                },
+                "first_burst_length": {
+                    "type": "integer"
+                },
+                "log_file": {
+                    "type": "string"
+                },
+                "log_level": {
+                    "type": "integer"
+                },
+                "login_timeout": {
+                    "type": "integer"
+                },
+                "logout_timeout": {
+                    "type": "integer"
+                },
+                "max_burst_length": {
+                    "type": "integer"
+                },
+                "max_connections": {
+                    "type": "integer"
+                },
+                "max_outstanding_r2t": {
+                    "type": "integer"
+                },
+                "max_recv_data_segment_length": {
+                    "type": "integer"
+                },
+                "max_sessions": {
+                    "type": "integer"
+                },
+                "max_xmit_data_segment_length": {
+                    "type": "integer"
+                },
+                "require_auth": {
+                    "type": "boolean"
+                },
+                "target_port": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.UpdateISCSILUNRequest": {
+            "type": "object",
+            "properties": {
+                "block_size": {
+                    "type": "integer"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "is_enabled": {
+                    "type": "boolean"
+                },
+                "read_only": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "dto.UpdateISCSIStoragePoolRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "is_enabled": {
+                    "type": "boolean"
+                },
+                "max_size": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.UpdateISCSITargetRequest": {
+            "type": "object",
+            "properties": {
+                "alias": {
+                    "type": "string"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "is_enabled": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "dto.UpdateNFSExportRequest": {
+            "type": "object",
+            "properties": {
+                "all_squash": {
+                    "type": "boolean"
+                },
+                "allowed_hosts": {
+                    "type": "string"
+                },
+                "anon_gid": {
+                    "type": "integer"
+                },
+                "anon_uid": {
+                    "type": "integer"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "denied_hosts": {
+                    "type": "string"
+                },
+                "enable_multipath": {
+                    "type": "boolean"
+                },
+                "enable_versioning": {
+                    "type": "boolean"
+                },
+                "is_enabled": {
+                    "type": "boolean"
+                },
+                "max_versions": {
+                    "type": "integer"
+                },
+                "multipath_policy": {
+                    "type": "string"
+                },
+                "operation_mode": {
+                    "$ref": "#/definitions/models.NFSOperationMode"
+                },
+                "permission": {
+                    "$ref": "#/definitions/models.NFSPermission"
+                },
+                "read_size": {
+                    "type": "integer"
+                },
+                "root_squash": {
+                    "type": "boolean"
+                },
+                "security_flavor": {
+                    "$ref": "#/definitions/models.NFSSecurityFlavor"
+                },
+                "subtree_check": {
+                    "type": "boolean"
+                },
+                "version": {
+                    "$ref": "#/definitions/models.NFSVersion"
+                },
+                "version_retention": {
+                    "type": "integer"
+                },
+                "write_size": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.UpdateNFSGlobalConfigRequest": {
+            "type": "object",
+            "properties": {
+                "attribute_timeout": {
+                    "type": "integer"
+                },
+                "directory_timeout": {
+                    "type": "integer"
+                },
+                "enable_debug_log": {
+                    "type": "boolean"
+                },
+                "enable_multipath": {
+                    "type": "boolean"
+                },
+                "enable_tcp": {
+                    "type": "boolean"
+                },
+                "enable_udp": {
+                    "type": "boolean"
+                },
+                "health_check_interval": {
+                    "type": "integer"
+                },
+                "lockd_port": {
+                    "type": "integer"
+                },
+                "log_file": {
+                    "type": "string"
+                },
+                "log_level": {
+                    "type": "integer"
+                },
+                "max_connections": {
+                    "type": "integer"
+                },
+                "mountd_port": {
+                    "type": "integer"
+                },
+                "multipath_policy": {
+                    "type": "string"
+                },
+                "nfs_port": {
+                    "type": "integer"
+                },
+                "portmapper_port": {
+                    "type": "integer"
+                },
+                "read_ahead": {
+                    "type": "integer"
+                },
+                "require_secure_port": {
+                    "type": "boolean"
+                },
+                "statd_port": {
+                    "type": "integer"
+                },
+                "thread_count": {
+                    "type": "integer"
+                },
+                "version": {
+                    "$ref": "#/definitions/models.NFSVersion"
+                },
+                "write_buffer": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.UpdateSambaAccountRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "is_enabled": {
+                    "type": "boolean"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 6
+                },
+                "role": {
+                    "type": "string",
+                    "enum": [
+                        "samba_admin",
+                        "samba_user",
+                        "samba_guest",
+                        "samba_backup",
+                        "samba_timemachine"
+                    ]
+                }
+            }
+        },
+        "dto.UpdateSambaShareRequest": {
+            "type": "object",
+            "properties": {
+                "allow_guest": {
+                    "type": "boolean"
+                },
+                "browseable": {
+                    "type": "boolean"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "create_mask": {
+                    "type": "string"
+                },
+                "directory_mask": {
+                    "type": "string"
+                },
+                "enable_multi_channel": {
+                    "type": "boolean"
+                },
+                "enable_recycle_bin": {
+                    "type": "boolean"
+                },
+                "enable_time_machine": {
+                    "description": "高级功能配置",
+                    "type": "boolean"
+                },
+                "force_create_mode": {
+                    "type": "string"
+                },
+                "force_directory_mode": {
+                    "type": "string"
+                },
+                "guest_only": {
+                    "type": "boolean"
+                },
+                "is_enabled": {
+                    "type": "boolean"
+                },
+                "recycle_bin_path": {
+                    "type": "string"
+                },
+                "time_machine_quota": {
+                    "type": "integer"
+                },
+                "writable": {
+                    "type": "boolean"
+                }
+            }
+        },
         "dto.VolumeGroupResponse": {
             "type": "object",
             "properties": {
@@ -2648,26 +9222,124 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
-        }
-    },
-    "securityDefinitions": {
-        "BearerAuth": {
-            "description": "Type \"Bearer\" followed by a space and JWT token.",
-            "type": "apiKey",
-            "name": "Authorization",
-            "in": "header"
+        },
+        "models.ISCSIAuthType": {
+            "type": "string",
+            "enum": [
+                "none",
+                "chap"
+            ],
+            "x-enum-varnames": [
+                "ISCSIAuthNone",
+                "ISCSIAuthCHAP"
+            ]
+        },
+        "models.ISCSIDeviceType": {
+            "type": "string",
+            "enum": [
+                "block",
+                "file",
+                "tcmu"
+            ],
+            "x-enum-varnames": [
+                "ISCSIDeviceBlock",
+                "ISCSIDeviceFile",
+                "ISCSIDeviceTCMU"
+            ]
+        },
+        "models.ISCSIPermission": {
+            "type": "string",
+            "enum": [
+                "ro",
+                "rw",
+                "deny"
+            ],
+            "x-enum-varnames": [
+                "ISCSIPermissionReadOnly",
+                "ISCSIPermissionReadWrite",
+                "ISCSIPermissionDeny"
+            ]
+        },
+        "models.ISCSITargetStatus": {
+            "type": "string",
+            "enum": [
+                "active",
+                "inactive",
+                "error"
+            ],
+            "x-enum-varnames": [
+                "ISCSIStatusActive",
+                "ISCSIStatusInactive",
+                "ISCSIStatusError"
+            ]
+        },
+        "models.NFSOperationMode": {
+            "type": "string",
+            "enum": [
+                "sync",
+                "async"
+            ],
+            "x-enum-varnames": [
+                "ModeSync",
+                "ModeAsync"
+            ]
+        },
+        "models.NFSPermission": {
+            "type": "string",
+            "enum": [
+                "ro",
+                "rw",
+                "none"
+            ],
+            "x-enum-varnames": [
+                "PermissionReadOnly",
+                "PermissionReadWrite",
+                "PermissionNoAccess"
+            ]
+        },
+        "models.NFSSecurityFlavor": {
+            "type": "string",
+            "enum": [
+                "none",
+                "sys",
+                "krb5",
+                "krb5i",
+                "krb5p"
+            ],
+            "x-enum-varnames": [
+                "SecNone",
+                "SecSys",
+                "SecKrb5",
+                "SecKrb5i",
+                "SecKrb5p"
+            ]
+        },
+        "models.NFSVersion": {
+            "type": "string",
+            "enum": [
+                "3",
+                "4",
+                "4.1",
+                "4.2"
+            ],
+            "x-enum-varnames": [
+                "NFSVersion3",
+                "NFSVersion4",
+                "NFSVersion4_1",
+                "NFSVersion4_2"
+            ]
         }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "0.0.1",
-	Host:             "localhost:8080",
-	BasePath:         "/api/v1",
+	Version:          "",
+	Host:             "",
+	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "HarborArk",
-	Description:      "HarborArk系统API文档",
+	Title:            "",
+	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

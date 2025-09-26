@@ -1,5 +1,17 @@
-basePath: /api/v1
 definitions:
+  controllers.AnomalyDetectionResponse:
+    properties:
+      alerts:
+        items:
+          $ref: '#/definitions/controllers.SecurityAlert'
+        type: array
+      risk_score:
+        type: number
+      suspicious_activities:
+        items:
+          $ref: '#/definitions/controllers.SuspiciousActivity'
+        type: array
+    type: object
   controllers.AssignRoleRequest:
     properties:
       role_id:
@@ -14,6 +26,39 @@ definitions:
     required:
     - role_id
     - user_id
+    type: object
+  controllers.AuditStatsResponse:
+    properties:
+      daily_stats:
+        items:
+          $ref: '#/definitions/controllers.DailyStats'
+        type: array
+      failed_count:
+        type: integer
+      hourly_stats:
+        items:
+          $ref: '#/definitions/controllers.HourlyStats'
+        type: array
+      operation_stats:
+        items:
+          $ref: '#/definitions/controllers.OperationStat'
+        type: array
+      recent_activities:
+        items:
+          $ref: '#/definitions/controllers.FileAuditLogResponse'
+        type: array
+      success_count:
+        type: integer
+      top_files:
+        items:
+          $ref: '#/definitions/controllers.FileAccessStat'
+        type: array
+      total_count:
+        type: integer
+      user_stats:
+        items:
+          $ref: '#/definitions/controllers.UserStat'
+        type: array
     type: object
   controllers.CreateUserRequest:
     properties:
@@ -53,6 +98,60 @@ definitions:
     - devices
     - vg_name
     type: object
+  controllers.DailyStats:
+    properties:
+      count:
+        type: integer
+      date:
+        type: string
+    type: object
+  controllers.FileAccessStat:
+    properties:
+      access_count:
+        type: integer
+      file_name:
+        type: string
+      file_path:
+        type: string
+      file_size:
+        type: integer
+      last_access:
+        type: string
+      user_count:
+        type: integer
+    type: object
+  controllers.FileAuditLogResponse:
+    properties:
+      client_ip:
+        type: string
+      created_at:
+        type: string
+      file_path:
+        type: string
+      id:
+        type: string
+      message:
+        type: string
+      operation:
+        type: string
+      source:
+        type: string
+      success:
+        type: boolean
+      updated_at:
+        type: string
+      user_id:
+        type: string
+      username:
+        type: string
+    type: object
+  controllers.HourlyStats:
+    properties:
+      count:
+        type: integer
+      hour:
+        type: integer
+    type: object
   controllers.LoginRequest:
     properties:
       password:
@@ -73,6 +172,15 @@ definitions:
         type: string
       username:
         type: string
+    type: object
+  controllers.OperationStat:
+    properties:
+      count:
+        type: integer
+      operation:
+        type: string
+      percentage:
+        type: number
     type: object
   controllers.RevokeRoleRequest:
     properties:
@@ -96,6 +204,42 @@ definitions:
       id:
         type: string
       name:
+        type: string
+    type: object
+  controllers.SecurityAlert:
+    properties:
+      count:
+        type: integer
+      description:
+        type: string
+      first_time:
+        type: string
+      last_time:
+        type: string
+      severity:
+        type: string
+      type:
+        type: string
+    type: object
+  controllers.SuspiciousActivity:
+    properties:
+      count:
+        type: integer
+      description:
+        type: string
+      first_time:
+        type: string
+      last_time:
+        type: string
+      operation:
+        type: string
+      risk_level:
+        type: string
+      time_range:
+        type: string
+      user_id:
+        type: string
+      username:
         type: string
     type: object
   controllers.UpdateUserRequest:
@@ -139,6 +283,17 @@ definitions:
       username:
         type: string
     type: object
+  controllers.UserStat:
+    properties:
+      count:
+        type: integer
+      last_activity:
+        type: string
+      user_id:
+        type: string
+      username:
+        type: string
+    type: object
   dto.CPUInfo:
     properties:
       cache_size:
@@ -166,6 +321,86 @@ definitions:
           type: number
         type: array
     type: object
+  dto.CreateISCSIACLRequest:
+    properties:
+      auth_type:
+        $ref: '#/definitions/models.ISCSIAuthType'
+      comment:
+        type: string
+      initiator_iqn:
+        type: string
+      is_enabled:
+        type: boolean
+      mutual_password:
+        type: string
+      mutual_username:
+        type: string
+      password:
+        type: string
+      permission:
+        $ref: '#/definitions/models.ISCSIPermission'
+      target_id:
+        type: string
+      username:
+        type: string
+    required:
+    - initiator_iqn
+    - target_id
+    type: object
+  dto.CreateISCSILUNRequest:
+    properties:
+      block_size:
+        type: integer
+      comment:
+        type: string
+      device_path:
+        type: string
+      device_type:
+        $ref: '#/definitions/models.ISCSIDeviceType'
+      is_enabled:
+        type: boolean
+      name:
+        type: string
+      read_only:
+        type: boolean
+      size:
+        type: integer
+      storage_pool_id:
+        type: string
+    required:
+    - name
+    - size
+    type: object
+  dto.CreateISCSIStoragePoolRequest:
+    properties:
+      description:
+        type: string
+      is_enabled:
+        type: boolean
+      max_size:
+        type: integer
+      name:
+        type: string
+      path:
+        type: string
+    required:
+    - name
+    - path
+    type: object
+  dto.CreateISCSITargetRequest:
+    properties:
+      alias:
+        type: string
+      comment:
+        type: string
+      is_enabled:
+        type: boolean
+      name:
+        description: IQN format
+        type: string
+    required:
+    - name
+    type: object
   dto.CreateLVRequest:
     properties:
       lv_name:
@@ -178,6 +413,189 @@ definitions:
     - lv_name
     - size
     - vg_name
+    type: object
+  dto.CreateNFSClientAccessRequest:
+    properties:
+      all_squash:
+        type: boolean
+      anon_gid:
+        type: integer
+      anon_uid:
+        type: integer
+      client_host:
+        type: string
+      export_id:
+        type: string
+      permission:
+        $ref: '#/definitions/models.NFSPermission'
+      root_squash:
+        type: boolean
+      security_flavor:
+        $ref: '#/definitions/models.NFSSecurityFlavor'
+    required:
+    - client_host
+    - export_id
+    - permission
+    type: object
+  dto.CreateNFSExportRequest:
+    properties:
+      all_squash:
+        type: boolean
+      allowed_hosts:
+        type: string
+      anon_gid:
+        type: integer
+      anon_uid:
+        type: integer
+      comment:
+        type: string
+      denied_hosts:
+        type: string
+      enable_multipath:
+        type: boolean
+      enable_versioning:
+        type: boolean
+      max_versions:
+        type: integer
+      multipath_policy:
+        type: string
+      name:
+        type: string
+      operation_mode:
+        $ref: '#/definitions/models.NFSOperationMode'
+      path:
+        type: string
+      permission:
+        $ref: '#/definitions/models.NFSPermission'
+      read_size:
+        type: integer
+      root_squash:
+        type: boolean
+      security_flavor:
+        $ref: '#/definitions/models.NFSSecurityFlavor'
+      subtree_check:
+        type: boolean
+      version:
+        $ref: '#/definitions/models.NFSVersion'
+      version_retention:
+        type: integer
+      write_size:
+        type: integer
+    required:
+    - name
+    - path
+    type: object
+  dto.CreateNFSMultipathConfRequest:
+    properties:
+      export_id:
+        type: string
+      network_path:
+        type: string
+      path_name:
+        type: string
+      priority:
+        type: integer
+      weight:
+        type: integer
+    required:
+    - export_id
+    - network_path
+    - path_name
+    type: object
+  dto.CreateNFSQuotaRequest:
+    properties:
+      export_id:
+        type: string
+      grace_period:
+        type: integer
+      hard_limit_files:
+        type: integer
+      hard_limit_size:
+        type: integer
+      quota_type:
+        type: string
+      soft_limit_files:
+        type: integer
+      soft_limit_size:
+        type: integer
+      target_id:
+        type: string
+    required:
+    - export_id
+    - quota_type
+    - target_id
+    type: object
+  dto.CreateSambaAccountRequest:
+    properties:
+      description:
+        type: string
+      is_enabled:
+        type: boolean
+      password:
+        minLength: 6
+        type: string
+      role:
+        enum:
+        - samba_admin
+        - samba_user
+        - samba_guest
+        - samba_backup
+        - samba_timemachine
+        type: string
+      samba_user:
+        maxLength: 50
+        minLength: 3
+        type: string
+      user_id:
+        type: string
+    required:
+    - password
+    - role
+    - samba_user
+    - user_id
+    type: object
+  dto.CreateSambaShareRequest:
+    properties:
+      allow_guest:
+        type: boolean
+      browseable:
+        type: boolean
+      comment:
+        type: string
+      create_mask:
+        type: string
+      directory_mask:
+        type: string
+      enable_multi_channel:
+        type: boolean
+      enable_recycle_bin:
+        type: boolean
+      enable_time_machine:
+        description: 高级功能配置
+        type: boolean
+      force_create_mode:
+        type: string
+      force_directory_mode:
+        type: string
+      guest_only:
+        type: boolean
+      is_enabled:
+        type: boolean
+      name:
+        maxLength: 100
+        minLength: 1
+        type: string
+      path:
+        type: string
+      recycle_bin_path:
+        type: string
+      time_machine_quota:
+        type: integer
+      writable:
+        type: boolean
+    required:
+    - name
+    - path
     type: object
   dto.CreateVGRequest:
     properties:
@@ -282,6 +700,393 @@ definitions:
       vendor:
         type: string
     type: object
+  dto.ISCSIACLListResponse:
+    properties:
+      acls:
+        items:
+          $ref: '#/definitions/dto.ISCSIACLResponse'
+        type: array
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+    type: object
+  dto.ISCSIACLResponse:
+    properties:
+      auth_type:
+        $ref: '#/definitions/models.ISCSIAuthType'
+      comment:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      initiator_iqn:
+        type: string
+      is_enabled:
+        type: boolean
+      mutual_username:
+        type: string
+      permission:
+        $ref: '#/definitions/models.ISCSIPermission'
+      target_id:
+        type: string
+      updated_at:
+        type: string
+      username:
+        type: string
+    type: object
+  dto.ISCSIAuditLogListResponse:
+    properties:
+      limit:
+        type: integer
+      logs:
+        items:
+          $ref: '#/definitions/dto.ISCSIAuditLogResponse'
+        type: array
+      page:
+        type: integer
+      total:
+        type: integer
+    type: object
+  dto.ISCSIAuditLogResponse:
+    properties:
+      action:
+        type: string
+      client_ip:
+        type: string
+      created_at:
+        type: string
+      details:
+        additionalProperties: true
+        type: object
+      error_message:
+        type: string
+      id:
+        type: string
+      resource_id:
+        type: string
+      resource_type:
+        type: string
+      status:
+        type: string
+      user_id:
+        type: string
+    type: object
+  dto.ISCSIAuditStatsResponse:
+    properties:
+      actions_by_hour:
+        additionalProperties:
+          format: int64
+          type: integer
+        type: object
+      actions_by_type:
+        additionalProperties:
+          format: int64
+          type: integer
+        type: object
+      actions_by_user:
+        additionalProperties:
+          format: int64
+          type: integer
+        type: object
+      failed_actions:
+        type: integer
+      most_active_users:
+        items:
+          type: string
+        type: array
+      most_common_actions:
+        items:
+          type: string
+        type: array
+      successful_actions:
+        type: integer
+      total_actions:
+        type: integer
+    type: object
+  dto.ISCSIConnectionHistoryResponse:
+    properties:
+      history:
+        items:
+          $ref: '#/definitions/dto.ISCSIConnectionResponse'
+        type: array
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+    type: object
+  dto.ISCSIConnectionListResponse:
+    properties:
+      connections:
+        items:
+          $ref: '#/definitions/dto.ISCSIConnectionResponse'
+        type: array
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+    type: object
+  dto.ISCSIConnectionResponse:
+    properties:
+      bytes_transferred:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: string
+      initiator_address:
+        type: string
+      last_activity:
+        type: string
+      session_id:
+        type: string
+      status:
+        type: string
+      target_address:
+        type: string
+      target_id:
+        type: string
+    type: object
+  dto.ISCSIGlobalConfigResponse:
+    properties:
+      allow_duplicate_sessions:
+        type: boolean
+      created_at:
+        type: string
+      default_time2_retain:
+        type: integer
+      default_time2_wait:
+        type: integer
+      enable_debug_log:
+        type: boolean
+      first_burst_length:
+        type: integer
+      id:
+        type: string
+      is_active:
+        type: boolean
+      log_file:
+        type: string
+      log_level:
+        type: integer
+      login_timeout:
+        type: integer
+      logout_timeout:
+        type: integer
+      max_burst_length:
+        type: integer
+      max_connections:
+        type: integer
+      max_outstanding_r2t:
+        type: integer
+      max_recv_data_segment_length:
+        type: integer
+      max_sessions:
+        type: integer
+      max_xmit_data_segment_length:
+        type: integer
+      require_auth:
+        type: boolean
+      target_port:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  dto.ISCSILUNListResponse:
+    properties:
+      limit:
+        type: integer
+      luns:
+        items:
+          $ref: '#/definitions/dto.ISCSILUNResponse'
+        type: array
+      page:
+        type: integer
+      total:
+        type: integer
+    type: object
+  dto.ISCSILUNMappingResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      lun:
+        type: integer
+      lun_id:
+        type: string
+      target_id:
+        type: string
+    type: object
+  dto.ISCSILUNPerformanceResponse:
+    properties:
+      average_latency:
+        type: number
+      data_transfer:
+        type: integer
+      error_count:
+        type: integer
+      iops:
+        type: integer
+      lun_id:
+        type: string
+      lun_name:
+        type: string
+      throughput:
+        type: integer
+    type: object
+  dto.ISCSILUNResponse:
+    properties:
+      block_size:
+        type: integer
+      comment:
+        type: string
+      created_at:
+        type: string
+      device_path:
+        type: string
+      device_type:
+        $ref: '#/definitions/models.ISCSIDeviceType'
+      id:
+        type: string
+      is_enabled:
+        type: boolean
+      name:
+        type: string
+      read_only:
+        type: boolean
+      size:
+        type: integer
+      storage_pool_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  dto.ISCSIPerformanceStatsResponse:
+    properties:
+      active_sessions:
+        type: integer
+      active_targets:
+        type: integer
+      average_latency:
+        type: number
+      error_count:
+        type: integer
+      read_iops:
+        type: integer
+      read_latency:
+        type: number
+      read_throughput:
+        type: integer
+      total_data_transfer:
+        type: integer
+      total_iops:
+        type: integer
+      total_throughput:
+        type: integer
+      write_iops:
+        type: integer
+      write_latency:
+        type: number
+      write_throughput:
+        type: integer
+    type: object
+  dto.ISCSIServiceStatusResponse:
+    properties:
+      active_sessions:
+        type: integer
+      active_targets:
+        type: integer
+      last_started:
+        type: string
+      process_id:
+        type: integer
+      service_name:
+        type: string
+      status:
+        type: string
+      total_connections:
+        type: integer
+      uptime:
+        type: string
+    type: object
+  dto.ISCSISessionListResponse:
+    properties:
+      limit:
+        type: integer
+      page:
+        type: integer
+      sessions:
+        items:
+          $ref: '#/definitions/dto.ISCSISessionResponse'
+        type: array
+      total:
+        type: integer
+    type: object
+  dto.ISCSISessionResponse:
+    properties:
+      connection_count:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: string
+      initiator_address:
+        type: string
+      initiator_iqn:
+        type: string
+      last_activity:
+        type: string
+      session_type:
+        type: string
+      status:
+        type: string
+      target_id:
+        type: string
+    type: object
+  dto.ISCSIStoragePoolListResponse:
+    properties:
+      limit:
+        type: integer
+      page:
+        type: integer
+      pools:
+        items:
+          $ref: '#/definitions/dto.ISCSIStoragePoolResponse'
+        type: array
+      total:
+        type: integer
+    type: object
+  dto.ISCSIStoragePoolResponse:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      free_size:
+        type: integer
+      id:
+        type: string
+      is_enabled:
+        type: boolean
+      max_size:
+        type: integer
+      name:
+        type: string
+      path:
+        type: string
+      updated_at:
+        type: string
+      used_size:
+        type: integer
+    type: object
   dto.ISCSITargetInfo:
     properties:
       iqn:
@@ -297,6 +1102,72 @@ definitions:
       write_bytes:
         type: integer
       write_ops:
+        type: integer
+    type: object
+  dto.ISCSITargetListResponse:
+    properties:
+      limit:
+        type: integer
+      page:
+        type: integer
+      targets:
+        items:
+          $ref: '#/definitions/dto.ISCSITargetResponse'
+        type: array
+      total:
+        type: integer
+    type: object
+  dto.ISCSITargetPerformanceResponse:
+    properties:
+      active_sessions:
+        type: integer
+      average_latency:
+        type: number
+      data_transfer:
+        type: integer
+      error_count:
+        type: integer
+      iops:
+        type: integer
+      target_id:
+        type: string
+      target_name:
+        type: string
+      throughput:
+        type: integer
+    type: object
+  dto.ISCSITargetResponse:
+    properties:
+      alias:
+        type: string
+      comment:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      is_enabled:
+        type: boolean
+      name:
+        type: string
+      status:
+        $ref: '#/definitions/models.ISCSITargetStatus'
+      updated_at:
+        type: string
+    type: object
+  dto.ISCSITargetStatusResponse:
+    properties:
+      active_sessions:
+        type: integer
+      id:
+        type: string
+      last_activity:
+        type: string
+      name:
+        type: string
+      status:
+        $ref: '#/definitions/models.ISCSITargetStatus'
+      total_luns:
         type: integer
     type: object
   dto.LoadAvgInfo:
@@ -320,6 +1191,16 @@ definitions:
         type: string
       vg_name:
         type: string
+    type: object
+  dto.MapLUNRequest:
+    properties:
+      lun:
+        type: integer
+      target_id:
+        type: string
+    required:
+    - lun
+    - target_id
     type: object
   dto.MemoryInfo:
     properties:
@@ -387,6 +1268,347 @@ definitions:
       system_info:
         $ref: '#/definitions/dto.SystemInfo'
       timestamp:
+        type: string
+    type: object
+  dto.NFSClientAccessResponse:
+    properties:
+      all_squash:
+        type: boolean
+      anon_gid:
+        type: integer
+      anon_uid:
+        type: integer
+      client_host:
+        type: string
+      created_at:
+        type: string
+      export_id:
+        type: string
+      id:
+        type: string
+      permission:
+        $ref: '#/definitions/models.NFSPermission'
+      root_squash:
+        type: boolean
+      security_flavor:
+        $ref: '#/definitions/models.NFSSecurityFlavor'
+      updated_at:
+        type: string
+    type: object
+  dto.NFSExportHealthResponse:
+    properties:
+      accessibility:
+        type: boolean
+      active_paths:
+        type: integer
+      export_id:
+        type: string
+      export_name:
+        type: string
+      message:
+        type: string
+      response_time:
+        type: number
+      status:
+        description: healthy, warning, critical
+        type: string
+      total_paths:
+        type: integer
+    type: object
+  dto.NFSExportResponse:
+    properties:
+      all_squash:
+        type: boolean
+      allowed_hosts:
+        type: string
+      anon_gid:
+        type: integer
+      anon_uid:
+        type: integer
+      client_access:
+        items:
+          $ref: '#/definitions/dto.NFSClientAccessResponse'
+        type: array
+      comment:
+        type: string
+      created_at:
+        type: string
+      denied_hosts:
+        type: string
+      enable_multipath:
+        type: boolean
+      enable_versioning:
+        type: boolean
+      id:
+        type: string
+      is_enabled:
+        type: boolean
+      max_versions:
+        type: integer
+      multipath_conf:
+        items:
+          $ref: '#/definitions/dto.NFSMultipathConfResponse'
+        type: array
+      multipath_policy:
+        type: string
+      name:
+        type: string
+      operation_mode:
+        $ref: '#/definitions/models.NFSOperationMode'
+      path:
+        type: string
+      permission:
+        $ref: '#/definitions/models.NFSPermission'
+      read_size:
+        type: integer
+      root_squash:
+        type: boolean
+      security_flavor:
+        $ref: '#/definitions/models.NFSSecurityFlavor'
+      snapshots:
+        items:
+          $ref: '#/definitions/dto.NFSSnapshotResponse'
+        type: array
+      subtree_check:
+        type: boolean
+      updated_at:
+        type: string
+      version:
+        $ref: '#/definitions/models.NFSVersion'
+      version_retention:
+        type: integer
+      write_size:
+        type: integer
+    type: object
+  dto.NFSGlobalConfigResponse:
+    properties:
+      attribute_timeout:
+        type: integer
+      created_at:
+        type: string
+      directory_timeout:
+        type: integer
+      enable_debug_log:
+        type: boolean
+      enable_multipath:
+        type: boolean
+      enable_tcp:
+        type: boolean
+      enable_udp:
+        type: boolean
+      health_check_interval:
+        type: integer
+      id:
+        type: string
+      is_active:
+        type: boolean
+      lockd_port:
+        type: integer
+      log_file:
+        type: string
+      log_level:
+        type: integer
+      max_connections:
+        type: integer
+      mountd_port:
+        type: integer
+      multipath_policy:
+        type: string
+      nfs_port:
+        type: integer
+      portmapper_port:
+        type: integer
+      read_ahead:
+        type: integer
+      require_secure_port:
+        type: boolean
+      statd_port:
+        type: integer
+      thread_count:
+        type: integer
+      updated_at:
+        type: string
+      version:
+        $ref: '#/definitions/models.NFSVersion'
+      write_buffer:
+        type: integer
+    type: object
+  dto.NFSHealthCheckResponse:
+    properties:
+      check_time:
+        type: string
+      exports:
+        items:
+          $ref: '#/definitions/dto.NFSExportHealthResponse'
+        type: array
+      multipath_health:
+        items:
+          $ref: '#/definitions/dto.NFSMultipathHealthResponse'
+        type: array
+      overall:
+        description: healthy, degraded, critical
+        type: string
+      services:
+        items:
+          $ref: '#/definitions/dto.NFSServiceResponse'
+        type: array
+    type: object
+  dto.NFSMultipathConfResponse:
+    properties:
+      created_at:
+        type: string
+      export_id:
+        type: string
+      health_status:
+        type: string
+      id:
+        type: string
+      is_active:
+        type: boolean
+      last_check_time:
+        type: string
+      network_path:
+        type: string
+      path_name:
+        type: string
+      priority:
+        type: integer
+      response_time:
+        type: number
+      updated_at:
+        type: string
+      weight:
+        type: integer
+    type: object
+  dto.NFSMultipathHealthResponse:
+    properties:
+      active_paths:
+        type: integer
+      export_id:
+        type: string
+      path_name:
+        type: string
+      response_time:
+        type: number
+      status:
+        description: healthy, degraded, failed
+        type: string
+      total_paths:
+        type: integer
+    type: object
+  dto.NFSOperationRequest:
+    properties:
+      export_id:
+        type: string
+      operation_type:
+        description: export_reload, service_restart, snapshot_create
+        type: string
+      parameters: {}
+      priority:
+        description: 1-10, 1 = highest
+        type: integer
+    required:
+    - operation_type
+    type: object
+  dto.NFSOperationResponse:
+    properties:
+      end_time:
+        type: string
+      message:
+        type: string
+      operation_id:
+        type: string
+      progress:
+        description: 0-100
+        type: integer
+      result: {}
+      start_time:
+        type: string
+      status:
+        description: pending, running, completed, failed
+        type: string
+    type: object
+  dto.NFSQuotaResponse:
+    properties:
+      created_at:
+        type: string
+      current_files:
+        type: integer
+      current_size:
+        type: integer
+      export_id:
+        type: string
+      grace_period:
+        type: integer
+      hard_limit_files:
+        type: integer
+      hard_limit_size:
+        type: integer
+      id:
+        type: string
+      is_enabled:
+        type: boolean
+      quota_type:
+        type: string
+      soft_limit_files:
+        type: integer
+      soft_limit_size:
+        type: integer
+      target_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  dto.NFSServiceResponse:
+    properties:
+      connection_count:
+        type: integer
+      cpu_usage:
+        type: number
+      created_at:
+        type: string
+      export_count:
+        type: integer
+      id:
+        type: string
+      last_check_time:
+        type: string
+      memory_usage:
+        type: integer
+      process_id:
+        type: integer
+      service_name:
+        type: string
+      start_time:
+        type: string
+      status:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  dto.NFSSnapshotResponse:
+    properties:
+      comment:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      expires_at:
+        type: string
+      export_id:
+        type: string
+      file_size:
+        type: integer
+      id:
+        type: string
+      is_auto_snapshot:
+        type: boolean
+      snapshot_name:
+        type: string
+      snapshot_path:
+        type: string
+      updated_at:
         type: string
     type: object
   dto.NetworkAddr:
@@ -548,6 +1770,231 @@ definitions:
       uptime:
         type: integer
     type: object
+  dto.UpdateISCSIACLRequest:
+    properties:
+      auth_type:
+        $ref: '#/definitions/models.ISCSIAuthType'
+      comment:
+        type: string
+      is_enabled:
+        type: boolean
+      mutual_password:
+        type: string
+      mutual_username:
+        type: string
+      password:
+        type: string
+      permission:
+        $ref: '#/definitions/models.ISCSIPermission'
+      username:
+        type: string
+    type: object
+  dto.UpdateISCSIGlobalConfigRequest:
+    properties:
+      allow_duplicate_sessions:
+        type: boolean
+      default_time2_retain:
+        type: integer
+      default_time2_wait:
+        type: integer
+      enable_debug_log:
+        type: boolean
+      first_burst_length:
+        type: integer
+      log_file:
+        type: string
+      log_level:
+        type: integer
+      login_timeout:
+        type: integer
+      logout_timeout:
+        type: integer
+      max_burst_length:
+        type: integer
+      max_connections:
+        type: integer
+      max_outstanding_r2t:
+        type: integer
+      max_recv_data_segment_length:
+        type: integer
+      max_sessions:
+        type: integer
+      max_xmit_data_segment_length:
+        type: integer
+      require_auth:
+        type: boolean
+      target_port:
+        type: integer
+    type: object
+  dto.UpdateISCSILUNRequest:
+    properties:
+      block_size:
+        type: integer
+      comment:
+        type: string
+      is_enabled:
+        type: boolean
+      read_only:
+        type: boolean
+    type: object
+  dto.UpdateISCSIStoragePoolRequest:
+    properties:
+      description:
+        type: string
+      is_enabled:
+        type: boolean
+      max_size:
+        type: integer
+    type: object
+  dto.UpdateISCSITargetRequest:
+    properties:
+      alias:
+        type: string
+      comment:
+        type: string
+      is_enabled:
+        type: boolean
+    type: object
+  dto.UpdateNFSExportRequest:
+    properties:
+      all_squash:
+        type: boolean
+      allowed_hosts:
+        type: string
+      anon_gid:
+        type: integer
+      anon_uid:
+        type: integer
+      comment:
+        type: string
+      denied_hosts:
+        type: string
+      enable_multipath:
+        type: boolean
+      enable_versioning:
+        type: boolean
+      is_enabled:
+        type: boolean
+      max_versions:
+        type: integer
+      multipath_policy:
+        type: string
+      operation_mode:
+        $ref: '#/definitions/models.NFSOperationMode'
+      permission:
+        $ref: '#/definitions/models.NFSPermission'
+      read_size:
+        type: integer
+      root_squash:
+        type: boolean
+      security_flavor:
+        $ref: '#/definitions/models.NFSSecurityFlavor'
+      subtree_check:
+        type: boolean
+      version:
+        $ref: '#/definitions/models.NFSVersion'
+      version_retention:
+        type: integer
+      write_size:
+        type: integer
+    type: object
+  dto.UpdateNFSGlobalConfigRequest:
+    properties:
+      attribute_timeout:
+        type: integer
+      directory_timeout:
+        type: integer
+      enable_debug_log:
+        type: boolean
+      enable_multipath:
+        type: boolean
+      enable_tcp:
+        type: boolean
+      enable_udp:
+        type: boolean
+      health_check_interval:
+        type: integer
+      lockd_port:
+        type: integer
+      log_file:
+        type: string
+      log_level:
+        type: integer
+      max_connections:
+        type: integer
+      mountd_port:
+        type: integer
+      multipath_policy:
+        type: string
+      nfs_port:
+        type: integer
+      portmapper_port:
+        type: integer
+      read_ahead:
+        type: integer
+      require_secure_port:
+        type: boolean
+      statd_port:
+        type: integer
+      thread_count:
+        type: integer
+      version:
+        $ref: '#/definitions/models.NFSVersion'
+      write_buffer:
+        type: integer
+    type: object
+  dto.UpdateSambaAccountRequest:
+    properties:
+      description:
+        type: string
+      is_enabled:
+        type: boolean
+      password:
+        minLength: 6
+        type: string
+      role:
+        enum:
+        - samba_admin
+        - samba_user
+        - samba_guest
+        - samba_backup
+        - samba_timemachine
+        type: string
+    type: object
+  dto.UpdateSambaShareRequest:
+    properties:
+      allow_guest:
+        type: boolean
+      browseable:
+        type: boolean
+      comment:
+        type: string
+      create_mask:
+        type: string
+      directory_mask:
+        type: string
+      enable_multi_channel:
+        type: boolean
+      enable_recycle_bin:
+        type: boolean
+      enable_time_machine:
+        description: 高级功能配置
+        type: boolean
+      force_create_mode:
+        type: string
+      force_directory_mode:
+        type: string
+      guest_only:
+        type: boolean
+      is_enabled:
+        type: boolean
+      recycle_bin_path:
+        type: string
+      time_machine_quota:
+        type: integer
+      writable:
+        type: boolean
+    type: object
   dto.VolumeGroupResponse:
     properties:
       vg_attr:
@@ -586,16 +2033,566 @@ definitions:
       message:
         type: string
     type: object
-host: localhost:8080
+  models.ISCSIAuthType:
+    enum:
+    - none
+    - chap
+    type: string
+    x-enum-varnames:
+    - ISCSIAuthNone
+    - ISCSIAuthCHAP
+  models.ISCSIDeviceType:
+    enum:
+    - block
+    - file
+    - tcmu
+    type: string
+    x-enum-varnames:
+    - ISCSIDeviceBlock
+    - ISCSIDeviceFile
+    - ISCSIDeviceTCMU
+  models.ISCSIPermission:
+    enum:
+    - ro
+    - rw
+    - deny
+    type: string
+    x-enum-varnames:
+    - ISCSIPermissionReadOnly
+    - ISCSIPermissionReadWrite
+    - ISCSIPermissionDeny
+  models.ISCSITargetStatus:
+    enum:
+    - active
+    - inactive
+    - error
+    type: string
+    x-enum-varnames:
+    - ISCSIStatusActive
+    - ISCSIStatusInactive
+    - ISCSIStatusError
+  models.NFSOperationMode:
+    enum:
+    - sync
+    - async
+    type: string
+    x-enum-varnames:
+    - ModeSync
+    - ModeAsync
+  models.NFSPermission:
+    enum:
+    - ro
+    - rw
+    - none
+    type: string
+    x-enum-varnames:
+    - PermissionReadOnly
+    - PermissionReadWrite
+    - PermissionNoAccess
+  models.NFSSecurityFlavor:
+    enum:
+    - none
+    - sys
+    - krb5
+    - krb5i
+    - krb5p
+    type: string
+    x-enum-varnames:
+    - SecNone
+    - SecSys
+    - SecKrb5
+    - SecKrb5i
+    - SecKrb5p
+  models.NFSVersion:
+    enum:
+    - "3"
+    - "4"
+    - "4.1"
+    - "4.2"
+    type: string
+    x-enum-varnames:
+    - NFSVersion3
+    - NFSVersion4
+    - NFSVersion4_1
+    - NFSVersion4_2
 info:
   contact: {}
-  description: HarborArk系统API文档
-  license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-  title: HarborArk
-  version: 0.0.1
 paths:
+  /api/v1/samba/accounts:
+    get:
+      consumes:
+      - application/json
+      description: 分页获取Samba账号列表，支持角色过滤
+      parameters:
+      - default: 0
+        description: 偏移量
+        in: query
+        name: offset
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: limit
+        type: integer
+      - description: 角色过滤
+        in: query
+        name: role
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 内部服务器错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取Samba账号列表
+      tags:
+      - Samba账号管理
+    post:
+      consumes:
+      - application/json
+      description: 创建新的Samba账号用于文件共享访问
+      parameters:
+      - description: 创建账号请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateSambaAccountRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 创建成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 内部服务器错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 创建Samba账号
+      tags:
+      - Samba账号管理
+  /api/v1/samba/accounts/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 根据ID删除指定的Samba账号
+      parameters:
+      - description: 账号ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 内部服务器错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 删除Samba账号
+      tags:
+      - Samba账号管理
+    get:
+      consumes:
+      - application/json
+      description: 根据ID获取指定Samba账号的详细信息
+      parameters:
+      - description: 账号ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: 账号不存在
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 内部服务器错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取单个Samba账号
+      tags:
+      - Samba账号管理
+    put:
+      consumes:
+      - application/json
+      description: 更新指定Samba账号的信息
+      parameters:
+      - description: 账号ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 更新账号请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateSambaAccountRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 内部服务器错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 更新Samba账号
+      tags:
+      - Samba账号管理
+  /api/v1/samba/monitoring/audit/logs:
+    get:
+      consumes:
+      - application/json
+      description: 分页获取Samba操作审计日志，支持多种过滤条件
+      parameters:
+      - default: 0
+        description: 偏移量
+        in: query
+        name: offset
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: limit
+        type: integer
+      - description: 用户名过滤
+        in: query
+        name: username
+        type: string
+      - description: 客户端IP过滤
+        in: query
+        name: client_ip
+        type: string
+      - description: 共享名称过滤
+        in: query
+        name: share_name
+        type: string
+      - description: 操作类型过滤
+        in: query
+        name: operation
+        type: string
+      - description: 成功状态过滤
+        in: query
+        name: success
+        type: boolean
+      - description: 开始时间过滤(RFC3339格式)
+        in: query
+        name: start_time
+        type: string
+      - description: 结束时间过滤(RFC3339格式)
+        in: query
+        name: end_time
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 内部服务器错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取Samba审计日志
+      tags:
+      - Samba监控管理
+  /api/v1/samba/monitoring/connections:
+    get:
+      consumes:
+      - application/json
+      description: 获取当前Samba服务的所有活跃连接信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 活跃连接列表
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 内部服务器错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取当前活跃连接
+      tags:
+      - Samba监控管理
+  /api/v1/samba/monitoring/status:
+    get:
+      consumes:
+      - application/json
+      description: 获取Samba服务的整体运行状态和统计信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 状态信息
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 内部服务器错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取Samba服务状态
+      tags:
+      - Samba监控管理
+  /api/v1/samba/shares:
+    get:
+      consumes:
+      - application/json
+      description: 分页获取Samba共享列表，支持状态过滤
+      parameters:
+      - default: 0
+        description: 偏移量
+        in: query
+        name: offset
+        type: integer
+      - default: 10
+        description: 每页数量
+        in: query
+        name: limit
+        type: integer
+      - description: 启用状态过滤
+        in: query
+        name: enabled
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 内部服务器错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取Samba共享列表
+      tags:
+      - Samba共享管理
+    post:
+      consumes:
+      - application/json
+      description: 创建新的Samba文件共享目录
+      parameters:
+      - description: 创建共享请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateSambaShareRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 创建成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 内部服务器错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 创建Samba共享
+      tags:
+      - Samba共享管理
+  /api/v1/samba/shares/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 根据ID删除指定的Samba共享
+      parameters:
+      - description: 共享ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 内部服务器错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 删除Samba共享
+      tags:
+      - Samba共享管理
+    get:
+      consumes:
+      - application/json
+      description: 根据ID获取指定Samba共享的详细信息
+      parameters:
+      - description: 共享ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: 共享不存在
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 内部服务器错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 获取单个Samba共享
+      tags:
+      - Samba共享管理
+    put:
+      consumes:
+      - application/json
+      description: 更新指定Samba共享的配置信息
+      parameters:
+      - description: 共享ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 更新共享请求
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateSambaShareRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 更新成功
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 请求参数错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: 内部服务器错误
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 更新Samba共享
+      tags:
+      - Samba共享管理
   /api/v1/storage/disks:
     get:
       consumes:
@@ -740,6 +2737,230 @@ paths:
       summary: 创建卷组
       tags:
       - 存储管理
+  /audit/anomalies:
+    get:
+      consumes:
+      - application/json
+      description: Detect suspicious activities and security anomalies
+      parameters:
+      - default: 24
+        description: Time range in hours
+        in: query
+        name: hours
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Anomaly detection results
+          schema:
+            $ref: '#/definitions/controllers.AnomalyDetectionResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Detect anomalies
+      tags:
+      - Audit
+  /audit/heatmap:
+    get:
+      consumes:
+      - application/json
+      description: Get file access heatmap data
+      parameters:
+      - default: 50
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: File access heatmap
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get file access heatmap
+      tags:
+      - Audit
+  /audit/logs:
+    get:
+      consumes:
+      - application/json
+      description: Get audit logs with filtering and pagination
+      parameters:
+      - description: User ID
+        in: query
+        name: user_id
+        type: string
+      - description: Username
+        in: query
+        name: username
+        type: string
+      - description: Operation type
+        in: query
+        name: operation
+        type: string
+      - description: File path
+        in: query
+        name: file_path
+        type: string
+      - description: Status
+        in: query
+        name: status
+        type: string
+      - description: Source
+        in: query
+        name: source
+        type: string
+      - description: Start time (RFC3339)
+        in: query
+        name: start_time
+        type: string
+      - description: End time (RFC3339)
+        in: query
+        name: end_time
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: Page size
+        in: query
+        name: page_size
+        type: integer
+      - default: created_at
+        description: Order by field
+        in: query
+        name: order_by
+        type: string
+      - default: desc
+        description: Order direction
+        in: query
+        name: order_dir
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Audit logs
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get audit logs
+      tags:
+      - Audit
+  /audit/stats:
+    get:
+      consumes:
+      - application/json
+      description: Get comprehensive audit statistics
+      parameters:
+      - description: Start time (RFC3339)
+        in: query
+        name: start_time
+        type: string
+      - description: End time (RFC3339)
+        in: query
+        name: end_time
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Audit statistics
+          schema:
+            $ref: '#/definitions/controllers.AuditStatsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get audit statistics
+      tags:
+      - Audit
+  /audit/users/{user_id}/timeline:
+    get:
+      consumes:
+      - application/json
+      description: Get detailed activity timeline for a specific user
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      - description: Start time (RFC3339)
+        in: query
+        name: start_time
+        type: string
+      - description: End time (RFC3339)
+        in: query
+        name: end_time
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User activity timeline
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get user activity timeline
+      tags:
+      - Audit
   /auth/assign:
     post:
       consumes:
@@ -898,6 +3119,1377 @@ paths:
       summary: Get user roles
       tags:
       - Authorization
+  /iscsi/acls:
+    get:
+      description: Get a list of all ACLs with optional filtering
+      parameters:
+      - description: Filter by target ID
+        in: query
+        name: target_id
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ISCSIACLListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all ACLs
+      tags:
+      - iSCSI
+    post:
+      consumes:
+      - application/json
+      description: Create a new Access Control List entry for iSCSI target access
+      parameters:
+      - description: ACL configuration
+        in: body
+        name: acl
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateISCSIACLRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.ISCSIACLResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create ACL
+      tags:
+      - iSCSI
+  /iscsi/acls/{id}:
+    delete:
+      description: Delete an ACL and revoke target access
+      parameters:
+      - description: ACL ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete ACL
+      tags:
+      - iSCSI
+    get:
+      description: Get detailed information about a specific ACL
+      parameters:
+      - description: ACL ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ISCSIACLResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get ACL by ID
+      tags:
+      - iSCSI
+    put:
+      consumes:
+      - application/json
+      description: Update an existing ACL configuration
+      parameters:
+      - description: ACL ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated ACL configuration
+        in: body
+        name: acl
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateISCSIACLRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ISCSIACLResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update ACL
+      tags:
+      - iSCSI
+  /iscsi/audit/logs:
+    get:
+      description: Get audit logs for iSCSI operations
+      parameters:
+      - description: Filter by action type
+        in: query
+        name: action
+        type: string
+      - description: Filter by user ID
+        in: query
+        name: user_id
+        type: string
+      - description: Start date (YYYY-MM-DD)
+        in: query
+        name: from
+        type: string
+      - description: End date (YYYY-MM-DD)
+        in: query
+        name: to
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ISCSIAuditLogListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get audit logs
+      tags:
+      - iSCSI
+  /iscsi/audit/stats:
+    get:
+      description: Get statistical information about audit activities
+      parameters:
+      - description: Start date (YYYY-MM-DD)
+        in: query
+        name: from
+        type: string
+      - description: End date (YYYY-MM-DD)
+        in: query
+        name: to
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ISCSIAuditStatsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get audit statistics
+      tags:
+      - iSCSI
+  /iscsi/config:
+    get:
+      description: Get the current global iSCSI configuration
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ISCSIGlobalConfigResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get global configuration
+      tags:
+      - iSCSI
+    put:
+      consumes:
+      - application/json
+      description: Update the global iSCSI configuration
+      parameters:
+      - description: Updated configuration
+        in: body
+        name: config
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateISCSIGlobalConfigRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ISCSIGlobalConfigResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update global configuration
+      tags:
+      - iSCSI
+  /iscsi/config/reset:
+    post:
+      description: Reset the global iSCSI configuration to defaults
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ISCSIGlobalConfigResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Reset global configuration
+      tags:
+      - iSCSI
+  /iscsi/connections:
+    get:
+      description: Get a list of all active iSCSI connections
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ISCSIConnectionListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all connections
+      tags:
+      - iSCSI
+  /iscsi/connections/history:
+    get:
+      description: Get historical connection data for analysis
+      parameters:
+      - description: Start date (YYYY-MM-DD)
+        in: query
+        name: from
+        type: string
+      - description: End date (YYYY-MM-DD)
+        in: query
+        name: to
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ISCSIConnectionHistoryResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get connection history
+      tags:
+      - iSCSI
+  /iscsi/luns:
+    get:
+      description: Get a list of all LUNs with optional filtering
+      parameters:
+      - description: Filter by device type
+        in: query
+        name: device_type
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ISCSILUNListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all LUNs
+      tags:
+      - iSCSI
+    post:
+      consumes:
+      - application/json
+      description: Create a new LUN with specified storage configuration
+      parameters:
+      - description: LUN configuration
+        in: body
+        name: lun
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateISCSILUNRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.ISCSILUNResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create iSCSI LUN
+      tags:
+      - iSCSI
+  /iscsi/luns/{id}:
+    delete:
+      description: Delete a LUN and unmap it from all targets
+      parameters:
+      - description: LUN ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete LUN
+      tags:
+      - iSCSI
+    get:
+      description: Get detailed information about a specific LUN
+      parameters:
+      - description: LUN ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ISCSILUNResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get LUN by ID
+      tags:
+      - iSCSI
+    put:
+      consumes:
+      - application/json
+      description: Update an existing LUN configuration
+      parameters:
+      - description: LUN ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated LUN configuration
+        in: body
+        name: lun
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateISCSILUNRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ISCSILUNResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update LUN
+      tags:
+      - iSCSI
+  /iscsi/luns/{id}/map:
+    post:
+      consumes:
+      - application/json
+      description: Map a LUN to a specific target
+      parameters:
+      - description: LUN ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Mapping configuration
+        in: body
+        name: mapping
+        required: true
+        schema:
+          $ref: '#/definitions/dto.MapLUNRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ISCSILUNMappingResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Map LUN to target
+      tags:
+      - iSCSI
+  /iscsi/luns/{id}/map/{target_id}:
+    delete:
+      description: Remove a LUN mapping from a specific target
+      parameters:
+      - description: LUN ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Target ID
+        in: path
+        name: target_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Unmap LUN from target
+      tags:
+      - iSCSI
+  /iscsi/monitoring/luns/{lun_id}/stats:
+    get:
+      description: Get performance statistics for a specific LUN
+      parameters:
+      - description: LUN ID
+        in: path
+        name: lun_id
+        required: true
+        type: string
+      - description: Start date (YYYY-MM-DD)
+        in: query
+        name: from
+        type: string
+      - description: End date (YYYY-MM-DD)
+        in: query
+        name: to
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ISCSILUNPerformanceResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get LUN performance statistics
+      tags:
+      - iSCSI
+  /iscsi/monitoring/performance:
+    get:
+      description: Get overall performance statistics for the iSCSI service
+      parameters:
+      - description: Start date (YYYY-MM-DD)
+        in: query
+        name: from
+        type: string
+      - description: End date (YYYY-MM-DD)
+        in: query
+        name: to
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ISCSIPerformanceStatsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get performance statistics
+      tags:
+      - iSCSI
+  /iscsi/monitoring/targets/{target_id}/stats:
+    get:
+      description: Get performance statistics for a specific target
+      parameters:
+      - description: Target ID
+        in: path
+        name: target_id
+        required: true
+        type: string
+      - description: Start date (YYYY-MM-DD)
+        in: query
+        name: from
+        type: string
+      - description: End date (YYYY-MM-DD)
+        in: query
+        name: to
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ISCSITargetPerformanceResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get target performance statistics
+      tags:
+      - iSCSI
+  /iscsi/pools:
+    get:
+      description: Get a list of all storage pools
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ISCSIStoragePoolListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all storage pools
+      tags:
+      - iSCSI
+    post:
+      consumes:
+      - application/json
+      description: Create a new storage pool for LUN allocation
+      parameters:
+      - description: Pool configuration
+        in: body
+        name: pool
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateISCSIStoragePoolRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.ISCSIStoragePoolResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create storage pool
+      tags:
+      - iSCSI
+  /iscsi/pools/{id}:
+    delete:
+      description: Delete a storage pool and all its LUNs
+      parameters:
+      - description: Pool ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete storage pool
+      tags:
+      - iSCSI
+    get:
+      description: Get detailed information about a specific storage pool
+      parameters:
+      - description: Pool ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ISCSIStoragePoolResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get storage pool by ID
+      tags:
+      - iSCSI
+    put:
+      consumes:
+      - application/json
+      description: Update an existing storage pool configuration
+      parameters:
+      - description: Pool ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated pool configuration
+        in: body
+        name: pool
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateISCSIStoragePoolRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ISCSIStoragePoolResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update storage pool
+      tags:
+      - iSCSI
+  /iscsi/service/restart:
+    post:
+      description: Restart the iSCSI service
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Restart service
+      tags:
+      - iSCSI
+  /iscsi/service/start:
+    post:
+      description: Start the iSCSI service
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Start service
+      tags:
+      - iSCSI
+  /iscsi/service/status:
+    get:
+      description: Get the current status of the iSCSI service
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ISCSIServiceStatusResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get service status
+      tags:
+      - iSCSI
+  /iscsi/service/stop:
+    post:
+      description: Stop the iSCSI service
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Stop service
+      tags:
+      - iSCSI
+  /iscsi/sessions:
+    get:
+      description: Get a list of all active iSCSI sessions
+      parameters:
+      - description: Filter by target ID
+        in: query
+        name: target_id
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ISCSISessionListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all sessions
+      tags:
+      - iSCSI
+  /iscsi/sessions/{id}:
+    delete:
+      description: Forcefully terminate an active iSCSI session
+      parameters:
+      - description: Session ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Terminate session
+      tags:
+      - iSCSI
+    get:
+      description: Get detailed information about a specific session
+      parameters:
+      - description: Session ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ISCSISessionResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get session by ID
+      tags:
+      - iSCSI
+  /iscsi/targets:
+    get:
+      description: Get a list of all iSCSI targets with optional filtering
+      parameters:
+      - description: Filter by target status
+        in: query
+        name: status
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ISCSITargetListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all iSCSI targets
+      tags:
+      - iSCSI
+    post:
+      consumes:
+      - application/json
+      description: Create a new iSCSI target with specified IQN
+      parameters:
+      - description: Target configuration
+        in: body
+        name: target
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateISCSITargetRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.ISCSITargetResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create iSCSI target
+      tags:
+      - iSCSI
+  /iscsi/targets/{id}:
+    delete:
+      description: Delete an iSCSI target and all its associated resources
+      parameters:
+      - description: Target ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete iSCSI target
+      tags:
+      - iSCSI
+    get:
+      description: Get detailed information about a specific iSCSI target
+      parameters:
+      - description: Target ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ISCSITargetResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get iSCSI target by ID
+      tags:
+      - iSCSI
+    put:
+      consumes:
+      - application/json
+      description: Update an existing iSCSI target configuration
+      parameters:
+      - description: Target ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated target configuration
+        in: body
+        name: target
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateISCSITargetRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ISCSITargetResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update iSCSI target
+      tags:
+      - iSCSI
+  /iscsi/targets/{id}/luns:
+    get:
+      description: Get all LUNs associated with a specific target
+      parameters:
+      - description: Target ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ISCSILUNListResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get target LUNs
+      tags:
+      - iSCSI
+  /iscsi/targets/{id}/start:
+    post:
+      description: Start an inactive iSCSI target
+      parameters:
+      - description: Target ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Start iSCSI target
+      tags:
+      - iSCSI
+  /iscsi/targets/{id}/status:
+    get:
+      description: Get the current operational status of an iSCSI target
+      parameters:
+      - description: Target ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ISCSITargetStatusResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get target status
+      tags:
+      - iSCSI
+  /iscsi/targets/{id}/stop:
+    post:
+      description: Stop an active iSCSI target
+      parameters:
+      - description: Target ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Stop iSCSI target
+      tags:
+      - iSCSI
   /login:
     post:
       consumes:
@@ -1292,6 +4884,827 @@ paths:
       summary: Get WebSocket information
       tags:
       - Monitoring
+  /nfs/client-access:
+    post:
+      consumes:
+      - application/json
+      description: Create a new client access control for an NFS export
+      parameters:
+      - description: Client access configuration
+        in: body
+        name: access
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateNFSClientAccessRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.NFSClientAccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create client access control
+      tags:
+      - NFS Access Control
+  /nfs/client-access/{id}:
+    delete:
+      description: Delete a client access control
+      parameters:
+      - description: Access control ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete client access control
+      tags:
+      - NFS Access Control
+    put:
+      consumes:
+      - application/json
+      description: Update a client access control
+      parameters:
+      - description: Access control ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated access configuration
+        in: body
+        name: access
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.NFSClientAccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update client access control
+      tags:
+      - NFS Access Control
+  /nfs/config:
+    get:
+      description: Get the current NFS global configuration
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.NFSGlobalConfigResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get NFS global configuration
+      tags:
+      - NFS Configuration
+    put:
+      consumes:
+      - application/json
+      description: Update the NFS global configuration
+      parameters:
+      - description: Updated configuration
+        in: body
+        name: config
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateNFSGlobalConfigRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.NFSGlobalConfigResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update NFS global configuration
+      tags:
+      - NFS Configuration
+  /nfs/config/reset:
+    post:
+      description: Reset the NFS global configuration to defaults
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.NFSGlobalConfigResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Reset NFS global configuration
+      tags:
+      - NFS Configuration
+  /nfs/exports:
+    get:
+      description: Get all NFS exports, optionally filtered by enabled status
+      parameters:
+      - description: Filter by enabled status
+        in: query
+        name: enabled
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.NFSExportResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get NFS exports
+      tags:
+      - NFS
+    post:
+      consumes:
+      - application/json
+      description: Create a new NFS export with specified configuration
+      parameters:
+      - description: Export configuration
+        in: body
+        name: export
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateNFSExportRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.NFSExportResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create NFS export
+      tags:
+      - NFS
+  /nfs/exports/{id}:
+    delete:
+      description: Delete an NFS export
+      parameters:
+      - description: Export ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete NFS export
+      tags:
+      - NFS
+    get:
+      description: Get a specific NFS export by ID
+      parameters:
+      - description: Export ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.NFSExportResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get NFS export
+      tags:
+      - NFS
+    put:
+      consumes:
+      - application/json
+      description: Update an existing NFS export
+      parameters:
+      - description: Export ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated export configuration
+        in: body
+        name: export
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateNFSExportRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.NFSExportResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update NFS export
+      tags:
+      - NFS
+  /nfs/exports/{id}/client-access:
+    get:
+      description: Get client access controls for an NFS export
+      parameters:
+      - description: Export ID
+        in: path
+        name: export_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.NFSClientAccessResponse'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get client access controls
+      tags:
+      - NFS Access Control
+  /nfs/exports/{id}/multipath:
+    get:
+      description: Get multipath configurations for an NFS export
+      parameters:
+      - description: Export ID
+        in: path
+        name: export_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.NFSMultipathConfResponse'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get multipath configurations
+      tags:
+      - NFS Multipath
+  /nfs/exports/{id}/multipath/load-balance:
+    get:
+      description: Get load balancing information for multipath configurations
+      parameters:
+      - description: Export ID
+        in: path
+        name: export_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get path load balance
+      tags:
+      - NFS Multipath
+  /nfs/exports/{id}/multipath/optimize:
+    post:
+      description: Automatically optimize multipath configuration
+      parameters:
+      - description: Export ID
+        in: path
+        name: export_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Auto optimize paths
+      tags:
+      - NFS Multipath
+  /nfs/exports/{id}/quotas:
+    get:
+      description: Get NFS quotas for an export
+      parameters:
+      - description: Export ID
+        in: path
+        name: export_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.NFSQuotaResponse'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get NFS quotas
+      tags:
+      - NFS Quotas
+  /nfs/multipath:
+    post:
+      consumes:
+      - application/json
+      description: Create a new multipath configuration for an NFS export
+      parameters:
+      - description: Multipath configuration
+        in: body
+        name: multipath
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateNFSMultipathConfRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.NFSMultipathConfResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create multipath configuration
+      tags:
+      - NFS Multipath
+  /nfs/multipath/{id}:
+    delete:
+      description: Delete a multipath configuration
+      parameters:
+      - description: Multipath configuration ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete multipath configuration
+      tags:
+      - NFS Multipath
+    put:
+      consumes:
+      - application/json
+      description: Update a multipath configuration
+      parameters:
+      - description: Multipath configuration ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated multipath configuration
+        in: body
+        name: multipath
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.NFSMultipathConfResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update multipath configuration
+      tags:
+      - NFS Multipath
+  /nfs/multipath/health:
+    get:
+      description: Check the health status of all multipath configurations
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.NFSHealthCheckResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Check multipath health
+      tags:
+      - NFS Multipath
+  /nfs/operations:
+    get:
+      description: Get all NFS operations with optional status filter
+      parameters:
+      - description: Filter by operation status
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.NFSOperationResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all operations
+      tags:
+      - NFS Operations
+  /nfs/operations/{operation_id}:
+    get:
+      description: Get the status of an NFS operation
+      parameters:
+      - description: Operation ID
+        in: path
+        name: operation_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.NFSOperationResponse'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get operation status
+      tags:
+      - NFS Operations
+  /nfs/operations/{operation_id}/cancel:
+    post:
+      description: Cancel a pending or running NFS operation
+      parameters:
+      - description: Operation ID
+        in: path
+        name: operation_id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Cancel operation
+      tags:
+      - NFS Operations
+  /nfs/operations/async:
+    post:
+      consumes:
+      - application/json
+      description: Execute an asynchronous NFS operation
+      parameters:
+      - description: Operation configuration
+        in: body
+        name: operation
+        required: true
+        schema:
+          $ref: '#/definitions/dto.NFSOperationRequest'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/dto.NFSOperationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Execute async NFS operation
+      tags:
+      - NFS Operations
+  /nfs/operations/sync:
+    post:
+      consumes:
+      - application/json
+      description: Execute a synchronous NFS operation
+      parameters:
+      - description: Operation configuration
+        in: body
+        name: operation
+        required: true
+        schema:
+          $ref: '#/definitions/dto.NFSOperationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.NFSOperationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Execute sync NFS operation
+      tags:
+      - NFS Operations
+  /nfs/quotas:
+    post:
+      consumes:
+      - application/json
+      description: Create a new NFS quota
+      parameters:
+      - description: Quota configuration
+        in: body
+        name: quota
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateNFSQuotaRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.NFSQuotaResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create NFS quota
+      tags:
+      - NFS Quotas
   /roles:
     get:
       consumes:
@@ -1715,10 +6128,4 @@ paths:
       summary: Update user status
       tags:
       - Users
-securityDefinitions:
-  BearerAuth:
-    description: Type "Bearer" followed by a space and JWT token.
-    in: header
-    name: Authorization
-    type: apiKey
 swagger: "2.0"
