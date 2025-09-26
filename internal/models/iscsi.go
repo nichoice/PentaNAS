@@ -2,63 +2,63 @@ package models
 
 import "time"
 
-// iSCSI Target状态枚举
-type iSCSITargetStatus string
+// ISCSITargetStatus Target状态枚举
+type ISCSITargetStatus string
 
 const (
-	iSCSIStatusActive   iSCSITargetStatus = "active"
-	iSCSIStatusInactive iSCSITargetStatus = "inactive"
-	iSCSIStatusError    iSCSITargetStatus = "error"
+	ISCSIStatusActive   ISCSITargetStatus = "active"
+	ISCSIStatusInactive ISCSITargetStatus = "inactive"
+	ISCSIStatusError    ISCSITargetStatus = "error"
 )
 
-// iSCSI权限级别
-type iSCSIPermission string
+// ISCSIPermission 权限级别
+type ISCSIPermission string
 
 const (
-	iSCSIPermissionReadOnly  iSCSIPermission = "ro"
-	iSCSIPermissionReadWrite iSCSIPermission = "rw"
-	iSCSIPermissionDeny      iSCSIPermission = "deny"
+	ISCSIPermissionReadOnly  ISCSIPermission = "ro"
+	ISCSIPermissionReadWrite ISCSIPermission = "rw"
+	ISCSIPermissionDeny      ISCSIPermission = "deny"
 )
 
-// iSCSI认证类型
-type iSCSIAuthType string
+// ISCSIAuthType 认证类型
+type ISCSIAuthType string
 
 const (
-	iSCSIAuthNone iSCSIAuthType = "none"
-	iSCSIAuthCHAP iSCSIAuthType = "chap"
+	ISCSIAuthNone ISCSIAuthType = "none"
+	ISCSIAuthCHAP ISCSIAuthType = "chap"
 )
 
-// iSCSI设备类型
-type iSCSIDeviceType string
+// ISCSIDeviceType 设备类型
+type ISCSIDeviceType string
 
 const (
-	iSCSIDeviceBlock  iSCSIDeviceType = "block"
-	iSCSIDeviceFile   iSCSIDeviceType = "file"
-	iSCSIDeviceTCMU   iSCSIDeviceType = "tcmu"
+	ISCSIDeviceBlock ISCSIDeviceType = "block"
+	ISCSIDeviceFile  ISCSIDeviceType = "file"
+	ISCSIDeviceTCMU  ISCSIDeviceType = "tcmu"
 )
 
-// iSCSI Target配置
-type iSCSITarget struct {
+// ISCSITarget Target配置
+type ISCSITarget struct {
 	Base
 	Name           string            `gorm:"type:varchar(223);uniqueIndex;not null" json:"name"` // IQN format
 	Alias          string            `gorm:"type:varchar(100)" json:"alias"`
-	Status         iSCSITargetStatus `gorm:"type:varchar(20);default:'inactive'" json:"status"`
+	Status         ISCSITargetStatus `gorm:"type:varchar(20);default:'inactive'" json:"status"`
 	Comment        string            `gorm:"type:text" json:"comment"`
 	IsEnabled      bool              `gorm:"default:true" json:"is_enabled"`
 
 	// 关联关系
-	LUNs           []iSCSILUN        `gorm:"foreignKey:TargetID" json:"luns,omitempty"`
-	ACLs           []iSCSIACL        `gorm:"foreignKey:TargetID" json:"acls,omitempty"`
-	Sessions       []iSCSISession    `gorm:"foreignKey:TargetID" json:"sessions,omitempty"`
+	LUNs           []ISCSILUN        `gorm:"foreignKey:TargetID" json:"luns,omitempty"`
+	ACLs           []ISCSIACL        `gorm:"foreignKey:TargetID" json:"acls,omitempty"`
+	Sessions       []ISCSISession    `gorm:"foreignKey:TargetID" json:"sessions,omitempty"`
 }
 
-// iSCSI LUN (Logical Unit Number)配置
-type iSCSILUN struct {
+// ISCSILUN LUN (Logical Unit Number)配置
+type ISCSILUN struct {
 	Base
 	TargetID       string          `gorm:"type:varchar(36);index;not null" json:"target_id"`
 	LUN            int             `gorm:"not null" json:"lun"` // LUN编号，0-255
 	Name           string          `gorm:"type:varchar(100);not null" json:"name"`
-	DeviceType     iSCSIDeviceType `gorm:"type:varchar(20);not null" json:"device_type"`
+	DeviceType     ISCSIDeviceType `gorm:"type:varchar(20);not null" json:"device_type"`
 	DevicePath     string          `gorm:"type:varchar(500);not null" json:"device_path"`
 	Size           int64           `json:"size"` // bytes
 	BlockSize      int             `gorm:"default:512" json:"block_size"`
@@ -76,19 +76,19 @@ type iSCSILUN struct {
 	Comment        string          `gorm:"type:text" json:"comment"`
 
 	// 关联关系
-	Target         iSCSITarget     `gorm:"foreignKey:TargetID" json:"target,omitempty"`
+	Target         ISCSITarget     `gorm:"foreignKey:TargetID" json:"target,omitempty"`
 }
 
-// iSCSI ACL (Access Control List)
-type iSCSIACL struct {
+// ISCSIACL ACL (Access Control List)
+type ISCSIACL struct {
 	Base
 	TargetID       string          `gorm:"type:varchar(36);index;not null" json:"target_id"`
 	InitiatorName  string          `gorm:"type:varchar(223);not null" json:"initiator_name"` // IQN format
-	Permission     iSCSIPermission `gorm:"type:varchar(10);default:'rw'" json:"permission"`
+	Permission     ISCSIPermission `gorm:"type:varchar(10);default:'rw'" json:"permission"`
 	IsEnabled      bool            `gorm:"default:true" json:"is_enabled"`
 
 	// 认证配置
-	AuthType       iSCSIAuthType   `gorm:"type:varchar(20);default:'none'" json:"auth_type"`
+	AuthType       ISCSIAuthType   `gorm:"type:varchar(20);default:'none'" json:"auth_type"`
 	Username       string          `gorm:"type:varchar(100)" json:"username"`
 	Password       string          `gorm:"type:varchar(255)" json:"-"` // 不在JSON中显示
 	MutualAuth     bool            `gorm:"default:false" json:"mutual_auth"`
@@ -98,28 +98,28 @@ type iSCSIACL struct {
 	Comment        string          `gorm:"type:text" json:"comment"`
 
 	// LUN映射权限
-	LUNMappings    []iSCSILUNMapping `gorm:"foreignKey:ACLID" json:"lun_mappings,omitempty"`
+	LUNMappings    []ISCSILUNMapping `gorm:"foreignKey:ACLID" json:"lun_mappings,omitempty"`
 
 	// 关联关系
-	Target         iSCSITarget     `gorm:"foreignKey:TargetID" json:"target,omitempty"`
-	Sessions       []iSCSISession  `gorm:"foreignKey:ACLID" json:"sessions,omitempty"`
+	Target         ISCSITarget     `gorm:"foreignKey:TargetID" json:"target,omitempty"`
+	Sessions       []ISCSISession  `gorm:"foreignKey:ACLID" json:"sessions,omitempty"`
 }
 
-// iSCSI LUN映射到ACL的权限
-type iSCSILUNMapping struct {
+// ISCSILUNMapping LUN映射到ACL的权限
+type ISCSILUNMapping struct {
 	Base
 	ACLID          string          `gorm:"type:varchar(36);index;not null" json:"acl_id"`
 	LUNID          string          `gorm:"type:varchar(36);index;not null" json:"lun_id"`
-	Permission     iSCSIPermission `gorm:"type:varchar(10);default:'rw'" json:"permission"`
+	Permission     ISCSIPermission `gorm:"type:varchar(10);default:'rw'" json:"permission"`
 	IsEnabled      bool            `gorm:"default:true" json:"is_enabled"`
 
 	// 关联关系
-	ACL            iSCSIACL        `gorm:"foreignKey:ACLID" json:"acl,omitempty"`
-	LUN            iSCSILUN        `gorm:"foreignKey:LUNID" json:"lun,omitempty"`
+	ACL            ISCSIACL        `gorm:"foreignKey:ACLID" json:"acl,omitempty"`
+	LUN            ISCSILUN        `gorm:"foreignKey:LUNID" json:"lun,omitempty"`
 }
 
-// iSCSI全局配置
-type iSCSIGlobalConfig struct {
+// ISCSIGlobalConfig 全局配置
+type ISCSIGlobalConfig struct {
 	Base
 
 	// 服务配置
@@ -152,8 +152,8 @@ type iSCSIGlobalConfig struct {
 	IsActive            bool        `gorm:"default:true" json:"is_active"`
 }
 
-// iSCSI服务状态
-type iSCSIService struct {
+// ISCSIService 服务状态
+type ISCSIService struct {
 	Base
 	ServiceName       string     `gorm:"type:varchar(100);not null" json:"service_name"` // target, tcmu-runner
 	ProcessID         int        `json:"process_id"`
@@ -166,8 +166,8 @@ type iSCSIService struct {
 	SessionCount      int        `json:"session_count"`
 }
 
-// iSCSI会话信息
-type iSCSISession struct {
+// ISCSISession 会话信息
+type ISCSISession struct {
 	Base
 	TargetID          string    `gorm:"type:varchar(36);index;not null" json:"target_id"`
 	ACLID             string    `gorm:"type:varchar(36);index" json:"acl_id"`
@@ -188,13 +188,13 @@ type iSCSISession struct {
 	IOErrors          int64     `json:"io_errors"`
 
 	// 关联关系
-	Target            iSCSITarget `gorm:"foreignKey:TargetID" json:"target,omitempty"`
-	ACL               iSCSIACL    `gorm:"foreignKey:ACLID" json:"acl,omitempty"`
-	Connections       []iSCSIConnection `gorm:"foreignKey:SessionID" json:"connections,omitempty"`
+	Target            ISCSITarget `gorm:"foreignKey:TargetID" json:"target,omitempty"`
+	ACL               ISCSIACL    `gorm:"foreignKey:ACLID" json:"acl,omitempty"`
+	Connections       []ISCSIConnection `gorm:"foreignKey:SessionID" json:"connections,omitempty"`
 }
 
-// iSCSI连接信息
-type iSCSIConnection struct {
+// ISCSIConnection 连接信息
+type ISCSIConnection struct {
 	Base
 	SessionID         string    `gorm:"type:varchar(36);index;not null" json:"session_id"`
 	ConnectionID      int       `gorm:"not null" json:"connection_id"`
@@ -214,11 +214,11 @@ type iSCSIConnection struct {
 	IOPs              int64     `json:"iops"`
 
 	// 关联关系
-	Session           iSCSISession `gorm:"foreignKey:SessionID" json:"session,omitempty"`
+	Session           ISCSISession `gorm:"foreignKey:SessionID" json:"session,omitempty"`
 }
 
-// iSCSI审计日志
-type iSCSIAuditLog struct {
+// ISCSIAuditLog 审计日志
+type ISCSIAuditLog struct {
 	Base
 	TargetName        string    `gorm:"type:varchar(223);index" json:"target_name"`
 	InitiatorName     string    `gorm:"type:varchar(223);index" json:"initiator_name"`
@@ -232,8 +232,8 @@ type iSCSIAuditLog struct {
 	ResponseTime      float64   `json:"response_time"` // ms
 }
 
-// iSCSI存储池配置
-type iSCSIStoragePool struct {
+// ISCSIStoragePool 存储池配置
+type ISCSIStoragePool struct {
 	Base
 	Name              string    `gorm:"type:varchar(100);uniqueIndex;not null" json:"name"`
 	Type              string    `gorm:"type:varchar(50);not null" json:"type"` // file, block, lvm, zfs
@@ -249,11 +249,11 @@ type iSCSIStoragePool struct {
 	AllocationUnit    int64     `gorm:"default:1048576" json:"allocation_unit"` // bytes, 1MB default
 
 	// 关联关系
-	LUNs              []iSCSILUN `gorm:"foreignKey:DevicePath;references:Path" json:"luns,omitempty"`
+	LUNs              []ISCSILUN `gorm:"foreignKey:DevicePath;references:Path" json:"luns,omitempty"`
 }
 
-// iSCSI性能统计
-type iSCSIPerformanceStats struct {
+// ISCSIPerformanceStats 性能统计
+type ISCSIPerformanceStats struct {
 	Base
 	TargetID          string    `gorm:"type:varchar(36);index;not null" json:"target_id"`
 	LUNID             string    `gorm:"type:varchar(36);index" json:"lun_id"`
@@ -279,6 +279,6 @@ type iSCSIPerformanceStats struct {
 	TimeoutErrors     int64     `json:"timeout_errors"`
 
 	// 关联关系
-	Target            iSCSITarget `gorm:"foreignKey:TargetID" json:"target,omitempty"`
-	LUN               iSCSILUN    `gorm:"foreignKey:LUNID" json:"lun,omitempty"`
+	Target            ISCSITarget `gorm:"foreignKey:TargetID" json:"target,omitempty"`
+	LUN               ISCSILUN    `gorm:"foreignKey:LUNID" json:"lun,omitempty"`
 }

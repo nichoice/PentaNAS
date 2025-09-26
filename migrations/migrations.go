@@ -227,17 +227,17 @@ func initNFSConfig(db *gorm.DB) error {
 
 func createiSCSITables(db *gorm.DB) error {
 	tables := []interface{}{
-		&models.iSCSITarget{},
-		&models.iSCSILUN{},
-		&models.iSCSIACL{},
-		&models.iSCSILUNMapping{},
-		&models.iSCSIGlobalConfig{},
-		&models.iSCSIService{},
-		&models.iSCSISession{},
-		&models.iSCSIConnection{},
-		&models.iSCSIAuditLog{},
-		&models.iSCSIStoragePool{},
-		&models.iSCSIPerformanceStats{},
+		&models.ISCSITarget{},
+		&models.ISCSILUN{},
+		&models.ISCSIACL{},
+		&models.ISCSILUNMapping{},
+		&models.ISCSIGlobalConfig{},
+		&models.ISCSIService{},
+		&models.ISCSISession{},
+		&models.ISCSIConnection{},
+		&models.ISCSIAuditLog{},
+		&models.ISCSIStoragePool{},
+		&models.ISCSIPerformanceStats{},
 	}
 
 	for _, table := range tables {
@@ -252,17 +252,17 @@ func createiSCSITables(db *gorm.DB) error {
 
 func dropiSCSITables(db *gorm.DB) error {
 	tables := []interface{}{
-		&models.iSCSIPerformanceStats{},
-		&models.iSCSIStoragePool{},
-		&models.iSCSIAuditLog{},
-		&models.iSCSIConnection{},
-		&models.iSCSISession{},
-		&models.iSCSIService{},
-		&models.iSCSILUNMapping{},
-		&models.iSCSIACL{},
-		&models.iSCSILUN{},
-		&models.iSCSITarget{},
-		&models.iSCSIGlobalConfig{},
+		&models.ISCSIPerformanceStats{},
+		&models.ISCSIStoragePool{},
+		&models.ISCSIAuditLog{},
+		&models.ISCSIConnection{},
+		&models.ISCSISession{},
+		&models.ISCSIService{},
+		&models.ISCSILUNMapping{},
+		&models.ISCSIACL{},
+		&models.ISCSILUN{},
+		&models.ISCSITarget{},
+		&models.ISCSIGlobalConfig{},
 	}
 
 	for _, table := range tables {
@@ -274,11 +274,11 @@ func dropiSCSITables(db *gorm.DB) error {
 }
 
 func initiSCSIConfig(db *gorm.DB) error {
-	var config models.iSCSIGlobalConfig
+	var config models.ISCSIGlobalConfig
 	result := db.Where("is_active = ?", true).First(&config)
 
 	if result.Error != nil {
-		defaultConfig := models.iSCSIGlobalConfig{
+		defaultConfig := models.ISCSIGlobalConfig{
 			Base:                         models.Base{ID: "default-iscsi-config"},
 			TargetPort:                   3260,
 			MaxSessions:                  256,

@@ -179,21 +179,21 @@ func InitNFSModels(db *gorm.DB) {
 	}
 }
 
-// InitiSCSIModels initializes the iSCSI-related models in the database
-func InitiSCSIModels(db *gorm.DB) {
+// InitISCSIModels initializes the iSCSI-related models in the database
+func InitISCSIModels(db *gorm.DB) {
 	// Auto-migrate all iSCSI models
 	err := db.AutoMigrate(
-		&iSCSITarget{},
-		&iSCSILUN{},
-		&iSCSIACL{},
-		&iSCSILUNMapping{},
-		&iSCSIGlobalConfig{},
-		&iSCSIService{},
-		&iSCSISession{},
-		&iSCSIConnection{},
-		&iSCSIAuditLog{},
-		&iSCSIStoragePool{},
-		&iSCSIPerformanceStats{},
+		&ISCSITarget{},
+		&ISCSILUN{},
+		&ISCSIACL{},
+		&ISCSILUNMapping{},
+		&ISCSIGlobalConfig{},
+		&ISCSIService{},
+		&ISCSISession{},
+		&ISCSIConnection{},
+		&ISCSIAuditLog{},
+		&ISCSIStoragePool{},
+		&ISCSIPerformanceStats{},
 	)
 
 	if err != nil {
@@ -203,12 +203,12 @@ func InitiSCSIModels(db *gorm.DB) {
 	}
 
 	// Initialize default iSCSI global configuration
-	var config iSCSIGlobalConfig
+	var config ISCSIGlobalConfig
 	result := db.Where("is_active = ?", true).First(&config)
 
 	if result.Error != nil {
 		// Create default configuration
-		defaultConfig := iSCSIGlobalConfig{
+		defaultConfig := ISCSIGlobalConfig{
 			Base:                         Base{ID: "default-iscsi-config"},
 			TargetPort:                   3260,
 			MaxSessions:                  256,
