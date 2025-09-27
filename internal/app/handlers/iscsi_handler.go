@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// ISCSIHandler 提供 iSCSI 相关的 REST 接口处理函数。
 type ISCSIHandler struct {
 	targetService      *services.ISCSITargetService
 	lunService         *services.ISCSILUNService
@@ -23,6 +24,7 @@ type ISCSIHandler struct {
 	auditService       *services.ISCSIAuditService
 }
 
+// NewISCSIHandler 构造 Handler 并注入具体业务服务。
 func NewISCSIHandler() *ISCSIHandler {
 	return &ISCSIHandler{
 		targetService:      services.NewISCSITargetService(),
@@ -40,6 +42,7 @@ func NewISCSIHandler() *ISCSIHandler {
 
 // Target management endpoints
 
+// CreateTarget 处理创建新 Target 的请求。
 // @Summary Create iSCSI target
 // @Description Create a new iSCSI target with specified IQN
 // @Tags iSCSI
@@ -66,6 +69,7 @@ func (h *ISCSIHandler) CreateTarget(c *gin.Context) {
 	c.JSON(http.StatusCreated, target)
 }
 
+// GetTargets 以分页方式返回 Target 列表。
 // @Summary Get all iSCSI targets
 // @Description Get a list of all iSCSI targets with optional filtering
 // @Tags iSCSI
@@ -97,6 +101,7 @@ func (h *ISCSIHandler) GetTargets(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+// GetTarget 返回指定 ID 的 Target 详情。
 // @Summary Get iSCSI target by ID
 // @Description Get detailed information about a specific iSCSI target
 // @Tags iSCSI
@@ -118,6 +123,7 @@ func (h *ISCSIHandler) GetTarget(c *gin.Context) {
 	c.JSON(http.StatusOK, target)
 }
 
+// UpdateTarget 更新 Target 的基本信息。
 // @Summary Update iSCSI target
 // @Description Update an existing iSCSI target configuration
 // @Tags iSCSI
@@ -148,6 +154,7 @@ func (h *ISCSIHandler) UpdateTarget(c *gin.Context) {
 	c.JSON(http.StatusOK, target)
 }
 
+// DeleteTarget 删除指定 Target。
 // @Summary Delete iSCSI target
 // @Description Delete an iSCSI target and all its associated resources
 // @Tags iSCSI
@@ -169,6 +176,7 @@ func (h *ISCSIHandler) DeleteTarget(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
+// StartTarget 激活 Target（当前为占位实现）。
 // @Summary Start iSCSI target
 // @Description Start an inactive iSCSI target
 // @Tags iSCSI
@@ -190,6 +198,7 @@ func (h *ISCSIHandler) StartTarget(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Target started successfully"})
 }
 
+// StopTarget 停止 Target（当前为占位实现）。
 // @Summary Stop iSCSI target
 // @Description Stop an active iSCSI target
 // @Tags iSCSI
@@ -211,6 +220,7 @@ func (h *ISCSIHandler) StopTarget(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Target stopped successfully"})
 }
 
+// GetTargetStatus 返回 Target 的状态摘要。
 // @Summary Get target status
 // @Description Get the current operational status of an iSCSI target
 // @Tags iSCSI
@@ -232,6 +242,7 @@ func (h *ISCSIHandler) GetTargetStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, status)
 }
 
+// GetTargetLUNs 返回 Target 下关联的 LUN 列表。
 // @Summary Get target LUNs
 // @Description Get all LUNs associated with a specific target
 // @Tags iSCSI
@@ -259,6 +270,7 @@ func (h *ISCSIHandler) GetTargetLUNs(c *gin.Context) {
 
 // LUN management endpoints
 
+// CreateLUN 负责创建新的 LUN。
 // @Summary Create iSCSI LUN
 // @Description Create a new LUN with specified storage configuration
 // @Tags iSCSI
@@ -285,6 +297,7 @@ func (h *ISCSIHandler) CreateLUN(c *gin.Context) {
 	c.JSON(http.StatusCreated, lun)
 }
 
+// GetLUNs 以分页方式列出 LUN。
 // @Summary Get all LUNs
 // @Description Get a list of all LUNs with optional filtering
 // @Tags iSCSI
@@ -316,6 +329,7 @@ func (h *ISCSIHandler) GetLUNs(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+// GetLUN 返回指定 LUN 的详细信息。
 // @Summary Get LUN by ID
 // @Description Get detailed information about a specific LUN
 // @Tags iSCSI
@@ -337,6 +351,7 @@ func (h *ISCSIHandler) GetLUN(c *gin.Context) {
 	c.JSON(http.StatusOK, lun)
 }
 
+// UpdateLUN 更新 LUN 的属性。
 // @Summary Update LUN
 // @Description Update an existing LUN configuration
 // @Tags iSCSI
@@ -367,6 +382,7 @@ func (h *ISCSIHandler) UpdateLUN(c *gin.Context) {
 	c.JSON(http.StatusOK, lun)
 }
 
+// DeleteLUN 删除指定的 LUN。
 // @Summary Delete LUN
 // @Description Delete a LUN and unmap it from all targets
 // @Tags iSCSI
@@ -388,6 +404,7 @@ func (h *ISCSIHandler) DeleteLUN(c *gin.Context) {
 	c.Status(http.StatusNoContent)
 }
 
+// MapLUNToTarget 将 LUN 映射到指定 Target。
 // @Summary Map LUN to target
 // @Description Map a LUN to a specific target
 // @Tags iSCSI
@@ -417,6 +434,7 @@ func (h *ISCSIHandler) MapLUNToTarget(c *gin.Context) {
 	c.JSON(http.StatusOK, mapping)
 }
 
+// UnmapLUNFromTarget 解除 LUN 与 Target 的映射关系。
 // @Summary Unmap LUN from target
 // @Description Remove a LUN mapping from a specific target
 // @Tags iSCSI
@@ -442,6 +460,7 @@ func (h *ISCSIHandler) UnmapLUNFromTarget(c *gin.Context) {
 
 // ACL management endpoints
 
+// CreateACL 创建新的访问控制记录。
 // @Summary Create ACL
 // @Description Create a new Access Control List entry for iSCSI target access
 // @Tags iSCSI
@@ -468,6 +487,7 @@ func (h *ISCSIHandler) CreateACL(c *gin.Context) {
 	c.JSON(http.StatusCreated, acl)
 }
 
+// GetACLs 分页返回 ACL 列表。
 // @Summary Get all ACLs
 // @Description Get a list of all ACLs with optional filtering
 // @Tags iSCSI
@@ -499,6 +519,7 @@ func (h *ISCSIHandler) GetACLs(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+// GetACL 返回指定 ACL 详情。
 // @Summary Get ACL by ID
 // @Description Get detailed information about a specific ACL
 // @Tags iSCSI
@@ -520,6 +541,7 @@ func (h *ISCSIHandler) GetACL(c *gin.Context) {
 	c.JSON(http.StatusOK, acl)
 }
 
+// UpdateACL 更新 ACL 属性。
 // @Summary Update ACL
 // @Description Update an existing ACL configuration
 // @Tags iSCSI
@@ -550,6 +572,7 @@ func (h *ISCSIHandler) UpdateACL(c *gin.Context) {
 	c.JSON(http.StatusOK, acl)
 }
 
+// DeleteACL 删除 ACL。
 // @Summary Delete ACL
 // @Description Delete an ACL and revoke target access
 // @Tags iSCSI
@@ -573,6 +596,7 @@ func (h *ISCSIHandler) DeleteACL(c *gin.Context) {
 
 // Global configuration endpoints
 
+// GetGlobalConfig 返回当前 iSCSI 全局配置。
 // @Summary Get global configuration
 // @Description Get the current global iSCSI configuration
 // @Tags iSCSI
@@ -590,6 +614,7 @@ func (h *ISCSIHandler) GetGlobalConfig(c *gin.Context) {
 	c.JSON(http.StatusOK, config)
 }
 
+// UpdateGlobalConfig 更新全局配置。
 // @Summary Update global configuration
 // @Description Update the global iSCSI configuration
 // @Tags iSCSI
@@ -616,6 +641,7 @@ func (h *ISCSIHandler) UpdateGlobalConfig(c *gin.Context) {
 	c.JSON(http.StatusOK, config)
 }
 
+// ResetGlobalConfig 恢复默认全局配置。
 // @Summary Reset global configuration
 // @Description Reset the global iSCSI configuration to defaults
 // @Tags iSCSI
@@ -635,6 +661,7 @@ func (h *ISCSIHandler) ResetGlobalConfig(c *gin.Context) {
 
 // Service management endpoints
 
+// GetServiceStatus 返回底层服务的运行状态。
 // @Summary Get service status
 // @Description Get the current status of the iSCSI service
 // @Tags iSCSI
@@ -652,6 +679,7 @@ func (h *ISCSIHandler) GetServiceStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, status)
 }
 
+// StartService 启动 iSCSI 服务。
 // @Summary Start service
 // @Description Start the iSCSI service
 // @Tags iSCSI
@@ -669,6 +697,7 @@ func (h *ISCSIHandler) StartService(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "iSCSI service started successfully"})
 }
 
+// StopService 停止 iSCSI 服务。
 // @Summary Stop service
 // @Description Stop the iSCSI service
 // @Tags iSCSI
@@ -686,6 +715,7 @@ func (h *ISCSIHandler) StopService(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "iSCSI service stopped successfully"})
 }
 
+// RestartService 重启 iSCSI 服务。
 // @Summary Restart service
 // @Description Restart the iSCSI service
 // @Tags iSCSI
@@ -705,6 +735,7 @@ func (h *ISCSIHandler) RestartService(c *gin.Context) {
 
 // Session management endpoints
 
+// GetSessions 分页返回活跃会话。
 // @Summary Get all sessions
 // @Description Get a list of all active iSCSI sessions
 // @Tags iSCSI
@@ -736,6 +767,7 @@ func (h *ISCSIHandler) GetSessions(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+// GetSession 返回指定会话详情。
 // @Summary Get session by ID
 // @Description Get detailed information about a specific session
 // @Tags iSCSI
@@ -757,6 +789,7 @@ func (h *ISCSIHandler) GetSession(c *gin.Context) {
 	c.JSON(http.StatusOK, session)
 }
 
+// TerminateSession 强制断开指定会话。
 // @Summary Terminate session
 // @Description Forcefully terminate an active iSCSI session
 // @Tags iSCSI
@@ -780,6 +813,7 @@ func (h *ISCSIHandler) TerminateSession(c *gin.Context) {
 
 // Connection monitoring endpoints
 
+// GetConnections 分页返回连接列表。
 // @Summary Get all connections
 // @Description Get a list of all active iSCSI connections
 // @Tags iSCSI
@@ -809,6 +843,7 @@ func (h *ISCSIHandler) GetConnections(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+// GetConnectionHistory 返回历史连接记录。
 // @Summary Get connection history
 // @Description Get historical connection data for analysis
 // @Tags iSCSI
@@ -844,6 +879,7 @@ func (h *ISCSIHandler) GetConnectionHistory(c *gin.Context) {
 
 // Storage pool management endpoints
 
+// CreateStoragePool 创建新的存储池。
 // @Summary Create storage pool
 // @Description Create a new storage pool for LUN allocation
 // @Tags iSCSI
@@ -870,6 +906,7 @@ func (h *ISCSIHandler) CreateStoragePool(c *gin.Context) {
 	c.JSON(http.StatusCreated, pool)
 }
 
+// GetStoragePools 分页返回存储池。
 // @Summary Get all storage pools
 // @Description Get a list of all storage pools
 // @Tags iSCSI
@@ -899,6 +936,7 @@ func (h *ISCSIHandler) GetStoragePools(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+// GetStoragePool 返回存储池详情。
 // @Summary Get storage pool by ID
 // @Description Get detailed information about a specific storage pool
 // @Tags iSCSI
@@ -920,6 +958,7 @@ func (h *ISCSIHandler) GetStoragePool(c *gin.Context) {
 	c.JSON(http.StatusOK, pool)
 }
 
+// UpdateStoragePool 更新存储池属性。
 // @Summary Update storage pool
 // @Description Update an existing storage pool configuration
 // @Tags iSCSI
@@ -950,6 +989,7 @@ func (h *ISCSIHandler) UpdateStoragePool(c *gin.Context) {
 	c.JSON(http.StatusOK, pool)
 }
 
+// DeleteStoragePool 删除指定存储池。
 // @Summary Delete storage pool
 // @Description Delete a storage pool and all its LUNs
 // @Tags iSCSI
@@ -973,6 +1013,7 @@ func (h *ISCSIHandler) DeleteStoragePool(c *gin.Context) {
 
 // Performance monitoring endpoints
 
+// GetPerformanceStats 返回整体性能统计。
 // @Summary Get performance statistics
 // @Description Get overall performance statistics for the iSCSI service
 // @Tags iSCSI
@@ -995,6 +1036,7 @@ func (h *ISCSIHandler) GetPerformanceStats(c *gin.Context) {
 	c.JSON(http.StatusOK, stats)
 }
 
+// GetTargetStats 返回指定 Target 的性能统计。
 // @Summary Get target performance statistics
 // @Description Get performance statistics for a specific target
 // @Tags iSCSI
@@ -1020,6 +1062,7 @@ func (h *ISCSIHandler) GetTargetStats(c *gin.Context) {
 	c.JSON(http.StatusOK, stats)
 }
 
+// GetLUNStats 返回指定 LUN 的性能统计。
 // @Summary Get LUN performance statistics
 // @Description Get performance statistics for a specific LUN
 // @Tags iSCSI
@@ -1047,6 +1090,7 @@ func (h *ISCSIHandler) GetLUNStats(c *gin.Context) {
 
 // Audit logging endpoints
 
+// GetAuditLogs 返回审计日志列表。
 // @Summary Get audit logs
 // @Description Get audit logs for iSCSI operations
 // @Tags iSCSI
@@ -1084,6 +1128,7 @@ func (h *ISCSIHandler) GetAuditLogs(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+// GetAuditStats 返回审计统计数据。
 // @Summary Get audit statistics
 // @Description Get statistical information about audit activities
 // @Tags iSCSI

@@ -32,7 +32,7 @@ type ISCSITargetResponse struct {
 	UpdatedAt time.Time                      `json:"updated_at"`
 }
 
-// ISCSITargetListResponse iSCSI目标列表响应
+// ISCSITargetListResponse 用于分页返回 Target 列表及总数信息。
 type ISCSITargetListResponse struct {
 	Targets []ISCSITargetResponse `json:"targets"`
 	Total   int64                 `json:"total"`
@@ -40,7 +40,7 @@ type ISCSITargetListResponse struct {
 	Limit   int                   `json:"limit"`
 }
 
-// ISCSITargetStatusResponse iSCSI目标状态响应
+// ISCSITargetStatusResponse 概述 Target 的运行状态与活跃会话数量。
 type ISCSITargetStatusResponse struct {
 	ID            string                   `json:"id"`
 	Name          string                   `json:"name"`
@@ -87,7 +87,7 @@ type ISCSILUNResponse struct {
 	UpdatedAt     time.Time                 `json:"updated_at"`
 }
 
-// ISCSILUNListResponse iSCSI LUN列表响应
+// ISCSILUNListResponse 携带 LUN 列表与分页统计，方便前端渲染表格。
 type ISCSILUNListResponse struct {
 	LUNs  []ISCSILUNResponse `json:"luns"`
 	Total int64              `json:"total"`
@@ -101,7 +101,7 @@ type MapLUNRequest struct {
 	LUN      int    `json:"lun" binding:"required"`
 }
 
-// ISCSILUNMappingResponse iSCSI LUN映射响应
+// ISCSILUNMappingResponse 返回 LUN 与 Target 的映射结果。
 type ISCSILUNMappingResponse struct {
 	ID       string    `json:"id"`
 	TargetID string    `json:"target_id"`
@@ -151,7 +151,7 @@ type ISCSIACLResponse struct {
 	UpdatedAt      time.Time                  `json:"updated_at"`
 }
 
-// ISCSIACLListResponse iSCSI ACL列表响应
+// ISCSIACLListResponse 封装 ACL 集合的分页数据。
 type ISCSIACLListResponse struct {
 	ACLs  []ISCSIACLResponse `json:"acls"`
 	Total int64              `json:"total"`
@@ -180,7 +180,7 @@ type UpdateISCSIGlobalConfigRequest struct {
 	EnableDebugLog               *bool   `json:"enable_debug_log"`
 }
 
-// ISCSIGlobalConfigResponse iSCSI全局配置响应
+// ISCSIGlobalConfigResponse 返回当前生效的 iSCSI 全局配置。
 type ISCSIGlobalConfigResponse struct {
 	ID                           string    `json:"id"`
 	TargetPort                   int       `json:"target_port"`
@@ -205,7 +205,7 @@ type ISCSIGlobalConfigResponse struct {
 	UpdatedAt                    time.Time `json:"updated_at"`
 }
 
-// ISCSIServiceStatusResponse iSCSI服务状态响应
+// ISCSIServiceStatusResponse 汇总底层 iSCSI 服务的运行概况。
 type ISCSIServiceStatusResponse struct {
 	ServiceName     string                    `json:"service_name"`
 	Status          string                    `json:"status"`
@@ -217,7 +217,7 @@ type ISCSIServiceStatusResponse struct {
 	LastStarted     *time.Time                `json:"last_started,omitempty"`
 }
 
-// ISCSISessionResponse iSCSI会话响应
+// ISCSISessionResponse 描述单个 iSCSI 会话的基础信息与统计。
 type ISCSISessionResponse struct {
 	ID               string    `json:"id"`
 	TargetID         string    `json:"target_id"`
@@ -230,7 +230,7 @@ type ISCSISessionResponse struct {
 	LastActivity     time.Time `json:"last_activity"`
 }
 
-// ISCSISessionListResponse iSCSI会话列表响应
+// ISCSISessionListResponse 用于分页返回当前会话列表。
 type ISCSISessionListResponse struct {
 	Sessions []ISCSISessionResponse `json:"sessions"`
 	Total    int64                  `json:"total"`
@@ -238,7 +238,7 @@ type ISCSISessionListResponse struct {
 	Limit    int                    `json:"limit"`
 }
 
-// ISCSIConnectionResponse iSCSI连接响应
+// ISCSIConnectionResponse 描述单条 iSCSI 网络连接。
 type ISCSIConnectionResponse struct {
 	ID               string    `json:"id"`
 	SessionID        string    `json:"session_id"`
@@ -251,7 +251,7 @@ type ISCSIConnectionResponse struct {
 	LastActivity     time.Time `json:"last_activity"`
 }
 
-// ISCSIConnectionListResponse iSCSI连接列表响应
+// ISCSIConnectionListResponse 返回连接集合及分页元信息。
 type ISCSIConnectionListResponse struct {
 	Connections []ISCSIConnectionResponse `json:"connections"`
 	Total       int64                     `json:"total"`
@@ -259,7 +259,7 @@ type ISCSIConnectionListResponse struct {
 	Limit       int                       `json:"limit"`
 }
 
-// ISCSIConnectionHistoryResponse iSCSI连接历史响应
+// ISCSIConnectionHistoryResponse 用于呈现历史连接记录。
 type ISCSIConnectionHistoryResponse struct {
 	History []ISCSIConnectionResponse `json:"history"`
 	Total   int64                     `json:"total"`
@@ -297,7 +297,7 @@ type ISCSIStoragePoolResponse struct {
 	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-// ISCSIStoragePoolListResponse iSCSI存储池列表响应
+// ISCSIStoragePoolListResponse 封装可用存储池集合及分页信息。
 type ISCSIStoragePoolListResponse struct {
 	Pools []ISCSIStoragePoolResponse `json:"pools"`
 	Total int64                      `json:"total"`
@@ -305,7 +305,7 @@ type ISCSIStoragePoolListResponse struct {
 	Limit int                        `json:"limit"`
 }
 
-// ISCSIPerformanceStatsResponse iSCSI性能统计响应
+// ISCSIPerformanceStatsResponse 汇总 iSCSI 服务整体性能指标。
 type ISCSIPerformanceStatsResponse struct {
 	TotalIOPS        int64   `json:"total_iops"`
 	ReadIOPS         int64   `json:"read_iops"`
@@ -322,7 +322,7 @@ type ISCSIPerformanceStatsResponse struct {
 	ErrorCount       int64   `json:"error_count"`
 }
 
-// ISCSITargetPerformanceResponse iSCSI目标性能响应
+// ISCSITargetPerformanceResponse 展示单个 Target 的性能概要。
 type ISCSITargetPerformanceResponse struct {
 	TargetID        string  `json:"target_id"`
 	TargetName      string  `json:"target_name"`
@@ -334,7 +334,7 @@ type ISCSITargetPerformanceResponse struct {
 	ErrorCount      int64   `json:"error_count"`
 }
 
-// ISCSILUNPerformanceResponse iSCSI LUN性能响应
+// ISCSILUNPerformanceResponse 用于分析 LUN 的 IOPS/带宽趋势。
 type ISCSILUNPerformanceResponse struct {
 	LUNID          string  `json:"lun_id"`
 	LUNName        string  `json:"lun_name"`
@@ -345,7 +345,7 @@ type ISCSILUNPerformanceResponse struct {
 	ErrorCount     int64   `json:"error_count"`
 }
 
-// ISCSIAuditLogResponse iSCSI审计日志响应
+// ISCSIAuditLogResponse 表示单条审计日志及附加上下文。
 type ISCSIAuditLogResponse struct {
 	ID          string                 `json:"id"`
 	Action      string                  `json:"action"`
@@ -359,7 +359,7 @@ type ISCSIAuditLogResponse struct {
 	CreatedAt   time.Time              `json:"created_at"`
 }
 
-// ISCSIAuditLogListResponse iSCSI审计日志列表响应
+// ISCSIAuditLogListResponse 返回审计日志分页数据。
 type ISCSIAuditLogListResponse struct {
 	Logs  []ISCSIAuditLogResponse `json:"logs"`
 	Total int64                   `json:"total"`
@@ -367,7 +367,7 @@ type ISCSIAuditLogListResponse struct {
 	Limit int                     `json:"limit"`
 }
 
-// ISCSIAuditStatsResponse iSCSI审计统计响应
+// ISCSIAuditStatsResponse 聚合审计行为的统计数据。
 type ISCSIAuditStatsResponse struct {
 	TotalActions       int64            `json:"total_actions"`
 	SuccessfulActions  int64            `json:"successful_actions"`

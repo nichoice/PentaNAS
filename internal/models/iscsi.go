@@ -37,7 +37,7 @@ const (
 	ISCSIDeviceTCMU  ISCSIDeviceType = "tcmu"
 )
 
-// ISCSITarget Target配置
+// ISCSITarget 描述一个 iSCSI Target 的持久化配置，包含运行状态、别名及与 LUN/ACL 的关联。
 type ISCSITarget struct {
 	Base
 	Name           string            `gorm:"type:varchar(223);uniqueIndex;not null" json:"name"` // IQN format
@@ -52,7 +52,7 @@ type ISCSITarget struct {
 	Sessions       []ISCSISession    `gorm:"foreignKey:TargetID" json:"sessions,omitempty"`
 }
 
-// ISCSILUN LUN (Logical Unit Number)配置
+// ISCSILUN 表示 LUN(Logical Unit Number) 的元数据与存储路径信息，对应单个可映射卷。
 type ISCSILUN struct {
 	Base
 	TargetID       string          `gorm:"type:varchar(36);index;not null" json:"target_id"`
@@ -79,7 +79,7 @@ type ISCSILUN struct {
 	Target         ISCSITarget     `gorm:"foreignKey:TargetID" json:"target,omitempty"`
 }
 
-// ISCSIACL ACL (Access Control List)
+// ISCSIACL 维护 Initiator 与 Target 间的访问控制策略，可定义权限及认证方式。
 type ISCSIACL struct {
 	Base
 	TargetID       string          `gorm:"type:varchar(36);index;not null" json:"target_id"`
@@ -105,7 +105,7 @@ type ISCSIACL struct {
 	Sessions       []ISCSISession  `gorm:"foreignKey:ACLID" json:"sessions,omitempty"`
 }
 
-// ISCSILUNMapping LUN映射到ACL的权限
+// ISCSILUNMapping 记录 ACL 与 LUN 的绑定关系及针对性的权限覆盖。
 type ISCSILUNMapping struct {
 	Base
 	ACLID          string          `gorm:"type:varchar(36);index;not null" json:"acl_id"`
@@ -118,7 +118,7 @@ type ISCSILUNMapping struct {
 	LUN            ISCSILUN        `gorm:"foreignKey:LUNID" json:"lun,omitempty"`
 }
 
-// ISCSIGlobalConfig 全局配置
+// ISCSIGlobalConfig 保存 iSCSI 服务级别的全局参数，例如端口、会话阈值与日志策略。
 type ISCSIGlobalConfig struct {
 	Base
 
@@ -152,7 +152,7 @@ type ISCSIGlobalConfig struct {
 	IsActive            bool        `gorm:"default:true" json:"is_active"`
 }
 
-// ISCSIService 服务状态
+// ISCSIService 追踪 iSCSI 相关后台服务（如 target、tcmu-runner）的实时运行状态。
 type ISCSIService struct {
 	Base
 	ServiceName       string     `gorm:"type:varchar(100);not null" json:"service_name"` // target, tcmu-runner
@@ -166,7 +166,7 @@ type ISCSIService struct {
 	SessionCount      int        `json:"session_count"`
 }
 
-// ISCSISession 会话信息
+// ISCSISession 表示 Initiator 与 Target 间建立的长连接会话及其统计信息。
 type ISCSISession struct {
 	Base
 	TargetID          string    `gorm:"type:varchar(36);index;not null" json:"target_id"`
@@ -193,7 +193,7 @@ type ISCSISession struct {
 	Connections       []ISCSIConnection `gorm:"foreignKey:SessionID" json:"connections,omitempty"`
 }
 
-// ISCSIConnection 连接信息
+// ISCSIConnection 描述会话下具体 TCP 连接的状态与读写指标。
 type ISCSIConnection struct {
 	Base
 	SessionID         string    `gorm:"type:varchar(36);index;not null" json:"session_id"`
@@ -217,7 +217,7 @@ type ISCSIConnection struct {
 	Session           ISCSISession `gorm:"foreignKey:SessionID" json:"session,omitempty"`
 }
 
-// ISCSIAuditLog 审计日志
+// ISCSIAuditLog 记录 iSCSI 操作行为，用于审计与排障。
 type ISCSIAuditLog struct {
 	Base
 	TargetName        string    `gorm:"type:varchar(223);index" json:"target_name"`
@@ -232,7 +232,7 @@ type ISCSIAuditLog struct {
 	ResponseTime      float64   `json:"response_time"` // ms
 }
 
-// ISCSIStoragePool 存储池配置
+// ISCSIStoragePool 表示可供 LUN 使用的后端存储池及容量状况。
 type ISCSIStoragePool struct {
 	Base
 	Name              string    `gorm:"type:varchar(100);uniqueIndex;not null" json:"name"`
@@ -252,7 +252,7 @@ type ISCSIStoragePool struct {
 	LUNs              []ISCSILUN `gorm:"foreignKey:DevicePath;references:Path" json:"luns,omitempty"`
 }
 
-// ISCSIPerformanceStats 性能统计
+// ISCSIPerformanceStats 聚合 iSCSI 系统的历史性能指标，便于分析趋势。
 type ISCSIPerformanceStats struct {
 	Base
 	TargetID          string    `gorm:"type:varchar(36);index;not null" json:"target_id"`
