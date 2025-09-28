@@ -5,7 +5,7 @@
 [![Go Version](https://img.shields.io/badge/Go-1.25-blue.svg)](https://golang.google.cn) [![Apache License](https://img.shields.io/badge/License-Apache2.0-green.svg)](https://www.apache.org/licenses/LICENSE-2.0) [![Package Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://gitee.com/nichoice02/pentanas)
 
 
-[📖 安装指南](#installation) · [🚀 功能清单](#quickstart)
+[📖 安装指南](#installation) · [🚀 功能清单](#quickstart) · [🧭 贡献指南](AGENTS.md)
 
 </div>
 

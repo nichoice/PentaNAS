@@ -19,6 +19,15 @@ type Client interface {
 	EnsurePortal(iqn, ip string, port int) error
 	EnableTarget(iqn string) error
 	DisableTarget(iqn string) error
+
+	// Backstore operations
+	CreateFileBackstore(name, path string, size int64) error
+	CreateBlockBackstore(name, device string) error
+	DeleteBackstore(backendType, name string) error
+
+	// LUN operations
+	CreateLUN(iqn string, lun int, backstoreName, backstoreType string) error
+	DeleteLUN(iqn string, lun int) error
 }
 
 const (
@@ -138,6 +147,92 @@ func (c *TargetCLI) DisableTarget(iqn string) error {
 			return nil
 		}
 		return fmt.Errorf("targetcli disable target failed: %w; stderr: %s", res.Error, res.Stderr)
+	}
+	return nil
+}
+
+// CreateFileBackstore creates a file-based backstore for LUN usage.
+func (c *TargetCLI) CreateFileBackstore(name, path string, size int64) error {
+	if err := c.ensureLinux(); err != nil {
+		return err
+	}
+	// targetcli /backstores/fileio create name=<name> file_or_dev=<path> size=<size>
+	res := c.exec("/backstores/fileio", "create", fmt.Sprintf("name=%s", name),
+		fmt.Sprintf("file_or_dev=%s", path), fmt.Sprintf("size=%d", size))
+	if res.Error != nil {
+		if strings.Contains(res.Stderr, "already exists") {
+			return nil
+		}
+		return fmt.Errorf("targetcli create file backstore failed: %w; stderr: %s", res.Error, res.Stderr)
+	}
+	return nil
+}
+
+// CreateBlockBackstore creates a block device-based backstore.
+func (c *TargetCLI) CreateBlockBackstore(name, device string) error {
+	if err := c.ensureLinux(); err != nil {
+		return err
+	}
+	// targetcli /backstores/block create name=<name> dev=<device>
+	res := c.exec("/backstores/block", "create", fmt.Sprintf("name=%s", name),
+		fmt.Sprintf("dev=%s", device))
+	if res.Error != nil {
+		if strings.Contains(res.Stderr, "already exists") {
+			return nil
+		}
+		return fmt.Errorf("targetcli create block backstore failed: %w; stderr: %s", res.Error, res.Stderr)
+	}
+	return nil
+}
+
+// DeleteBackstore removes a backstore of specified type.
+func (c *TargetCLI) DeleteBackstore(backendType, name string) error {
+	if err := c.ensureLinux(); err != nil {
+		return err
+	}
+	// targetcli /backstores/<type> delete <name>
+	path := fmt.Sprintf("/backstores/%s", backendType)
+	res := c.exec(path, "delete", name)
+	if res.Error != nil {
+		if strings.Contains(res.Stderr, "No such path") || strings.Contains(res.Stderr, "not found") {
+			return nil
+		}
+		return fmt.Errorf("targetcli delete backstore failed: %w; stderr: %s", res.Error, res.Stderr)
+	}
+	return nil
+}
+
+// CreateLUN maps a backstore to a LUN under the specified target.
+func (c *TargetCLI) CreateLUN(iqn string, lun int, backstoreName, backstoreType string) error {
+	if err := c.ensureLinux(); err != nil {
+		return err
+	}
+	// targetcli /iscsi/<iqn>/tpg1/luns create /backstores/<type>/<backstoreName> <lun>
+	lunPath := fmt.Sprintf("/iscsi/%s/tpg1/luns", iqn)
+	backstorePath := fmt.Sprintf("/backstores/%s/%s", backstoreType, backstoreName)
+	res := c.exec(lunPath, "create", backstorePath, fmt.Sprintf("%d", lun))
+	if res.Error != nil {
+		if strings.Contains(res.Stderr, "already exists") {
+			return nil
+		}
+		return fmt.Errorf("targetcli create LUN failed: %w; stderr: %s", res.Error, res.Stderr)
+	}
+	return nil
+}
+
+// DeleteLUN removes a LUN from the specified target.
+func (c *TargetCLI) DeleteLUN(iqn string, lun int) error {
+	if err := c.ensureLinux(); err != nil {
+		return err
+	}
+	// targetcli /iscsi/<iqn>/tpg1/luns delete <lun>
+	lunPath := fmt.Sprintf("/iscsi/%s/tpg1/luns", iqn)
+	res := c.exec(lunPath, "delete", fmt.Sprintf("%d", lun))
+	if res.Error != nil {
+		if strings.Contains(res.Stderr, "No such path") || strings.Contains(res.Stderr, "not found") {
+			return nil
+		}
+		return fmt.Errorf("targetcli delete LUN failed: %w; stderr: %s", res.Error, res.Stderr)
 	}
 	return nil
 }

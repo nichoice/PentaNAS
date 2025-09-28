@@ -277,5 +277,114 @@ func TestISCSITargetService_StartAndStop(t *testing.T) {
 	if stopped.Status != models.ISCSIStatusInactive {
 		t.Fatalf("expected status %s, got %s", models.ISCSIStatusInactive, stopped.Status)
 	}
+}
 
+// TestISCSILUNService_CreateAndMapLUN 测试 LUN 创建和映射
+func TestISCSILUNService_CreateAndMapLUN(t *testing.T) {
+	db := setupISCSITestDB(t)
+	cli, runner := newTestTargetCLI()
+	targetSvc := services.NewISCSITargetServiceWithDeps(db, cli)
+	lunSvc := services.NewISCSILUNServiceWithDeps(db, cli)
+
+	// 先创建一个 Target
+	targetReq := &dto.CreateISCSITargetRequest{
+		Name:      "iqn.2024-01.com.pnas:lun-test",
+		Alias:     "lun-test",
+		Comment:   "LUN test target",
+		IsEnabled: true,
+	}
+
+	targetResp, err := targetSvc.CreateTarget(targetReq)
+	if err != nil {
+		t.Fatalf("CreateTarget failed: %v", err)
+	}
+
+	runner.Reset()
+
+	t.Run("CreateFileLUN", func(t *testing.T) {
+		lunReq := &dto.CreateISCSILUNRequest{
+			Name:       "test-file-lun",
+			DeviceType: models.ISCSIDeviceFile,
+			Size:       100 * 1024 * 1024, // 100MB
+			Comment:    "Test file-based LUN",
+			IsEnabled:  true,
+			BlockSize:  512,
+		}
+
+		lunResp, err := lunSvc.CreateLUN(lunReq)
+		if err != nil {
+			t.Fatalf("CreateLUN failed: %v", err)
+		}
+
+		if lunResp.ID == "" {
+			t.Fatalf("CreateLUN returned empty ID")
+		}
+
+		// 验证 backstore 创建命令
+		calls := runner.Snapshot()
+		if len(calls) < 1 {
+			t.Fatalf("expected at least 1 targetcli command for backstore creation, got %d", len(calls))
+		}
+
+		expectedBackstoreName := "backstore_test-file-lun"
+		expectedPath := "/tmp/iscsi_test-file-lun.img"
+		expectedCmd := []string{"/backstores/fileio", "create", "name=" + expectedBackstoreName,
+			"file_or_dev=" + expectedPath, "size=104857600"}
+
+		expectArgs(t, calls[0], expectedCmd)
+
+		t.Logf("Successfully created file LUN: %s (ID: %s)", lunResp.Name, lunResp.ID)
+
+		// 映射 LUN 到 Target
+		runner.Reset()
+		mappingResp, err := lunSvc.MapLUNToTarget(lunResp.ID, targetResp.ID, 0)
+		if err != nil {
+			t.Fatalf("MapLUNToTarget failed: %v", err)
+		}
+
+		// 验证 LUN 映射命令
+		mapCalls := runner.Snapshot()
+		if len(mapCalls) < 1 {
+			t.Fatalf("expected at least 1 targetcli command for LUN mapping, got %d", len(mapCalls))
+		}
+
+		expectedLunPath := "/iscsi/" + targetReq.Name + "/tpg1/luns"
+		expectedBackstorePath := "/backstores/fileio/" + expectedBackstoreName
+		expectedLunCmd := []string{expectedLunPath, "create", expectedBackstorePath, "0"}
+
+		expectArgs(t, mapCalls[0], expectedLunCmd)
+
+		t.Logf("Successfully mapped LUN to target: LUN %d", mappingResp.LUN)
+	})
+
+	t.Run("CreateBlockLUN", func(t *testing.T) {
+		runner.Reset()
+
+		lunReq := &dto.CreateISCSILUNRequest{
+			Name:       "test-block-lun",
+			DeviceType: models.ISCSIDeviceBlock,
+			DevicePath: "/dev/sdb1", // 模拟块设备路径
+			Comment:    "Test block-based LUN",
+			IsEnabled:  true,
+			BlockSize:  4096,
+		}
+
+		lunResp, err := lunSvc.CreateLUN(lunReq)
+		if err != nil {
+			t.Fatalf("CreateLUN failed: %v", err)
+		}
+
+		// 验证块设备 backstore 创建命令
+		calls := runner.Snapshot()
+		if len(calls) < 1 {
+			t.Fatalf("expected at least 1 targetcli command for block backstore creation, got %d", len(calls))
+		}
+
+		expectedBackstoreName := "backstore_test-block-lun"
+		expectedBlockCmd := []string{"/backstores/block", "create", "name=" + expectedBackstoreName, "dev=/dev/sdb1"}
+
+		expectArgs(t, calls[0], expectedBlockCmd)
+
+		t.Logf("Successfully created block LUN: %s (ID: %s)", lunResp.Name, lunResp.ID)
+	})
 }

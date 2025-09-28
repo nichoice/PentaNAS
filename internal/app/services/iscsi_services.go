@@ -244,20 +244,92 @@ func (s *ISCSITargetService) resolveTargetPort() int {
 	return fallbackPort
 }
 
+func (s *ISCSILUNService) convertLUNToResponse(lun *models.ISCSILUN) *dto.ISCSILUNResponse {
+	return &dto.ISCSILUNResponse{
+		ID:         lun.ID,
+		Name:       lun.Name,
+		DeviceType: lun.DeviceType,
+		Size:       lun.Size,
+		DevicePath: lun.DevicePath,
+		Comment:    lun.Comment,
+		IsEnabled:  lun.IsEnabled,
+		ReadOnly:   lun.ReadOnly,
+		BlockSize:  lun.BlockSize,
+		CreatedAt:  lun.CreatedAt,
+		UpdatedAt:  lun.UpdatedAt,
+	}
+}
+
 // ISCSILUNService 负责管理 LUN 的生命周期与映射关系。
 type ISCSILUNService struct {
-	db *gorm.DB
+	db  *gorm.DB
+	cli iscsi.Client
 }
 
 // NewISCSILUNService 返回一个 LUN 服务实例。
 func NewISCSILUNService() *ISCSILUNService {
-	return &ISCSILUNService{db: database.DB}
+	return NewISCSILUNServiceWithDeps(database.DB, iscsi.NewTargetCLI())
 }
 
-// CreateLUN 预留用于创建 LUN 的实现。
+// NewISCSILUNServiceWithDeps 允许在单元测试中注入依赖。
+func NewISCSILUNServiceWithDeps(db *gorm.DB, cli iscsi.Client) *ISCSILUNService {
+	return &ISCSILUNService{db: db, cli: cli}
+}
+
+// CreateLUN 创建新的 LUN 并关联 backstore。
 func (s *ISCSILUNService) CreateLUN(req *dto.CreateISCSILUNRequest) (*dto.ISCSILUNResponse, error) {
-	// TODO: Implement actual LUN creation logic
-	return nil, fmt.Errorf("not implemented")
+	// 生成 backstore 名称
+	backstoreName := fmt.Sprintf("backstore_%s", req.Name)
+
+	// 根据设备类型创建 backstore
+	switch req.DeviceType {
+	case models.ISCSIDeviceFile:
+		if req.DevicePath == "" {
+			// 如果没有指定路径，在临时目录创建文件（更安全）
+			req.DevicePath = fmt.Sprintf("/tmp/iscsi_%s.img", req.Name)
+		}
+		if err := s.cli.CreateFileBackstore(backstoreName, req.DevicePath, req.Size); err != nil {
+			return nil, fmt.Errorf("failed to create file backstore: %w", err)
+		}
+	case models.ISCSIDeviceBlock:
+		if req.DevicePath == "" {
+			return nil, fmt.Errorf("device path is required for block device")
+		}
+		if err := s.cli.CreateBlockBackstore(backstoreName, req.DevicePath); err != nil {
+			return nil, fmt.Errorf("failed to create block backstore: %w", err)
+		}
+	default:
+		return nil, fmt.Errorf("unsupported device type: %s", req.DeviceType)
+	}
+
+	// 创建数据库记录
+	lun := models.ISCSILUN{
+		Base:        models.Base{ID: uuid.New().String()},
+		Name:        req.Name,
+		DeviceType:  req.DeviceType,
+		DevicePath:  req.DevicePath,
+		Size:        req.Size,
+		BlockSize:   req.BlockSize,
+		IsEnabled:   req.IsEnabled,
+		ReadOnly:    req.ReadOnly,
+		Comment:     req.Comment,
+	}
+
+	if lun.BlockSize == 0 {
+		lun.BlockSize = 512 // 默认块大小
+	}
+
+	if err := s.db.Create(&lun).Error; err != nil {
+		// 清理已创建的 backstore
+		backendType := "fileio"
+		if req.DeviceType == models.ISCSIDeviceBlock {
+			backendType = "block"
+		}
+		_ = s.cli.DeleteBackstore(backendType, backstoreName)
+		return nil, fmt.Errorf("failed to create LUN record: %w", err)
+	}
+
+	return s.convertLUNToResponse(&lun), nil
 }
 
 // GetLUNs 按类型与分页条件返回 LUN 列表。
@@ -284,10 +356,48 @@ func (s *ISCSILUNService) DeleteLUN(id string) error {
 	return fmt.Errorf("not implemented")
 }
 
-// MapLUNToTarget 计划实现 LUN 到 Target 的映射关系。
+// MapLUNToTarget 实现 LUN 到 Target 的映射关系。
 func (s *ISCSILUNService) MapLUNToTarget(lunID, targetID string, lun int) (*dto.ISCSILUNMappingResponse, error) {
-	// TODO: Implement
-	return nil, fmt.Errorf("not implemented")
+	// 查找 LUN 记录
+	var lunRecord models.ISCSILUN
+	if err := s.db.First(&lunRecord, "id = ?", lunID).Error; err != nil {
+		return nil, fmt.Errorf("LUN not found: %w", err)
+	}
+
+	// 查找 Target 记录
+	var target models.ISCSITarget
+	if err := s.db.First(&target, "id = ?", targetID).Error; err != nil {
+		return nil, fmt.Errorf("target not found: %w", err)
+	}
+
+	// 生成 backstore 名称和类型
+	backstoreName := fmt.Sprintf("backstore_%s", lunRecord.Name)
+	backstoreType := "fileio"
+	if lunRecord.DeviceType == models.ISCSIDeviceBlock {
+		backstoreType = "block"
+	}
+
+	// 在 targetcli 中创建 LUN 映射
+	if err := s.cli.CreateLUN(target.Name, lun, backstoreName, backstoreType); err != nil {
+		return nil, fmt.Errorf("failed to map LUN to target: %w", err)
+	}
+
+	// 更新数据库中的映射关系
+	lunRecord.TargetID = targetID
+	lunRecord.LUN = lun
+	if err := s.db.Save(&lunRecord).Error; err != nil {
+		// 回滚 targetcli 操作
+		_ = s.cli.DeleteLUN(target.Name, lun)
+		return nil, fmt.Errorf("failed to update LUN mapping: %w", err)
+	}
+
+	return &dto.ISCSILUNMappingResponse{
+		ID:       lunRecord.ID,
+		TargetID: targetID,
+		LUNID:    lunID,
+		LUN:      lun,
+		CreatedAt: lunRecord.UpdatedAt,
+	}, nil
 }
 
 // UnmapLUNFromTarget 负责解除 LUN 的映射。
