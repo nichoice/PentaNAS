@@ -28,15 +28,17 @@ const (
 
 // TargetCLI executes targetcli commands on Linux hosts.
 type TargetCLI struct {
-	runner CommandRunner
-	binary string
+	runner  CommandRunner
+	binary  string
+	isLinux func() bool
 }
 
 // NewTargetCLI constructs a TargetCLI backed by utils.ExecCommand.
 func NewTargetCLI() *TargetCLI {
 	return &TargetCLI{
-		runner: utils.ExecCommand,
-		binary: defaultBinary,
+		runner:  utils.ExecCommand,
+		binary:  defaultBinary,
+		isLinux: func() bool { return runtime.GOOS == "linux" },
 	}
 }
 
@@ -46,12 +48,22 @@ func (c *TargetCLI) WithRunner(runner CommandRunner) *TargetCLI {
 	return c
 }
 
+// WithPlatformDetector overrides the platform check used by ensureLinux, primarily for testing.
+func (c *TargetCLI) WithPlatformDetector(detector func() bool) *TargetCLI {
+	c.isLinux = detector
+	return c
+}
+
 func (c *TargetCLI) exec(args ...string) *utils.CmdResult {
 	return c.runner(utils.ExecOptions{Timeout: defaultTimeout}, c.binary, args...)
 }
 
 func (c *TargetCLI) ensureLinux() error {
-	if runtime.GOOS != "linux" {
+	checker := c.isLinux
+	if checker == nil {
+		checker = func() bool { return runtime.GOOS == "linux" }
+	}
+	if !checker() {
 		return fmt.Errorf("targetcli operations require a Linux host")
 	}
 	return nil

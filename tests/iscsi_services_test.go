@@ -1,51 +1,84 @@
 package main
 
 import (
+	"fmt"
+	"sync"
 	"testing"
 
 	"pnas/internal/app/dto"
 	"pnas/internal/app/services"
 	"pnas/internal/database"
+	"pnas/internal/infrastructure/iscsi"
 	"pnas/internal/models"
+	"pnas/internal/utils"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
 
-type fakeTargetCLI struct {
-	created []string
-	deleted []string
-	enabled map[string]bool
+type commandCall struct {
+	command string
+	args    []string
 }
 
-func newFakeTargetCLI() *fakeTargetCLI {
-	return &fakeTargetCLI{enabled: make(map[string]bool)}
+type recordingRunner struct {
+	mu    sync.Mutex
+	calls []commandCall
 }
 
-func (f *fakeTargetCLI) CreateTarget(iqn string) error {
-	f.created = append(f.created, iqn)
-	return nil
+func newRecordingRunner() *recordingRunner {
+	return &recordingRunner{}
 }
 
-func (f *fakeTargetCLI) DeleteTarget(iqn string) error {
-	f.deleted = append(f.deleted, iqn)
-	delete(f.enabled, iqn)
-	return nil
+func (r *recordingRunner) Run(_ utils.ExecOptions, command string, args ...string) *utils.CmdResult {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	copyArgs := append([]string(nil), args...)
+	r.calls = append(r.calls, commandCall{command: command, args: copyArgs})
+	return &utils.CmdResult{}
 }
 
-func (f *fakeTargetCLI) EnsurePortal(iqn, ip string, port int) error {
-	return nil
+func (r *recordingRunner) Snapshot() []commandCall {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	copyCalls := make([]commandCall, len(r.calls))
+	copy(copyCalls, r.calls)
+	return copyCalls
 }
 
-func (f *fakeTargetCLI) EnableTarget(iqn string) error {
-	f.enabled[iqn] = true
-	return nil
+func (r *recordingRunner) Reset() {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	r.calls = nil
 }
 
-func (f *fakeTargetCLI) DisableTarget(iqn string) error {
-	f.enabled[iqn] = false
-	return nil
+func newTestTargetCLI() (*iscsi.TargetCLI, *recordingRunner) {
+	runner := newRecordingRunner()
+	cli := iscsi.NewTargetCLI().
+		WithRunner(runner.Run).
+		WithPlatformDetector(func() bool { return true })
+	return cli, runner
+}
+
+func expectArgs(t *testing.T, call commandCall, expected []string) {
+	t.Helper()
+	if len(call.args) != len(expected) {
+		t.Fatalf("expected args %v, got %v", expected, call.args)
+	}
+	for i, arg := range expected {
+		if call.args[i] != arg {
+			t.Fatalf("expected arg[%d] = %q, got %q", i, arg, call.args[i])
+		}
+	}
+}
+
+func portalPath(iqn string) string {
+	return fmt.Sprintf("/iscsi/%s/tpg1/portals", iqn)
+}
+
+func tpgPath(iqn string) string {
+	return fmt.Sprintf("/iscsi/%s/tpg1", iqn)
 }
 
 func setupISCSITestDB(t *testing.T) *gorm.DB {
@@ -96,7 +129,7 @@ func createTestTarget(t *testing.T, svc *services.ISCSITargetService, name strin
 
 func TestISCSITargetService_CreateAndFetch(t *testing.T) {
 	db := setupISCSITestDB(t)
-	cli := newFakeTargetCLI()
+	cli, runner := newTestTargetCLI()
 	svc := services.NewISCSITargetServiceWithDeps(db, cli)
 
 	created := createTestTarget(t, svc, "iqn.2024-01.com.pnas:test1")
@@ -105,9 +138,16 @@ func TestISCSITargetService_CreateAndFetch(t *testing.T) {
 		t.Fatalf("expected created target status %s, got %s", models.ISCSIStatusActive, created.Status)
 	}
 
-	if !cli.enabled[created.Name] {
-		t.Fatalf("expected target %s to be enabled after creation", created.Name)
+	calls := runner.Snapshot()
+	if len(calls) != 3 {
+		t.Fatalf("expected 3 targetcli commands, got %d", len(calls))
 	}
+
+	expectArgs(t, calls[0], []string{"/iscsi", "create", created.Name})
+	expectArgs(t, calls[1], []string{portalPath(created.Name), "create", "0.0.0.0", "3260"})
+	expectArgs(t, calls[2], []string{tpgPath(created.Name), "enable"})
+
+	runner.Reset()
 
 	targets, total, err := svc.GetTargets(1, 10, "")
 	if err != nil {
@@ -138,10 +178,14 @@ func TestISCSITargetService_CreateAndFetch(t *testing.T) {
 
 func TestISCSITargetService_UpdateAndDelete(t *testing.T) {
 	db := setupISCSITestDB(t)
-	cli := newFakeTargetCLI()
+	cli, runner := newTestTargetCLI()
 	svc := services.NewISCSITargetServiceWithDeps(db, cli)
 
 	created := createTestTarget(t, svc, "iqn.2024-01.com.pnas:test2")
+	if len(runner.Snapshot()) != 3 {
+		t.Fatalf("expected initial target creation to issue 3 commands")
+	}
+	runner.Reset()
 
 	newAlias := "updated"
 	disabled := false
@@ -163,17 +207,23 @@ func TestISCSITargetService_UpdateAndDelete(t *testing.T) {
 		t.Fatalf("expected isEnabled %v, got %v", disabled, updated.IsEnabled)
 	}
 
-	if cli.enabled[created.Name] {
-		t.Fatalf("expected CLI target %s to be disabled after update", created.Name)
+	updateCalls := runner.Snapshot()
+	if len(updateCalls) != 1 {
+		t.Fatalf("expected 1 targetcli command during update, got %d", len(updateCalls))
 	}
+	expectArgs(t, updateCalls[0], []string{tpgPath(created.Name), "disable"})
+	runner.Reset()
 
 	if err := svc.DeleteTarget(created.ID); err != nil {
 		t.Fatalf("DeleteTarget returned error: %v", err)
 	}
 
-	if len(cli.deleted) != 1 || cli.deleted[0] != created.Name {
-		t.Fatalf("expected target %s to be deleted in CLI", created.Name)
+	deleteCalls := runner.Snapshot()
+	if len(deleteCalls) != 2 {
+		t.Fatalf("expected 2 targetcli commands during delete, got %d", len(deleteCalls))
 	}
+	expectArgs(t, deleteCalls[0], []string{tpgPath(created.Name), "disable"})
+	expectArgs(t, deleteCalls[1], []string{"/iscsi", "delete", created.Name})
 
 	if _, err := svc.GetTargetByID(created.ID); err == nil {
 		t.Fatalf("expected error when fetching deleted target")
@@ -182,14 +232,24 @@ func TestISCSITargetService_UpdateAndDelete(t *testing.T) {
 
 func TestISCSITargetService_StartAndStop(t *testing.T) {
 	db := setupISCSITestDB(t)
-	cli := newFakeTargetCLI()
+	cli, runner := newTestTargetCLI()
 	svc := services.NewISCSITargetServiceWithDeps(db, cli)
 
 	created := createTestTarget(t, svc, "iqn.2024-01.com.pnas:test3")
+	if len(runner.Snapshot()) != 3 {
+		t.Fatalf("expected initial target creation to issue 3 commands")
+	}
+	runner.Reset()
 
 	if err := svc.StartTarget(created.ID); err != nil {
 		t.Fatalf("StartTarget returned error: %v", err)
 	}
+	startCalls := runner.Snapshot()
+	if len(startCalls) != 1 {
+		t.Fatalf("expected 1 targetcli command during start, got %d", len(startCalls))
+	}
+	expectArgs(t, startCalls[0], []string{tpgPath(created.Name), "enable"})
+	runner.Reset()
 
 	started, err := svc.GetTargetByID(created.ID)
 	if err != nil {
@@ -200,13 +260,14 @@ func TestISCSITargetService_StartAndStop(t *testing.T) {
 		t.Fatalf("expected status %s, got %s", models.ISCSIStatusActive, started.Status)
 	}
 
-	if !cli.enabled[created.Name] {
-		t.Fatalf("expected target %s to be enabled in CLI", created.Name)
-	}
-
 	if err := svc.StopTarget(created.ID); err != nil {
 		t.Fatalf("StopTarget returned error: %v", err)
 	}
+	stopCalls := runner.Snapshot()
+	if len(stopCalls) != 1 {
+		t.Fatalf("expected 1 targetcli command during stop, got %d", len(stopCalls))
+	}
+	expectArgs(t, stopCalls[0], []string{tpgPath(created.Name), "disable"})
 
 	stopped, err := svc.GetTargetByID(created.ID)
 	if err != nil {
@@ -217,7 +278,4 @@ func TestISCSITargetService_StartAndStop(t *testing.T) {
 		t.Fatalf("expected status %s, got %s", models.ISCSIStatusInactive, stopped.Status)
 	}
 
-	if cli.enabled[created.Name] {
-		t.Fatalf("expected target %s to be disabled in CLI", created.Name)
-	}
 }
