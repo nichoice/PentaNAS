@@ -10,15 +10,22 @@ import (
 	"gorm.io/gorm"
 
 	"pnas/internal/app/dto"
+	"pnas/internal/database"
+	"pnas/internal/infrastructure/samba"
 	"pnas/internal/models"
 )
 
 type SambaShareService struct {
-	db *gorm.DB
+	db  *gorm.DB
+	cli samba.Client
 }
 
-func NewSambaShareService(db *gorm.DB) *SambaShareService {
-	return &SambaShareService{db: db}
+func NewSambaShareService() *SambaShareService {
+	return NewSambaShareServiceWithDeps(database.DB, samba.NewSambaControl())
+}
+
+func NewSambaShareServiceWithDeps(db *gorm.DB, cli samba.Client) *SambaShareService {
+	return &SambaShareService{db: db, cli: cli}
 }
 
 // CreateShare 创建Samba共享
