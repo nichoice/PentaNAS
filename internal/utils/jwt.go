@@ -33,21 +33,17 @@ func InitJWT(secret string, expire int) {
 // GenerateToken generates a JWT token for a user
 func GenerateToken(userID, username string) (string, error) {
 	if jwtConfig == nil {
-		// Default configuration
-		jwtConfig = &JWTConfig{
-			Secret: "pnas-secret-key",
-			Expire: 24,
-		}
+		return "", errors.New("JWT not initialized - call InitJWT first")
 	}
-	
+
 	// Get expiration time from config
 	expireHours := jwtConfig.Expire
 	if expireHours <= 0 {
 		expireHours = 24 // Default to 24 hours
 	}
-	
+
 	expirationTime := time.Now().Add(time.Duration(expireHours) * time.Hour)
-	
+
 	claims := &Claims{
 		UserID:   userID,
 		Username: username,
@@ -58,52 +54,40 @@ func GenerateToken(userID, username string) (string, error) {
 			Issuer:    "pnas",
 		},
 	}
-	
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	
-	// Get secret key from config
-	secretKey := jwtConfig.Secret
-	if secretKey == "" {
-		secretKey = "pnas-secret-key" // Default secret
-	}
-	
-	tokenString, err := token.SignedString([]byte(secretKey))
+
+	tokenString, err := token.SignedString([]byte(jwtConfig.Secret))
 	if err != nil {
 		return "", err
 	}
-	
+
 	return tokenString, nil
 }
 
 // ParseToken parses and validates a JWT token
 func ParseToken(tokenString string) (*Claims, error) {
 	if jwtConfig == nil {
-		// Default configuration
-		jwtConfig = &JWTConfig{
-			Secret: "pnas-secret-key",
-			Expire: 24,
-		}
+		return nil, errors.New("JWT not initialized - call InitJWT first")
 	}
-	
-	// Get secret key from config
-	secretKey := jwtConfig.Secret
-	if secretKey == "" {
-		secretKey = "pnas-secret-key" // Default secret
-	}
-	
+
 	claims := &Claims{}
-	
+
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		return []byte(secretKey), nil
+		// Verify signing method
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("unexpected signing method")
+		}
+		return []byte(jwtConfig.Secret), nil
 	})
-	
+
 	if err != nil {
 		return nil, err
 	}
-	
+
 	if !token.Valid {
 		return nil, errors.New("invalid token")
 	}
-	
+
 	return claims, nil
 }

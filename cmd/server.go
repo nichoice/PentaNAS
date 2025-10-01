@@ -79,6 +79,11 @@ func startServer() {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
 
+	// Initialize JWT configuration
+	if err := config.InitJWT(&cfg.JWT); err != nil {
+		log.Fatalf("Failed to initialize JWT: %v", err)
+	}
+
 	// Initialize system (create default roles and admin user if needed)
 	initService := services.NewInitService()
 	if err := initService.InitializeSystem(); err != nil {
