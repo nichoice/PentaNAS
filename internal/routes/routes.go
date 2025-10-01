@@ -45,7 +45,7 @@ func SetupRoutes(router *gin.Engine) {
 
 	// Protected routes (authentication required)
 	protected := router.Group("/api/v1")
-	// protected.Use(middleware.AuthMiddleware())
+	protected.Use(middleware.AuthMiddleware())
 	{
 		// User management routes
 		users := protected.Group("/users")
@@ -122,4 +122,10 @@ func SetupRoutes(router *gin.Engine) {
 
 	// Register iSCSI routes
 	RegisterISCSIRoutes(router, database.DB)
+
+	// Register ZFS routes
+	RegisterZFSRoutes(router)
+
+	// Register File Management routes
+	RegisterFileRoutes(router)
 }

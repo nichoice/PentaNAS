@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"pnas/internal/database"
 	"pnas/internal/models"
@@ -10,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 // CreateUserRequest represents the request body for creating a user
@@ -64,6 +66,20 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
+	// Additional validation beyond struct tags
+	if err := utils.ValidateUsername(req.Username); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("invalid username: %v", err)})
+		return
+	}
+
+	if err := utils.ValidatePassword(req.Password); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("invalid password: %v", err)})
+		return
+	}
+
+	// Sanitize remark field
+	req.Remark = utils.SanitizeString(req.Remark)
+
 	// Check if username already exists
 	var existingUser models.User
 	if err := database.DB.Where("username = ?", req.Username).First(&existingUser).Error; err == nil {
@@ -78,41 +94,50 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	// Create user
-	user := models.User{
-		Base:     models.Base{ID: uuid.New().String()},
-		Username: req.Username,
-		Password: string(hashedPassword),
-		IsActive: req.IsActive,
-		Remark:   req.Remark,
-	}
-
-	if err := database.DB.Create(&user).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create user"})
-		return
-	}
-
-	// Create user role relationship
-	userRole := models.UserRole{
-		Base:   models.Base{ID: uuid.New().String()},
-		UserID: user.ID,
-		RoleID: req.Role,
-	}
-
-	if err := database.DB.Create(&userRole).Error; err != nil {
-		// Rollback user creation
-		database.DB.Delete(&user)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to assign role to user"})
-		return
-	}
-	if req.Role == "normal_user" {
-		if err := utils.CreateLinuxUser(req.Username); err != nil {
-			// Rollback user creation
-			utils.DeleteLinuxUser(req.Username)
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create Linux user"})
-			return
+	// Use transaction to ensure atomic operations
+	var user models.User
+	err = database.DB.Transaction(func(tx *gorm.DB) error {
+		// Create user
+		user = models.User{
+			Base:     models.Base{ID: uuid.New().String()},
+			Username: req.Username,
+			Password: string(hashedPassword),
+			IsActive: req.IsActive,
+			Remark:   req.Remark,
 		}
 
+		if err := tx.Create(&user).Error; err != nil {
+			return fmt.Errorf("failed to create user: %w", err)
+		}
+
+		// Create user role relationship
+		userRole := models.UserRole{
+			Base:   models.Base{ID: uuid.New().String()},
+			UserID: user.ID,
+			RoleID: req.Role,
+		}
+
+		if err := tx.Create(&userRole).Error; err != nil {
+			return fmt.Errorf("failed to assign role: %w", err)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Create Linux user if needed (outside transaction as it's a system operation)
+	if req.Role == "normal_user" {
+		if err := utils.CreateLinuxUser(req.Username); err != nil {
+			// Rollback database changes
+			database.DB.Delete(&models.UserRole{}, "user_id = ?", user.ID)
+			database.DB.Delete(&user)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("failed to create Linux user: %v", err)})
+			return
+		}
 	}
 
 	response := UserResponse{
@@ -149,14 +174,26 @@ func GetUsers(c *gin.Context) {
 	role := c.Query("role")
 	status := c.Query("status")
 
+	// Parse pagination parameters with validation
 	page := 1
 	if p := c.Query("page"); p != "" {
-		// In a real implementation, you would parse this to an integer
+		if parsedPage, err := utils.ParsePositiveInt(p); err == nil && parsedPage > 0 {
+			page = parsedPage
+		}
 	}
 
 	pageSize := 20
 	if ps := c.Query("page_size"); ps != "" {
-		// In a real implementation, you would parse this to an integer
+		if parsedSize, err := utils.ParsePositiveInt(ps); err == nil && parsedSize > 0 {
+			pageSize = parsedSize
+		}
+	}
+
+	// Validate and adjust pagination
+	page, pageSize, err := utils.ValidatePageParams(page, pageSize)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	// Build query
@@ -302,6 +339,20 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
+	// Validate password if provided
+	if req.Password != nil {
+		if err := utils.ValidatePassword(*req.Password); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("invalid password: %v", err)})
+			return
+		}
+	}
+
+	// Sanitize remark if provided
+	if req.Remark != nil {
+		sanitized := utils.SanitizeString(*req.Remark)
+		req.Remark = &sanitized
+	}
+
 	// Update fields if provided
 	if req.Role != nil {
 		// Update user role
@@ -371,17 +422,28 @@ func DeleteUser(c *gin.Context) {
 		return
 	}
 
-	// Delete user roles first
-	if err := database.DB.Where("user_id = ?", userID).Delete(&models.UserRole{}).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete user roles"})
+	// Use transaction to ensure atomic deletion
+	err := database.DB.Transaction(func(tx *gorm.DB) error {
+		// Delete user roles first
+		if err := tx.Where("user_id = ?", userID).Delete(&models.UserRole{}).Error; err != nil {
+			return fmt.Errorf("failed to delete user roles: %w", err)
+		}
+
+		// Delete user
+		if err := tx.Delete(&user).Error; err != nil {
+			return fmt.Errorf("failed to delete user: %w", err)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Delete user
-	if err := database.DB.Delete(&user).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete user"})
-		return
-	}
+	// Attempt to delete Linux user (best effort, don't fail if it doesn't exist)
+	_ = utils.DeleteLinuxUser(user.Username)
 
 	c.JSON(http.StatusOK, gin.H{"message": "user deleted successfully"})
 }

@@ -1,40 +1,55 @@
 package utils
 
 import (
+	"bytes"
 	"fmt"
 	"os/exec"
 	"strings"
 )
 
-// createLinuxUser uses nologin shell to create a new user
+// CreateLinuxUser uses nologin shell to create a new user
 func CreateLinuxUser(username string) error {
-	// Implementation here
-	// check if user exists
+	// Validate username to prevent command injection
+	if err := ValidateUsername(username); err != nil {
+		return fmt.Errorf("invalid username: %w", err)
+	}
+
+	// Check if user exists
 	if userExists(username) {
 		return fmt.Errorf("user %s already exists", username)
 	}
 
-	// create user
+	// Create user with validated username
 	cmd := exec.Command("useradd", "-m", "-s", "/sbin/nologin", username)
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("failed to create user %s: %w", username, err)
+		return fmt.Errorf("failed to create user %s: %w, stderr: %s", username, err, stderr.String())
 	}
 
 	return nil
 }
 
-// deleteUser deletes a user
+// DeleteLinuxUser deletes a user
 func DeleteLinuxUser(username string) error {
-	// Implementation here
-	// check if user exists
+	// Validate username to prevent command injection
+	if err := ValidateUsername(username); err != nil {
+		return fmt.Errorf("invalid username: %w", err)
+	}
+
+	// Check if user exists
 	if !userExists(username) {
 		return fmt.Errorf("user %s does not exist", username)
 	}
 
-	// delete user
+	// Delete user with validated username
 	cmd := exec.Command("userdel", "-r", username)
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("failed to delete user %s: %w", username, err)
+		return fmt.Errorf("failed to delete user %s: %w, stderr: %s", username, err, stderr.String())
 	}
 
 	return nil
@@ -52,70 +67,108 @@ func GetLinuxUsers() ([]string, error) {
 	return users, nil
 }
 
+// EnableLinuxUser unlocks a user account
 func EnableLinuxUser(username string) error {
-	// Implementation here
-	// check if user exists
+	// Validate username to prevent command injection
+	if err := ValidateUsername(username); err != nil {
+		return fmt.Errorf("invalid username: %w", err)
+	}
+
+	// Check if user exists
 	if !userExists(username) {
 		return fmt.Errorf("user %s does not exist", username)
 	}
 
-	// enable user
+	// Enable user
 	cmd := exec.Command("usermod", "-U", username)
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("failed to enable user %s: %w", username, err)
+		return fmt.Errorf("failed to enable user %s: %w, stderr: %s", username, err, stderr.String())
 	}
 
 	return nil
 }
 
-// disableLinuxUser disables a user
+// DisableLinuxUser locks a user account
 func DisableLinuxUser(username string) error {
-	// Implementation here
-	// check if user exists
+	// Validate username to prevent command injection
+	if err := ValidateUsername(username); err != nil {
+		return fmt.Errorf("invalid username: %w", err)
+	}
+
+	// Check if user exists
 	if !userExists(username) {
 		return fmt.Errorf("user %s does not exist", username)
 	}
 
-	// disable user
+	// Disable user
 	cmd := exec.Command("usermod", "-L", username)
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("failed to disable user %s: %w", username, err)
+		return fmt.Errorf("failed to disable user %s: %w, stderr: %s", username, err, stderr.String())
 	}
 
 	return nil
 }
 
-// setLinuxUserPassword sets the password for a user
+// SetLinuxUserPassword sets the password for a user using chpasswd (safer than passwd with stdin)
 func SetLinuxUserPassword(username, password string) error {
-	// Implementation here
-	// check if user exists
+	// Validate inputs to prevent command injection
+	if err := ValidateUsername(username); err != nil {
+		return fmt.Errorf("invalid username: %w", err)
+	}
+
+	if err := ValidatePassword(password); err != nil {
+		return fmt.Errorf("invalid password: %w", err)
+	}
+
+	// Check if user exists
 	if !userExists(username) {
 		return fmt.Errorf("user %s does not exist", username)
 	}
 
-	// set password
-	cmd := exec.Command("passwd", username)
-	cmd.Stdin = strings.NewReader(password + "\n" + password + "\n")
+	// Use chpasswd which is safer than passwd for automation
+	// Format: username:password
+	cmd := exec.Command("chpasswd")
+	cmd.Stdin = strings.NewReader(username + ":" + password)
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("failed to set password for user %s: %w", username, err)
+		return fmt.Errorf("failed to set password for user %s: %w, stderr: %s", username, err, stderr.String())
 	}
 
 	return nil
 }
 
-// setSambaUserPassword sets the password for a user in Samba
+// SetSambaUserPassword sets the password for a user in Samba
 func SetSambaUserPassword(username, password string) error {
-	// Implementation here
-	// check if user exists
+	// Validate inputs to prevent command injection
+	if err := ValidateUsername(username); err != nil {
+		return fmt.Errorf("invalid username: %w", err)
+	}
+
+	if err := ValidatePassword(password); err != nil {
+		return fmt.Errorf("invalid password: %w", err)
+	}
+
+	// Check if user exists
 	if !userExists(username) {
 		return fmt.Errorf("user %s does not exist", username)
 	}
 
-	// set password
+	// Set Samba password using stdin (-s for stdin mode, -a for add user)
 	cmd := exec.Command("smbpasswd", "-s", "-a", username)
 	cmd.Stdin = strings.NewReader(password + "\n" + password + "\n")
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("failed to set password for user %s in Samba: %w", username, err)
+		return fmt.Errorf("failed to set Samba password for user %s: %w, stderr: %s", username, err, stderr.String())
 	}
 
 	return nil
