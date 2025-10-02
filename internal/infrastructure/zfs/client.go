@@ -1,12 +1,12 @@
 package zfs
 
 import (
-	"encoding/json"
 	"fmt"
-	"pnas/internal/utils"
 	"strconv"
 	"strings"
 	"time"
+
+	"pnas/internal/utils"
 )
 
 // Client defines the interface for ZFS operations
@@ -77,34 +77,34 @@ type VDevSpec struct {
 
 // PoolOptions represents pool creation options
 type PoolOptions struct {
-	Ashift      int               `json:"ashift"`       // 9, 12, 13
-	Features    []string          `json:"features"`
-	Properties  map[string]string `json:"properties"`
-	Mountpoint  string            `json:"mountpoint"`
-	Force       bool              `json:"force"`
+	Ashift     int               `json:"ashift"` // 9, 12, 13
+	Features   []string          `json:"features"`
+	Properties map[string]string `json:"properties"`
+	Mountpoint string            `json:"mountpoint"`
+	Force      bool              `json:"force"`
 }
 
 // ImportOptions represents pool import options
 type ImportOptions struct {
-	Force      bool   `json:"force"`
-	Directory  string `json:"directory"`  // Search directory for pools
-	AltRoot    string `json:"alt_root"`
-	Readonly   bool   `json:"readonly"`
+	Force     bool   `json:"force"`
+	Directory string `json:"directory"` // Search directory for pools
+	AltRoot   string `json:"alt_root"`
+	Readonly  bool   `json:"readonly"`
 }
 
 // DatasetOptions represents dataset creation options
 type DatasetOptions struct {
-	Type           string            `json:"type"`            // filesystem, volume
-	Mountpoint     string            `json:"mountpoint"`
-	Quota          uint64            `json:"quota"`
-	Reservation    uint64            `json:"reservation"`
-	Compression    string            `json:"compression"`
-	Dedup          string            `json:"dedup"`
-	Encryption     string            `json:"encryption"`
-	KeyLocation    string            `json:"key_location"`
-	KeyFormat      string            `json:"key_format"`     // passphrase, raw, hex
-	Properties     map[string]string `json:"properties"`
-	CreateParents  bool              `json:"create_parents"`
+	Type          string            `json:"type"` // filesystem, volume
+	Mountpoint    string            `json:"mountpoint"`
+	Quota         uint64            `json:"quota"`
+	Reservation   uint64            `json:"reservation"`
+	Compression   string            `json:"compression"`
+	Dedup         string            `json:"dedup"`
+	Encryption    string            `json:"encryption"`
+	KeyLocation   string            `json:"key_location"`
+	KeyFormat     string            `json:"key_format"` // passphrase, raw, hex
+	Properties    map[string]string `json:"properties"`
+	CreateParents bool              `json:"create_parents"`
 }
 
 // VolumeOptions represents volume creation options
@@ -120,15 +120,15 @@ type VolumeOptions struct {
 
 // PoolInfo represents basic pool information
 type PoolInfo struct {
-	Name        string  `json:"name"`
-	Size        uint64  `json:"size"`
-	Allocated   uint64  `json:"allocated"`
-	Free        uint64  `json:"free"`
-	Capacity    float64 `json:"capacity"`
-	Health      string  `json:"health"`
-	Dedup       string  `json:"dedup"`
-	AltRoot     string  `json:"altroot"`
-	Version     string  `json:"version"`
+	Name      string  `json:"name"`
+	Size      uint64  `json:"size"`
+	Allocated uint64  `json:"allocated"`
+	Free      uint64  `json:"free"`
+	Capacity  float64 `json:"capacity"`
+	Health    string  `json:"health"`
+	Dedup     string  `json:"dedup"`
+	AltRoot   string  `json:"altroot"`
+	Version   string  `json:"version"`
 }
 
 // PoolStatus represents detailed pool status
@@ -144,39 +144,39 @@ type PoolStatus struct {
 
 // VDevInfo represents vdev information
 type VDevInfo struct {
-	Name    string      `json:"name"`
-	Type    string      `json:"type"`
-	State   string      `json:"state"`
-	Read    int         `json:"read"`
-	Write   int         `json:"write"`
-	Cksum   int         `json:"cksum"`
+	Name     string     `json:"name"`
+	Type     string     `json:"type"`
+	State    string     `json:"state"`
+	Read     int        `json:"read"`
+	Write    int        `json:"write"`
+	Cksum    int        `json:"cksum"`
 	Children []VDevInfo `json:"children,omitempty"`
 }
 
 // ScanInfo represents scrub/resilver scan information
 type ScanInfo struct {
-	Function   string    `json:"function"`    // scrub, resilver
-	State      string    `json:"state"`       // scanning, finished, canceled
-	StartTime  time.Time `json:"start_time"`
-	EndTime    time.Time `json:"end_time"`
-	Scanned    uint64    `json:"scanned"`
-	ToScan     uint64    `json:"to_scan"`
-	Errors     int       `json:"errors"`
-	Repaired   uint64    `json:"repaired"`
-	Progress   float64   `json:"progress"`
+	Function  string    `json:"function"` // scrub, resilver
+	State     string    `json:"state"`    // scanning, finished, canceled
+	StartTime time.Time `json:"start_time"`
+	EndTime   time.Time `json:"end_time"`
+	Scanned   uint64    `json:"scanned"`
+	ToScan    uint64    `json:"to_scan"`
+	Errors    int       `json:"errors"`
+	Repaired  uint64    `json:"repaired"`
+	Progress  float64   `json:"progress"`
 }
 
 // ScrubStatus represents scrub operation status
 type ScrubStatus struct {
-	State       string    `json:"state"`
-	Progress    float64   `json:"progress"`
-	Scanned     uint64    `json:"scanned"`
-	ToScan      uint64    `json:"to_scan"`
-	Errors      int       `json:"errors"`
-	Repaired    uint64    `json:"repaired"`
-	StartTime   time.Time `json:"start_time"`
-	EndTime     *time.Time `json:"end_time"`
-	Duration    int64     `json:"duration"`
+	State     string     `json:"state"`
+	Progress  float64    `json:"progress"`
+	Scanned   uint64     `json:"scanned"`
+	ToScan    uint64     `json:"to_scan"`
+	Errors    int        `json:"errors"`
+	Repaired  uint64     `json:"repaired"`
+	StartTime time.Time  `json:"start_time"`
+	EndTime   *time.Time `json:"end_time"`
+	Duration  int64      `json:"duration"`
 }
 
 // ErrorInfo represents pool errors
@@ -187,38 +187,46 @@ type ErrorInfo struct {
 
 // DatasetInfo represents dataset information
 type DatasetInfo struct {
-	Name        string  `json:"name"`
-	Type        string  `json:"type"`
-	Used        uint64  `json:"used"`
-	Available   uint64  `json:"available"`
-	Refer       uint64  `json:"refer"`
-	Mountpoint  string  `json:"mountpoint"`
-	Compression string  `json:"compression"`
-	Quota       uint64  `json:"quota"`
+	Name          string `json:"name"`
+	Type          string `json:"type"`
+	Used          uint64 `json:"used"`
+	Available     uint64 `json:"available"`
+	Refer         uint64 `json:"refer"`
+	Mountpoint    string `json:"mountpoint"`
+	Compression   string `json:"compression"`
+	Quota         uint64 `json:"quota"`
+	Reservation   uint64 `json:"reservation"`
+	CompressRatio string `json:"compress_ratio"`
+	Dedup         string `json:"dedup"`
+	Encryption    string `json:"encryption"`
+	KeyStatus     string `json:"key_status"`
+	ReadOnly      bool   `json:"read_only"`
+	Atime         bool   `json:"atime"`
+	RecordSize    int    `json:"record_size"`
 }
 
 // DatasetProperties represents all dataset properties
 type DatasetProperties struct {
-	Name            string            `json:"name"`
-	Type            string            `json:"type"`
-	Used            uint64            `json:"used"`
-	Available       uint64            `json:"available"`
-	Referenced      uint64            `json:"referenced"`
-	Mountpoint      string            `json:"mountpoint"`
-	Mounted         bool              `json:"mounted"`
-	Compression     string            `json:"compression"`
-	CompressRatio   string            `json:"compressratio"`
-	Dedup           string            `json:"dedup"`
-	Encryption      string            `json:"encryption"`
-	EncryptionRoot  string            `json:"encryptionroot"`
-	KeyStatus       string            `json:"keystatus"`
-	Quota           uint64            `json:"quota"`
-	Reservation     uint64            `json:"reservation"`
-	RecordSize      int               `json:"recordsize"`
-	ReadOnly        bool              `json:"readonly"`
-	Atime           bool              `json:"atime"`
-	Sync            string            `json:"sync"`
-	AllProperties   map[string]string `json:"all_properties"`
+	Name           string            `json:"name"`
+	Type           string            `json:"type"`
+	Used           uint64            `json:"used"`
+	Available      uint64            `json:"available"`
+	Referenced     uint64            `json:"referenced"`
+	Mountpoint     string            `json:"mountpoint"`
+	Mounted        bool              `json:"mounted"`
+	Compression    string            `json:"compression"`
+	CompressRatio  string            `json:"compressratio"`
+	Dedup          string            `json:"dedup"`
+	Encryption     string            `json:"encryption"`
+	EncryptionRoot string            `json:"encryptionroot"`
+	KeyStatus      string            `json:"keystatus"`
+	Quota          uint64            `json:"quota"`
+	Reservation    uint64            `json:"reservation"`
+	RecordSize     int               `json:"recordsize"`
+	ReadOnly       bool              `json:"readonly"`
+	Atime          bool              `json:"atime"`
+	Sync           string            `json:"sync"`
+	AllProperties  map[string]string `json:"all_properties"`
 }
 
 // VolumeInfo represents volume information

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"time"
 )
 
 // CreateDataset creates a new ZFS dataset (filesystem)
@@ -93,7 +92,7 @@ func (c *ZFSClient) DestroyDataset(name string, recursive bool) error {
 // ListDatasets lists all datasets in a pool or under a path
 func (c *ZFSClient) ListDatasets(pool string) ([]DatasetInfo, error) {
 	args := []string{"list", "-H", "-p", "-t", "filesystem", "-o",
-		"name,type,used,avail,refer,mountpoint,compression,quota"}
+		"name,type,used,avail,refer,mountpoint,compression,quota,reservation,compressratio,dedup,encryption,keystatus,readonly,atime,recordsize"}
 
 	if pool != "" {
 		args = append(args, "-r", pool)
@@ -113,7 +112,7 @@ func (c *ZFSClient) ListDatasets(pool string) ([]DatasetInfo, error) {
 		}
 
 		fields := strings.Split(line, "\t")
-		if len(fields) < 8 {
+		if len(fields) < 16 {
 			continue
 		}
 
@@ -121,16 +120,33 @@ func (c *ZFSClient) ListDatasets(pool string) ([]DatasetInfo, error) {
 		avail, _ := strconv.ParseUint(fields[3], 10, 64)
 		refer, _ := strconv.ParseUint(fields[4], 10, 64)
 		quota, _ := strconv.ParseUint(fields[7], 10, 64)
+		reservation, _ := strconv.ParseUint(fields[8], 10, 64)
+
+		readonly := parseBool(fields[13])
+		atime := parseBool(fields[14])
+
+		recordSize := 0
+		if val, err := strconv.Atoi(fields[15]); err == nil {
+			recordSize = val
+		}
 
 		dataset := DatasetInfo{
-			Name:        fields[0],
-			Type:        fields[1],
-			Used:        used,
-			Available:   avail,
-			Refer:       refer,
-			Mountpoint:  fields[5],
-			Compression: fields[6],
-			Quota:       quota,
+			Name:          fields[0],
+			Type:          fields[1],
+			Used:          used,
+			Available:     avail,
+			Refer:         refer,
+			Mountpoint:    fields[5],
+			Compression:   fields[6],
+			Quota:         quota,
+			Reservation:   reservation,
+			CompressRatio: fields[9],
+			Dedup:         fields[10],
+			Encryption:    fields[11],
+			KeyStatus:     fields[12],
+			ReadOnly:      readonly,
+			Atime:         atime,
+			RecordSize:    recordSize,
 		}
 
 		datasets = append(datasets, dataset)

@@ -22,7 +22,7 @@ type SambaHandler struct {
 }
 
 func NewSambaHandler(db *gorm.DB) *SambaHandler {
-	shareService := services.NewSambaShareService(db)
+	shareService := services.NewSambaShareService()
 	return &SambaHandler{
 		accountService:     services.NewSambaAccountService(db),
 		shareService:       shareService,

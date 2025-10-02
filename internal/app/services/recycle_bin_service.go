@@ -3,7 +3,6 @@ package services
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/google/uuid"

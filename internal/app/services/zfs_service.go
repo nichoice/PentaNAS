@@ -86,10 +86,9 @@ func (s *ZFSService) CreatePool(req dto.CreatePoolRequest) (*dto.PoolResponse, e
 		Capacity:    poolInfo.Capacity,
 		Health:      poolInfo.Health,
 		Dedup:       poolInfo.Dedup,
-		Compression: poolInfo.Compression,
+		Compression: req.Compression,
 		Status:      "ONLINE",
 		VDevs:       vdevsJSON,
-		Properties:  req.Properties,
 	}
 
 	if err := s.db.Create(&pool).Error; err != nil {
@@ -160,7 +159,7 @@ func (s *ZFSService) GetPoolStatus(name string) (*dto.PoolStatusResponse, error)
 		State:  status.State,
 		Status: status.Status,
 		Action: status.Action,
-		Config: s.convertVDevInfos(status.VDevs),
+		Config: s.convertVDevInfos(status.Config),
 		Errors: s.convertErrors(status.Errors),
 	}
 
@@ -531,7 +530,7 @@ func (s *ZFSService) DestroySnapshot(name string) error {
 	}
 
 	// Destroy snapshot
-	if err := s.client.DestroySnapshot(name); err != nil {
+	if err := s.client.DestroySnapshot(name, false); err != nil {
 		return fmt.Errorf("failed to destroy snapshot: %w", err)
 	}
 
@@ -680,33 +679,32 @@ func (s *ZFSService) poolToResponse(pool *models.ZFSPool) *dto.PoolResponse {
 		Compression: pool.Compression,
 		Status:      pool.Status,
 		VDevs:       pool.VDevs,
-		Properties:  pool.Properties,
 		CreatedAt:   pool.CreatedAt,
 	}
 }
 
 func (s *ZFSService) datasetToResponse(dataset *models.ZFSDataset) *dto.DatasetResponse {
 	return &dto.DatasetResponse{
-		ID:             dataset.ID,
-		Name:           dataset.Name,
-		Pool:           dataset.Pool,
-		Type:           dataset.Type,
-		Mountpoint:     dataset.Mountpoint,
-		Quota:          dataset.Quota,
-		Reservation:    dataset.Reservation,
-		Used:           dataset.Used,
-		Available:      dataset.Available,
-		Compression:    dataset.Compression,
-		CompressRatio:  dataset.CompressRatio,
-		Dedup:          dataset.Dedup,
-		Encryption:     dataset.Encryption,
-		KeyStatus:      dataset.KeyStatus,
-		ReadOnly:       dataset.ReadOnly,
-		Atime:          dataset.Atime,
-		RecordSize:     dataset.RecordSize,
-		Status:         dataset.Status,
-		AllProperties:  dataset.AllProperties,
-		CreatedAt:      dataset.CreatedAt,
+		ID:            dataset.ID,
+		Name:          dataset.Name,
+		Pool:          dataset.Pool,
+		Type:          dataset.Type,
+		Mountpoint:    dataset.Mountpoint,
+		Quota:         dataset.Quota,
+		Reservation:   dataset.Reservation,
+		Used:          dataset.Used,
+		Available:     dataset.Available,
+		Compression:   dataset.Compression,
+		CompressRatio: dataset.CompressRatio,
+		Dedup:         dataset.Dedup,
+		Encryption:    dataset.Encryption,
+		KeyStatus:     dataset.KeyStatus,
+		ReadOnly:      dataset.ReadOnly,
+		Atime:         dataset.Atime,
+		RecordSize:    dataset.RecordSize,
+		Status:        dataset.Status,
+		AllProperties: dataset.AllProperties,
+		CreatedAt:     dataset.CreatedAt,
 	}
 }
 
@@ -786,12 +784,16 @@ func (s *ZFSService) convertVDevInfos(infos []zfs.VDevInfo) []dto.VDevInfo {
 	return result
 }
 
-func (s *ZFSService) convertErrors(errors []string) []dto.ErrorInfo {
+func (s *ZFSService) convertErrors(errors []zfs.ErrorInfo) []dto.ErrorInfo {
 	result := make([]dto.ErrorInfo, len(errors))
 	for i, err := range errors {
+		errType := err.Type
+		if errType == "" {
+			errType = "error"
+		}
 		result[i] = dto.ErrorInfo{
-			Type:        "ERROR",
-			Description: err,
+			Type:        errType,
+			Description: err.Description,
 		}
 	}
 	return result

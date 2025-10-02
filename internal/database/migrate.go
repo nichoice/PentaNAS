@@ -13,11 +13,11 @@ import (
 )
 
 type Migration struct {
-	ID          uint   `gorm:"primaryKey"`
-	Version     string `gorm:"unique;not null"`
-	Name        string `gorm:"not null"`
-	AppliedAt   time.Time
-	Rollback    *string // SQL for rollback (nullable)
+	ID        uint   `gorm:"primaryKey"`
+	Version   string `gorm:"unique;not null"`
+	Name      string `gorm:"not null"`
+	AppliedAt time.Time
+	Rollback  *string // SQL for rollback (nullable)
 }
 
 type MigrationFunc func(*gorm.DB) error
@@ -269,15 +269,15 @@ func Reset(db *gorm.DB) error {
 		log.Printf("Warning: failed to drop migrations table: %v", err)
 	}
 
-	// Get all table names
-	var tables []string
-	if err := db.Raw("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'").Scan(&tables).Error; err != nil {
+	// Get all table names using GORM migrator to support multiple dialects
+	tables, err := db.Migrator().GetTables()
+	if err != nil {
 		return fmt.Errorf("failed to get table names: %w", err)
 	}
 
 	// Drop all tables
 	for _, table := range tables {
-		if err := db.Exec(fmt.Sprintf("DROP TABLE IF EXISTS %s", table)).Error; err != nil {
+		if err := db.Migrator().DropTable(table); err != nil {
 			log.Printf("Warning: failed to drop table %s: %v", table, err)
 		}
 	}

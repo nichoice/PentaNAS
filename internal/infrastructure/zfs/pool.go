@@ -1,12 +1,11 @@
 package zfs
 
 import (
-	"encoding/json"
 	"fmt"
-	"pnas/internal/utils"
 	"strconv"
 	"strings"
-	"time"
+
+	"pnas/internal/utils"
 )
 
 // CreatePool creates a new ZFS pool

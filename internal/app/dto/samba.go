@@ -22,16 +22,16 @@ type UpdateSambaAccountRequest struct {
 
 // SambaAccountResponse Samba账号响应
 type SambaAccountResponse struct {
-	ID          string                  `json:"id"`
-	UserID      string                  `json:"user_id"`
-	SambaUser   string                  `json:"samba_user"`
-	Role        string                  `json:"role"`
-	IsEnabled   bool                    `json:"is_enabled"`
-	Description string                  `json:"description"`
-	LastLogin   *time.Time              `json:"last_login"`
-	CreatedAt   time.Time               `json:"created_at"`
-	UpdatedAt   time.Time               `json:"updated_at"`
-	User        *UserResponse           `json:"user,omitempty"`
+	ID          string                     `json:"id"`
+	UserID      string                     `json:"user_id"`
+	SambaUser   string                     `json:"samba_user"`
+	Role        string                     `json:"role"`
+	IsEnabled   bool                       `json:"is_enabled"`
+	Description string                     `json:"description"`
+	LastLogin   *time.Time                 `json:"last_login"`
+	CreatedAt   time.Time                  `json:"created_at"`
+	UpdatedAt   time.Time                  `json:"updated_at"`
+	User        *UserResponse              `json:"user,omitempty"`
 	ShareAccess []SambaShareAccessResponse `json:"share_access,omitempty"`
 }
 
@@ -81,30 +81,30 @@ type UpdateSambaShareRequest struct {
 
 // SambaShareResponse Samba共享响应
 type SambaShareResponse struct {
-	ID                 string                     `json:"id"`
-	Name               string                     `json:"name"`
-	Path               string                     `json:"path"`
-	Comment            string                     `json:"comment"`
-	IsEnabled          bool                       `json:"is_enabled"`
-	AllowGuest         bool                       `json:"allow_guest"`
-	GuestOnly          bool                       `json:"guest_only"`
-	Browseable         bool                       `json:"browseable"`
-	Writable           bool                       `json:"writable"`
-	CreateMask         string                     `json:"create_mask"`
-	DirectoryMask      string                     `json:"directory_mask"`
-	ForceCreateMode    string                     `json:"force_create_mode"`
-	ForceDirectoryMode string                     `json:"force_directory_mode"`
+	ID                 string `json:"id"`
+	Name               string `json:"name"`
+	Path               string `json:"path"`
+	Comment            string `json:"comment"`
+	IsEnabled          bool   `json:"is_enabled"`
+	AllowGuest         bool   `json:"allow_guest"`
+	GuestOnly          bool   `json:"guest_only"`
+	Browseable         bool   `json:"browseable"`
+	Writable           bool   `json:"writable"`
+	CreateMask         string `json:"create_mask"`
+	DirectoryMask      string `json:"directory_mask"`
+	ForceCreateMode    string `json:"force_create_mode"`
+	ForceDirectoryMode string `json:"force_directory_mode"`
 
 	// 高级功能配置
-	EnableTimeMachine  bool                       `json:"enable_time_machine"`
-	TimeMachineQuota   int64                      `json:"time_machine_quota"`
-	EnableRecycleBin   bool                       `json:"enable_recycle_bin"`
-	RecycleBinPath     string                     `json:"recycle_bin_path"`
-	EnableMultiChannel bool                       `json:"enable_multi_channel"`
+	EnableTimeMachine  bool   `json:"enable_time_machine"`
+	TimeMachineQuota   int64  `json:"time_machine_quota"`
+	EnableRecycleBin   bool   `json:"enable_recycle_bin"`
+	RecycleBinPath     string `json:"recycle_bin_path"`
+	EnableMultiChannel bool   `json:"enable_multi_channel"`
 
-	CreatedAt          time.Time                  `json:"created_at"`
-	UpdatedAt          time.Time                  `json:"updated_at"`
-	ShareAccess        []SambaShareAccessResponse `json:"share_access,omitempty"`
+	CreatedAt   time.Time                  `json:"created_at"`
+	UpdatedAt   time.Time                  `json:"updated_at"`
+	ShareAccess []SambaShareAccessResponse `json:"share_access,omitempty"`
 }
 
 // SetSambaShareAccessRequest 设置共享访问权限请求
@@ -128,91 +128,91 @@ type SambaShareAccessResponse struct {
 
 // UpdateSambaGlobalConfigRequest 更新Samba全局配置请求
 type UpdateSambaGlobalConfigRequest struct {
-	Version              string `json:"version,omitempty"`
-	ServerString         string `json:"server_string,omitempty"`
-	Workgroup            string `json:"workgroup,omitempty"`
-	NetbiosName          string `json:"netbios_name,omitempty"`
-	SecurityLevel        string `json:"security_level,omitempty" binding:"omitempty,oneof=share user server domain ads"`
-	EncryptPasswords     *bool  `json:"encrypt_passwords,omitempty"`
-	PassdbBackend        string `json:"passdb_backend,omitempty"`
+	Version          string `json:"version,omitempty"`
+	ServerString     string `json:"server_string,omitempty"`
+	Workgroup        string `json:"workgroup,omitempty"`
+	NetbiosName      string `json:"netbios_name,omitempty"`
+	SecurityLevel    string `json:"security_level,omitempty" binding:"omitempty,oneof=share user server domain ads"`
+	EncryptPasswords *bool  `json:"encrypt_passwords,omitempty"`
+	PassdbBackend    string `json:"passdb_backend,omitempty"`
 
 	// 网络配置
-	Interfaces           string `json:"interfaces,omitempty"`
-	BindInterfacesOnly   *bool  `json:"bind_interfaces_only,omitempty"`
-	SocketOptions        string `json:"socket_options,omitempty"`
+	Interfaces         string `json:"interfaces,omitempty"`
+	BindInterfacesOnly *bool  `json:"bind_interfaces_only,omitempty"`
+	SocketOptions      string `json:"socket_options,omitempty"`
 
 	// 日志配置
-	LogLevel             *int   `json:"log_level,omitempty"`
-	LogFile              string `json:"log_file,omitempty"`
-	MaxLogSize           *int   `json:"max_log_size,omitempty"`
+	LogLevel   *int   `json:"log_level,omitempty"`
+	LogFile    string `json:"log_file,omitempty"`
+	MaxLogSize *int   `json:"max_log_size,omitempty"`
 
 	// 性能配置
-	DeadTime             *int   `json:"dead_time,omitempty"`
-	GetWDCacheTime       *int   `json:"getwd_cache_time,omitempty"`
-	LPQCacheTime         *int   `json:"lpq_cache_time,omitempty"`
-	MaxConnections       *int   `json:"max_connections,omitempty"`
+	DeadTime       *int `json:"dead_time,omitempty"`
+	GetWDCacheTime *int `json:"getwd_cache_time,omitempty"`
+	LPQCacheTime   *int `json:"lpq_cache_time,omitempty"`
+	MaxConnections *int `json:"max_connections,omitempty"`
 
 	// 多通道配置
-	EnableMultiChannel   *bool  `json:"enable_multi_channel,omitempty"`
-	MaxChannels          *int   `json:"max_channels,omitempty"`
+	EnableMultiChannel *bool `json:"enable_multi_channel,omitempty"`
+	MaxChannels        *int  `json:"max_channels,omitempty"`
 
 	// 其他配置
-	MapToGuest           string `json:"map_to_guest,omitempty" binding:"omitempty,oneof=Never 'Bad User' 'Bad Password'"`
-	GuestAccount         string `json:"guest_account,omitempty"`
-	HostsAllow           string `json:"hosts_allow,omitempty"`
-	HostsDeny            string `json:"hosts_deny,omitempty"`
+	MapToGuest   string `json:"map_to_guest,omitempty" binding:"omitempty,oneof=Never 'Bad User' 'Bad Password'"`
+	GuestAccount string `json:"guest_account,omitempty"`
+	HostsAllow   string `json:"hosts_allow,omitempty"`
+	HostsDeny    string `json:"hosts_deny,omitempty"`
 
 	// 审计配置
-	EnableAuditing       *bool  `json:"enable_auditing,omitempty"`
-	AuditPrefix          string `json:"audit_prefix,omitempty"`
-	FullAuditPrefix      string `json:"full_audit_prefix,omitempty"`
+	EnableAuditing  *bool  `json:"enable_auditing,omitempty"`
+	AuditPrefix     string `json:"audit_prefix,omitempty"`
+	FullAuditPrefix string `json:"full_audit_prefix,omitempty"`
 }
 
 // SambaGlobalConfigResponse Samba全局配置响应
 type SambaGlobalConfigResponse struct {
-	ID                   string    `json:"id"`
-	Version              string    `json:"version"`
-	ServerString         string    `json:"server_string"`
-	Workgroup            string    `json:"workgroup"`
-	NetbiosName          string    `json:"netbios_name"`
-	SecurityLevel        string    `json:"security_level"`
-	EncryptPasswords     bool      `json:"encrypt_passwords"`
-	PassdbBackend        string    `json:"passdb_backend"`
+	ID               string `json:"id"`
+	Version          string `json:"version"`
+	ServerString     string `json:"server_string"`
+	Workgroup        string `json:"workgroup"`
+	NetbiosName      string `json:"netbios_name"`
+	SecurityLevel    string `json:"security_level"`
+	EncryptPasswords bool   `json:"encrypt_passwords"`
+	PassdbBackend    string `json:"passdb_backend"`
 
 	// 网络配置
-	Interfaces           string    `json:"interfaces"`
-	BindInterfacesOnly   bool      `json:"bind_interfaces_only"`
-	SocketOptions        string    `json:"socket_options"`
+	Interfaces         string `json:"interfaces"`
+	BindInterfacesOnly bool   `json:"bind_interfaces_only"`
+	SocketOptions      string `json:"socket_options"`
 
 	// 日志配置
-	LogLevel             int       `json:"log_level"`
-	LogFile              string    `json:"log_file"`
-	MaxLogSize           int       `json:"max_log_size"`
+	LogLevel   int    `json:"log_level"`
+	LogFile    string `json:"log_file"`
+	MaxLogSize int    `json:"max_log_size"`
 
 	// 性能配置
-	DeadTime             int       `json:"dead_time"`
-	GetWDCacheTime       int       `json:"getwd_cache_time"`
-	LPQCacheTime         int       `json:"lpq_cache_time"`
-	MaxConnections       int       `json:"max_connections"`
+	DeadTime       int `json:"dead_time"`
+	GetWDCacheTime int `json:"getwd_cache_time"`
+	LPQCacheTime   int `json:"lpq_cache_time"`
+	MaxConnections int `json:"max_connections"`
 
 	// 多通道配置
-	EnableMultiChannel   bool      `json:"enable_multi_channel"`
-	MaxChannels          int       `json:"max_channels"`
+	EnableMultiChannel bool `json:"enable_multi_channel"`
+	MaxChannels        int  `json:"max_channels"`
 
 	// 其他配置
-	MapToGuest           string    `json:"map_to_guest"`
-	GuestAccount         string    `json:"guest_account"`
-	HostsAllow           string    `json:"hosts_allow"`
-	HostsDeny            string    `json:"hosts_deny"`
+	MapToGuest   string `json:"map_to_guest"`
+	GuestAccount string `json:"guest_account"`
+	HostsAllow   string `json:"hosts_allow"`
+	HostsDeny    string `json:"hosts_deny"`
 
 	// 审计配置
-	EnableAuditing       bool      `json:"enable_auditing"`
-	AuditPrefix          string    `json:"audit_prefix"`
-	FullAuditPrefix      string    `json:"full_audit_prefix"`
+	EnableAuditing  bool   `json:"enable_auditing"`
+	AuditPrefix     string `json:"audit_prefix"`
+	FullAuditPrefix string `json:"full_audit_prefix"`
 
-	IsActive             bool      `json:"is_active"`
-	CreatedAt            time.Time `json:"created_at"`
-	UpdatedAt            time.Time `json:"updated_at"`
+	IsActive  bool      `json:"is_active"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // SambaServiceResponse Samba服务状态响应
@@ -268,34 +268,34 @@ type RestoreRecycleBinItemRequest struct {
 	RestorePath string `json:"restore_path,omitempty"` // 可选，不提供则恢复到原路径
 }
 
-// RecycleBinItemResponse 回收站条目响应
-type RecycleBinItemResponse struct {
-	ID           string               `json:"id"`
-	ShareID      string               `json:"share_id"`
-	OriginalPath string               `json:"original_path"`
-	RecyclePath  string               `json:"recycle_path"`
-	DeletedBy    string               `json:"deleted_by"`
-	DeletedAt    time.Time            `json:"deleted_at"`
-	FileSize     int64                `json:"file_size"`
-	FileType     string               `json:"file_type"`
-	IsDirectory  bool                 `json:"is_directory"`
-	ExpiresAt    *time.Time           `json:"expires_at"`
-	CreatedAt    time.Time            `json:"created_at"`
-	UpdatedAt    time.Time            `json:"updated_at"`
-	Share        *SambaShareResponse  `json:"share,omitempty"`
+// SambaRecycleBinItemResponse 回收站条目响应
+type SambaRecycleBinItemResponse struct {
+	ID           string              `json:"id"`
+	ShareID      string              `json:"share_id"`
+	OriginalPath string              `json:"original_path"`
+	RecyclePath  string              `json:"recycle_path"`
+	DeletedBy    string              `json:"deleted_by"`
+	DeletedAt    time.Time           `json:"deleted_at"`
+	FileSize     int64               `json:"file_size"`
+	FileType     string              `json:"file_type"`
+	IsDirectory  bool                `json:"is_directory"`
+	ExpiresAt    *time.Time          `json:"expires_at"`
+	CreatedAt    time.Time           `json:"created_at"`
+	UpdatedAt    time.Time           `json:"updated_at"`
+	Share        *SambaShareResponse `json:"share,omitempty"`
 }
 
 // SambaStatusResponse Samba整体状态响应
 type SambaStatusResponse struct {
-	IsRunning         bool                    `json:"is_running"`
-	Version           string                  `json:"version"`
-	Uptime            string                  `json:"uptime"`
-	TotalShares       int                     `json:"total_shares"`
-	ActiveShares      int                     `json:"active_shares"`
-	TotalAccounts     int                     `json:"total_accounts"`
-	ActiveAccounts    int                     `json:"active_accounts"`
-	ActiveConnections int                     `json:"active_connections"`
-	Services          []SambaServiceResponse  `json:"services"`
+	IsRunning         bool                      `json:"is_running"`
+	Version           string                    `json:"version"`
+	Uptime            string                    `json:"uptime"`
+	TotalShares       int                       `json:"total_shares"`
+	ActiveShares      int                       `json:"active_shares"`
+	TotalAccounts     int                       `json:"total_accounts"`
+	ActiveAccounts    int                       `json:"active_accounts"`
+	ActiveConnections int                       `json:"active_connections"`
+	Services          []SambaServiceResponse    `json:"services"`
 	RecentConnections []SambaConnectionResponse `json:"recent_connections"`
 }
 

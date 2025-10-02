@@ -9,11 +9,11 @@ import (
 // User represents a user in the system
 type User struct {
 	Base
-	Username  string `gorm:"type:varchar(50);uniqueIndex;not null" json:"username" validate:"required,min=3,max=20,alphanum"`
-	Password  string `gorm:"type:varchar(255);not null" json:"-" validate:"required,min=8"`
-	IsActive  bool   `gorm:"type:boolean;default:true;not null" json:"is_active"`
-	Remark    string `gorm:"type:text" json:"remark"`
-	LastLogin *time.Time `gorm:"type:datetime" json:"last_login,omitempty"`
+	Username  string     `gorm:"type:varchar(50);uniqueIndex;not null" json:"username" validate:"required,min=3,max=20,alphanum"`
+	Password  string     `gorm:"type:varchar(255);not null" json:"-" validate:"required,min=8"`
+	IsActive  bool       `gorm:"type:boolean;default:true;not null" json:"is_active"`
+	Remark    string     `gorm:"type:text" json:"remark"`
+	LastLogin *time.Time `json:"last_login,omitempty"`
 }
 
 // BeforeCreate hook to set ID

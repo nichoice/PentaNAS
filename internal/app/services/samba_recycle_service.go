@@ -23,7 +23,7 @@ func NewSambaRecycleService(db *gorm.DB) *SambaRecycleService {
 }
 
 // AddRecycleBinItem 添加回收站条目
-func (s *SambaRecycleService) AddRecycleBinItem(shareID, originalPath, deletedBy string) (*dto.RecycleBinItemResponse, error) {
+func (s *SambaRecycleService) AddRecycleBinItem(shareID, originalPath, deletedBy string) (*dto.SambaRecycleBinItemResponse, error) {
 	// 获取共享信息
 	var share models.SambaShare
 	if err := s.db.First(&share, "id = ?", shareID).Error; err != nil {
@@ -78,7 +78,7 @@ func (s *SambaRecycleService) AddRecycleBinItem(shareID, originalPath, deletedBy
 }
 
 // GetRecycleBinItem 获取回收站条目
-func (s *SambaRecycleService) GetRecycleBinItem(itemID string) (*dto.RecycleBinItemResponse, error) {
+func (s *SambaRecycleService) GetRecycleBinItem(itemID string) (*dto.SambaRecycleBinItemResponse, error) {
 	var item models.RecycleBinItem
 	if err := s.db.Preload("Share").First(&item, "id = ?", itemID).Error; err != nil {
 		return nil, fmt.Errorf("回收站条目不存在: %w", err)
@@ -88,7 +88,7 @@ func (s *SambaRecycleService) GetRecycleBinItem(itemID string) (*dto.RecycleBinI
 }
 
 // ListRecycleBinItems 获取回收站条目列表
-func (s *SambaRecycleService) ListRecycleBinItems(shareID string, offset, limit int) ([]*dto.RecycleBinItemResponse, int64, error) {
+func (s *SambaRecycleService) ListRecycleBinItems(shareID string, offset, limit int) ([]*dto.SambaRecycleBinItemResponse, int64, error) {
 	var items []models.RecycleBinItem
 	var total int64
 
@@ -107,7 +107,7 @@ func (s *SambaRecycleService) ListRecycleBinItems(shareID string, offset, limit 
 		return nil, 0, fmt.Errorf("获取回收站条目列表失败: %w", err)
 	}
 
-	responses := make([]*dto.RecycleBinItemResponse, len(items))
+	responses := make([]*dto.SambaRecycleBinItemResponse, len(items))
 	for i, item := range items {
 		responses[i] = s.toRecycleBinItemResponse(&item)
 	}
@@ -371,8 +371,8 @@ func (s *SambaRecycleService) getFileType(path string) string {
 }
 
 // toRecycleBinItemResponse 转换为回收站条目响应格式
-func (s *SambaRecycleService) toRecycleBinItemResponse(item *models.RecycleBinItem) *dto.RecycleBinItemResponse {
-	response := &dto.RecycleBinItemResponse{
+func (s *SambaRecycleService) toRecycleBinItemResponse(item *models.RecycleBinItem) *dto.SambaRecycleBinItemResponse {
+	response := &dto.SambaRecycleBinItemResponse{
 		ID:           item.ID,
 		ShareID:      item.ShareID,
 		OriginalPath: item.OriginalPath,

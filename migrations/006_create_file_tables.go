@@ -1,17 +1,14 @@
 package migrations
 
 import (
-	"gorm.io/gorm"
+	"pnas/internal/database"
 	"pnas/internal/models"
+
+	"gorm.io/gorm"
 )
 
 func init() {
-	Migrations = append(Migrations, &Migration{
-		ID:   "006_create_file_tables",
-		Name: "Create file management tables",
-		Up:   up006,
-		Down: down006,
-	})
+	database.RegisterMigration("006", "create_file_tables", up006, down006)
 }
 
 func up006(db *gorm.DB) error {
