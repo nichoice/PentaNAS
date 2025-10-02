@@ -12,6 +12,28 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: pnas
+          POSTGRES_USER: pnas
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U pnas"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_TYPE: postgres
+      DATABASE_HOST: localhost
+      DATABASE_PORT: "5432"
+      DATABASE_USER: pnas
+      DATABASE_PASSWORD: postgres
+      DATABASE_DBNAME: pnas
+      DATABASE_SSLMODE: disable
     steps:
       - uses: actions/checkout@v4
 
@@ -20,13 +42,72 @@ jobs:
         with:
           go-version: "1.25"
 
-      - name: Install iSCSI dependencies
+      - name: Prime Go module cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends targetcli-fb tcmu-runner sg3-utils
+          sudo apt-get install -y --no-install-recommends targetcli-fb tcmu-runner sg3-utils postgresql-client
           nohup sudo tcmu-runner >/tmp/tcmu-runner.log 2>&1 &
           sleep 2
           sudo targetcli / status || true
+
+      - name: Generate config for PostgreSQL
+        run: |
+          cat <<EOF > config.yaml
+          server:
+            port: "8080"
+            debug: false
+            version: "ci"
+            title: "PNAS"
+            description: "CI configuration"
+          database:
+            type: ${DATABASE_TYPE}
+            host: ${DATABASE_HOST}
+            port: ${DATABASE_PORT}
+            user: ${DATABASE_USER}
+            password: ${DATABASE_PASSWORD}
+            dbname: ${DATABASE_DBNAME}
+            sslmode: ${DATABASE_SSLMODE}
+            max_open_conns: 10
+            max_idle_conns: 5
+            conn_max_lifetime: 300
+          jwt:
+            secret: "ci-secret"
+            expire: 24
+          audit:
+            enabled: false
+            watch_paths: []
+            exclude_patterns: []
+            batch_size: 100
+            flush_interval: 5
+            recursive_watch: false
+            enable_api: false
+            enable_filesystem: false
+            retention_days: 7
+          EOF
+
+      - name: Wait for PostgreSQL
+        run: |
+          for i in {1..10}; do
+            if PGPASSWORD=${DATABASE_PASSWORD} pg_isready --host=${DATABASE_HOST} --port=${DATABASE_PORT} --username=${DATABASE_USER}; then
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "PostgreSQL did not become ready in time" >&2
+          exit 1
+
+      - name: Run database migrations
+        run: go run main.go migrate up
 
       - name: Build
         run: go build -v ./...
