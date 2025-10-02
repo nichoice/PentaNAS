@@ -1,0 +1,54 @@
+# PNAS Configuration File (PostgreSQL Example)
+# 复制此文件为 config.yaml 并修改配置
+
+server:
+  port: "8080"
+  debug: false
+  version: "1.0.0"
+  title: "PNAS - Personal Network Attached Storage"
+  description: "个人网络附加存储系统"
+
+# PostgreSQL 数据库配置
+database:
+  type: "postgres"                  # 数据库类型: sqlite 或 postgres
+  host: "localhost"                 # PostgreSQL 主机地址
+  port: 5432                        # PostgreSQL 端口
+  user: "pnas"                      # 数据库用户名
+  password: "wuzhou@123"         # 数据库密码（必须修改！）
+  dbname: "pnas"                    # 数据库名称
+  sslmode: "disable"                # SSL 模式: disable, require, verify-ca, verify-full
+  max_open_conns: 25                # 最大打开连接数
+  max_idle_conns: 5                 # 最大空闲连接数
+  conn_max_lifetime: 300            # 连接最大生命周期（秒）
+
+jwt:
+  secret: "your-secret-key-change-this"  # JWT 密钥（必须修改！）
+  expire: 24                              # Token 过期时间（小时）
+
+# 审计配置
+audit:
+  enabled: true                     # 是否启用审计
+  watch_paths:                      # 监控路径
+    - "/wuzhou"
+  exclude_patterns:                 # 排除模式
+    - ".DS_Store"
+    - ".Spotlight-V100"
+    - ".Trashes"
+    - ".fseventsd"
+    - ".TemporaryItems"
+    - "Thumbs.db"
+    - "desktop.ini"
+    - "~$*"
+    - ".tmp"
+    - ".temp"
+    - ".swp"
+    - ".~"
+    - "#*"
+    - "*.log"
+    - "*.lock"
+  batch_size: 100                   # 批处理大小
+  flush_interval: 5                 # 刷新间隔（秒）
+  recursive_watch: true             # 是否递归监控
+  enable_api: true                  # 启用 API 审计
+  enable_filesystem: true           # 启用文件系统审计
+  retention_days: 90                # 审计日志保留天数
